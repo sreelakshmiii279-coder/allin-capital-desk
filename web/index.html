@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All In Desk</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mute:#6b6a64;--line:#e4e2da;--accent:#1f6f4a;--accent-soft:#e3f1e9;
+--warn:#a35c00;--warn-soft:#fbefdc;--bad:#a8322d;--bad-soft:#f8e3e1;--info:#2b5c9e;--info-soft:#e4ecf7;--chip:#efede6}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#ecebe6;--mute:#a09f98;--line:#33322f;--accent:#5cc28f;
+--accent-soft:#1d3428;--warn:#e0a24a;--warn-soft:#3a2c17;--bad:#ec7b74;--bad-soft:#3b1f1d;--info:#86aee6;--info-soft:#1d2a3d;--chip:#2a2a27}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Inter,system-ui,sans-serif}
+a{color:var(--info)}header{padding:18px 24px 0;max-width:1200px;margin:auto}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:24px 0 8px}h3{font-size:14px;margin:0 0 6px}
+.sub{color:var(--mute);font-size:13px}nav{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav a{padding:8px 12px;text-decoration:none;color:var(--mute);border-bottom:2px solid transparent}nav a.on{color:var(--ink);border-color:var(--accent);font-weight:600}
+main{max-width:1200px;margin:auto;padding:16px 24px 60px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.kpi b{font-size:20px;display:block}
+.kpi span{color:var(--mute);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;color:var(--mute);font-weight:600}
+tr.click{cursor:pointer}tr.click:hover{background:var(--chip)}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-call{background:var(--accent-soft);color:var(--accent)}.p-hold{background:var(--warn-soft);color:var(--warn)}
+.p-pass{background:var(--bad-soft);color:var(--bad)}.p-mid{background:var(--info-soft);color:var(--info)}
+.chip{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 6px;font-size:12px;margin:2px 4px 2px 0}
+.chip.hard{background:var(--bad-soft);color:var(--bad)}.chip.soft{background:var(--warn-soft);color:var(--warn)}
+.score{font-weight:700;font-size:16px}.mute{color:var(--mute)}.small{font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.grid2{grid-template-columns:1fr}main,header{padding-left:16px;padding-right:16px}.hide-m{display:none}}
+.crit{border-left:4px solid var(--line);padding-left:12px;margin:14px 0}.crit.s5,.crit.s4{border-color:var(--accent)}.crit.s3{border-color:var(--info)}
+.crit.s2,.crit.s1,.crit.s0{border-color:var(--bad)}.crit.unk{border-color:var(--warn)}
+.bar{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle}.bar i{display:block;height:100%;background:var(--accent)}
+ul.ev{margin:6px 0;padding-left:18px}ul.ev li{margin:3px 0}
+.src{font-size:11px;padding:1px 6px;border-radius:4px;background:var(--chip);color:var(--mute);margin-right:4px;text-transform:uppercase}
+.src.web{background:var(--info-soft);color:var(--info)}.src.absence{background:var(--warn-soft);color:var(--warn)}.src.correction{background:var(--accent-soft);color:var(--accent)}
+button,select,input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+button{cursor:pointer;font-weight:600}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+textarea{width:100%;min-height:70px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.doc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 22px;overflow-x:auto}.doc table{font-size:13px}.doc pre{overflow-x:auto;font-size:11px;background:var(--chip);padding:10px;border-radius:8px}
+.note{background:var(--warn-soft);color:var(--warn);padding:8px 12px;border-radius:8px;margin:8px 0}
+.ok{background:var(--accent-soft);color:var(--accent);padding:8px 12px;border-radius:8px;margin:8px 0}
+.hist{font-size:12px;color:var(--mute)}.back{cursor:pointer;color:var(--info)}
+details summary{cursor:pointer;color:var(--info)}
+</style>
+</head>
+<body>
+<header>
+  <h1>All In Capital · Inbound Triage Desk</h1>
+  <div class="sub">Makes the case and shows its work. It does not decide: Kushal sees every outcome. MESA Term 2 · Case 03 · built with the AI with Mihirr Sose method.</div>
+  <nav id="nav"></nav>
+</header>
+<main id="main">Loading…</main>
+<script>
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TABS=[['queue','Review queue'],['backtest','Backtest'],['feedback','Feedback loop'],['add','Add application'],['docs','How it was built']];
+let PW=''; try{PW=localStorage.getItem('deskpw')||''}catch(e){}
+function pw(){ if(!PW){PW=prompt('Desk password (needed to review, correct or book):')||''; try{localStorage.setItem('deskpw',PW)}catch(e){}} return PW}
+async function api(p,o={}){const h={'Content-Type':'application/json'}; if(o.method==='POST')h['X-Desk-Password']=pw();
+  const r=await fetch(p,{...o,headers:h}); const j=await r.json().catch(()=>({})); if(r.status===401){PW='';try{localStorage.removeItem('deskpw')}catch(e){}}
+  if(!r.ok) throw new Error(j.error||r.statusText); return j}
+function pillFor(rec){rec=rec||'';const c=rec.startsWith('Take')?'p-call':rec.startsWith('HOLD')?'p-hold':rec.startsWith('Pass')?'p-pass':'p-mid';return `<span class="pill ${c}">${esc(rec)}</span>`}
+function nav(cur){$('#nav').innerHTML=TABS.map(([k,l])=>`<a href="#/${k}" class="${cur===k?'on':''}">${l}</a>`).join('')}
+async function route(){const h=location.hash.slice(2)||'queue';const [view,id]=h.split('/');nav(view==='app'?'queue':view);
+  try{ if(view==='app')return detail(id); if(view==='backtest')return backtest(); if(view==='feedback')return fbView();
+    if(view==='add')return addView(); if(view==='docs')return docs(id||'design'); return queue()}catch(e){$('#main').innerHTML=`<div class="note">${esc(e.message)}</div>`}}
+window.onhashchange=route;
+
+const ORDER=r=>r.startsWith('Take the call')&&!r.includes('capacity')?0:r.startsWith('HOLD')?1:r.startsWith('Partner')?2:r.includes('capacity')?3:r.startsWith('Pass')?4:5;
+async function queue(){
+  const [rows,st,bt]=await Promise.all([api('/api/queue'),api('/api/stats'),api('/api/backtest')]);
+  rows.sort((a,b)=>ORDER(a.recommendation||'')-ORDER(b.recommendation||'')||(b.score||0)-(a.score||0));
+  const calls=rows.filter(r=>(r.recommendation||'').startsWith('Take the call')&&!r.recommendation.includes('capacity')).length;
+  const b=bt.result;
+  $('#main').innerHTML=`
+  <div class="kpis">
+    <div class="kpi"><b>${rows.length}</b><span>applications this batch</span></div>
+    <div class="kpi"><b>${calls} / ${st.capacity}</b><span>"take the call" vs Tue/Thu capacity</span></div>
+    <div class="kpi"><b>${st.reviewed}/${st.applications}</b><span>reviewed by a partner</span></div>
+    <div class="kpi"><b>${st.override_rate==null?'—':Math.round(st.override_rate*100)+'%'}</b><span>override rate (kill > ${st.kill.override_rate*100}%)</span></div>
+    <div class="kpi"><b>${st.untraced_share==null?'—':(st.untraced_share*100).toFixed(1)+'%'}</b><span>claims without a source (kill > ${st.kill.untraced*100}%)</span></div>
+    <div class="kpi"><b>${b?b.agree+'/'+b.n:'—'}</b><span>backtest agreement (gate ≥ ${st.kill.backtest_min})</span></div>
+    <div class="kpi"><b>${st.calls_booked}</b><span>calls booked</span></div>
+    <div class="kpi"><b>${st.avg_review_min??'—'}</b><span>avg review min (baseline ${st.baseline_min_per_app}, kill > ${st.kill.review_min})</span></div>
+  </div>
+  <table><thead><tr><th>Company</th><th>Desk's case</th><th>Score <span class="hide-m">(revealed · written)</span></th><th class="hide-m">Flags</th><th>Partner</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr class="click" onclick="location.hash='#/app/${r.id}'">
+    <td><b>${esc(r.company)}</b><div class="small mute">${esc(r.sector||'')} · ${esc(r.source||'')}</div></td>
+    <td>${pillFor(r.recommendation)}${r.merit&&r.merit!==r.recommendation?`<div class="small mute">on merit: ${esc(r.merit)}</div>`:''}<div class="small" style="margin-top:4px">${esc(r.two_lines||r.error||'')}</div></td>
+    <td><span class="score">${r.score??'—'}</span> <span class="mute">· ${r.score_written??'—'}</span>${r.drift?'<div class="chip soft">drift</div>':''}<div class="small mute">${r.unknowns} unknown · ${r.untraced??0}/${r.claims??0} untraced</div></td>
+    <td class="hide-m">${r.flags.map(f=>`<span class="chip ${f.hard?'hard':'soft'}">${esc(f.key.replace(/_/g,' '))}</span>`).join('')}</td>
+    <td>${r.status==='pending'?'<span class="mute">to review</span>':esc((r.status||'')+': '+(r.decision||'').replace('_',' '))}${r.booking?`<div class="small">📅 ${esc(r.booking.replace('_',' '))}</div>`:''}</td></tr>`).join('')}
+  </tbody></table>
+  <p class="small mute">Revealed = scored against what the fund's 12 memos and partner notes show it actually does. Written = scored against the fund's public thesis. "Drift" = they differ by 15+ points. Nobody is auto-rejected or auto-advanced.</p>`;
+}
+
+function evLi(e){const ref=e.source_type==='web'?`<a href="${esc(e.ref)}" target="_blank" rel="noopener">${esc(e.ref.replace(/^https?:\/\//,'').slice(0,60))}</a>`:`<i>${esc(e.ref)}</i>`;
+  return `<li><span class="src ${e.source_type}">${e.source_type}</span>${esc(e.claim)} <span class="small mute">— ${ref}</span></li>`}
+let T0=Date.now();
+async function detail(id){
+  T0=Date.now();
+  const r=await api('/api/app/'+id), d=r.read, b=r.booking;
+  const res=d.research||{};
+  const resRows=Object.entries(res).filter(([k])=>!k.startsWith('_')).map(([k,v])=>`<tr><td><b>${esc(k.replace(/_/g,' '))}</b>${v.who?`<div class="small">${esc(v.who)}</div>`:''}${v.claim?`<div class="small">${esc(v.claim)}</div>`:''}</td>
+     <td><span class="chip ${v.status==='confirmed'?'':v.status==='not_found'||v.status==='namesake_only'?'soft':'hard'}">${esc(v.status)}</span></td><td class="small">${esc(v.finding)}<div>${(v.sources||[]).slice(0,4).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener" class="chip">${esc((s.title||'source').slice(0,40))}</a>`).join('')}</div></td></tr>`).join('');
+  $('#main').innerHTML=`
+  <p class="back" onclick="location.hash='#/queue'">← Queue</p>
+  <div class="card"><div class="row" style="justify-content:space-between"><div><h2 style="margin:0">${esc(r.record.name)}</h2>
+    <div class="mute">${esc(d.one_liner||'')} · ${esc(d.sector||'')} · ${esc(d.source||'')}</div></div>
+    <div style="text-align:right">${pillFor(d.recommendation)}<div class="small mute">on merit: ${esc(d.merit_recommendation||'—')}</div>
+    <div><span class="score">${d.score_revealed??'—'}</span>/100 revealed · ${d.score_written??'—'} written</div></div></div>
+    <p><b>Two lines for the partners:</b> ${esc(d.two_lines||'')}</p>
+    ${d.error?`<div class="note">${esc(d.error)}</div>`:''}
+    ${d.withheld_reason?`<div class="note">${esc(d.withheld_reason)}</div>`:''}
+    ${(d.flags||[]).map(f=>`<div class="${f.hard?'note':'small'}" style="${f.hard?'':'margin:4px 0'}"><span class="chip ${f.hard?'hard':'soft'}">${esc(f.key.replace(/_/g,' '))}</span> ${esc(f.why)}</div>`).join('')}
+    ${d.deeptech_second_call?`<div class="small">🔬 ${esc(d.deeptech_second_call)}</div>`:''}
+    <p class="small mute">${esc(d.scored_against||'')}${d.previous_score!=null?` · Re-scored: ${d.previous_score} → ${d.score_revealed} (was “${esc(d.previous_recommendation)}”)`:''}</p>
+  </div>
+
+  <div class="card"><h3>Partner review</h3>
+    <div class="row"><select id="rv"><option value="accept">Accept the desk's case</option><option value="take_call">Take the call (books it)</option><option value="pass">Pass</option><option value="hold">Hold</option></select>
+    <input id="rvwho" placeholder="Reviewer" value="Kushal" style="width:120px"><input id="rvnote" placeholder="One line: why (required if you override)" style="flex:1;min-width:220px">
+    <button class="primary" onclick="doReview('${id}')">Record</button></div>
+    <div class="small mute" style="margin-top:6px">Current: ${esc(r.status||'pending')}${r.decision?' · '+esc(r.decision):''}${r.note?' · “'+esc(r.note)+'”':''}${r.reviewer?' · '+esc(r.reviewer):''}</div>
+    <div id="rvout"></div></div>
+
+  ${bookingCard(id,b)}
+
+  <h2>Criterion by criterion</h2>
+  <div class="card">${(d.criteria||[]).map(c=>`<div class="crit ${c.score==null?'unk':'s'+c.score}">
+    <div class="row" style="justify-content:space-between"><h3>${esc(c.name)} <span class="mute small">weight ${c.weight}</span></h3>
+      <div>${c.score==null?'<span class="chip soft">unknown → counts as '+c.effective+'</span>':`<span class="bar"><i style="width:${c.score*20}%"></i></span> <b>${c.score}/5</b>`} <span class="small mute">written ${c.written_score??'?'}/5</span></div></div>
+    <div>${esc(c.reason||'')}</div>
+    <ul class="ev">${(c.evidence||[]).map(evLi).join('')}</ul>
+    ${c.unknowns?.length?`<div class="small"><b>Couldn't find out:</b> ${c.unknowns.map(esc).join(' · ')}</div>`:''}
+    ${(c.system_notes||[]).map(n=>`<div class="small" style="color:var(--warn)">⚙ ${esc(n)}</div>`).join('')}
+    ${c.untraced_evidence?.length?`<details class="small"><summary>${c.untraced_evidence.length} claim(s) removed: no traceable source</summary><ul class="ev">${c.untraced_evidence.map(evLi).join('')}</ul></details>`:''}
+    <details class="small"><summary>Correct this score</summary><div class="row" style="margin-top:6px">
+      <select id="cn-${c.key}">${[0,1,2,3,4,5].map(n=>`<option ${n===c.score?'selected':''}>${n}</option>`).join('')}</select>
+      <input id="cr-${c.key}" placeholder="One line: why — this is what gets reused on similar companies" style="flex:1;min-width:240px">
+      <button onclick="doCorrect('${id}','${c.key}')">Save correction</button></div>
+      <div class="mute">Defined from: ${esc((c.definition_sources||[]).join(', '))}</div></details>
+  </div>`).join('')}
+  <div class="row"><button onclick="doRescore('${id}')">Re-score with latest corrections</button><span id="rsout" class="small"></span></div></div>
+
+  <div class="grid2">
+    <div class="card"><h3>Closest past decisions</h3>${(d.precedents||[]).map(p=>`<div class="small" style="margin:6px 0"><b>${esc(p.memo)}</b> (${esc(p.decision)}): ${esc(p.lesson)}</div>`).join('')||'<span class="mute">none</span>'}
+      <h3 style="margin-top:12px">Key question for this model</h3>${(d.key_questions||[]).map(k=>`<div class="small">• ${esc(k.question)} <span class="mute">(${esc(k.precedent)})</span></div>`).join('')}</div>
+    <div class="card"><h3>Partner corrections applied (feedback loop)</h3>${(d.corrections_applied||[]).map(h=>`<div class="small" style="margin:6px 0"><span class="src correction">#${h.id}</span> ${esc(h.criterion)} ${h.old}→${h.new} on <b>${esc(h.about)}</b>: “${esc(h.reason)}” <span class="mute">matched on ${esc(h.matched_on)} · ${h.match_score}</span></div>`).join('')||'<span class="mute small">No similar past correction.</span>'}
+      <h3 style="margin-top:12px">Questions to ask on the call</h3>${(d.questions_for_call||[]).map(q=>`<div class="small">• ${esc(q)}</div>`).join('')}</div>
+  </div>
+
+  <h2>What the desk went looking for on the web</h2>
+  <table><thead><tr><th>Variable</th><th>Result</th><th>Finding and sources</th></tr></thead><tbody>${resRows}</tbody></table>
+  <p class="small mute">${esc(res._short_circuit||'')} ${res._searches!=null?res._searches+' searches used (cap 8).':''} Every website and LinkedIn link in this batch is a placeholder (.example), so most founder checks come back "not found" — the read says so instead of trusting the deck.</p>
+
+  <div class="grid2">
+    <div class="card"><h3>Portfolio check (full list, ${''}63 companies)</h3>${(d.conflicts||[]).map(c=>`<div class="small" style="margin:6px 0"><span class="chip ${c.level==='direct'?'hard':'soft'}">${c.level}</span><b>${esc(c.portfolio_company)}</b>: ${esc(c.why)} ${c.portfolio_source?`<a href="${esc(c.portfolio_source)}" target="_blank" rel="noopener">source</a>`:''}</div>`).join('')||'<span class="small mute">No overlap.</span>'}</div>
+    <div class="card"><h3>Deck vs form</h3>${(d.facts?.inconsistencies||[]).map(i=>`<div class="small">• <b>${esc(i.field)}</b>: deck “${esc(i.deck_says)}” vs form “${esc(i.form_says)}”</div>`).join('')||'<span class="small mute">Consistent.</span>'}
+      <h3 style="margin-top:12px">Numbers a pre-seed investor would expect, not given</h3>${(d.facts?.absent_numbers||[]).map(a=>`<div class="small">• ${esc(a)}</div>`).join('')}</div>
+  </div>
+  <details class="card"><summary>Raw facts extracted (each with its quote)</summary><pre class="small" style="white-space:pre-wrap">${esc(JSON.stringify(d.facts,null,1))}</pre></details>
+  `;
+}
+function bookingCard(id,b){
+  if(!b) return `<div class="card small mute">📅 Booking starts automatically when a partner records “Take the call”. Tue/Thu afternoons, 30 min; Aditya joins for deeptech.</div>`;
+  return `<div class="card"><h3>📅 Booking agent — ${esc(b.meeting_status.replace(/_/g,' '))}</h3>
+   <div class="small">Attendees: ${esc(b.attendees.join(', '))} · round ${b.reply_round} · ${b.chosen_slot?'booked '+new Date(b.chosen_slot).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'offered: '+b.slots_proposed.map(s=>new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})).join(' · ')}</div>
+   ${b.meeting_status==='pending_confirmation'?`<div class="row" style="margin-top:8px"><input id="reply" placeholder="Paste the founder's reply, e.g. 'Thursday 2:45 works'" style="flex:1;min-width:240px"><button onclick="doReply('${id}')">Process reply</button><button onclick="doNoReply('${id}')">No reply after 3 days</button></div>`:''}
+   <details class="small"><summary>State object and history</summary><pre style="white-space:pre-wrap">${esc(JSON.stringify({...b,history:undefined},null,1))}</pre>${b.history.map(h=>`<div class="hist">${esc(h.at)} — ${esc(h.what)}</div>`).join('')}</details>
+   <div class="small mute">Emails go to our own inbox (safety rule), with the .ics invite, ready to forward.</div></div>`}
+async function doReview(id){const o=$('#rvout');o.innerHTML='Saving…';try{const j=await api('/api/review/'+id,{method:'POST',body:JSON.stringify({decision:$('#rv').value,note:$('#rvnote').value,reviewer:$('#rvwho').value,seconds:Math.round((Date.now()-T0)/1000)})});
+  o.innerHTML=`<div class="ok">Recorded (${esc(j.status)}).${j.booking?' Booking agent started: '+esc(j.booking.meeting_status):''}</div>`;setTimeout(()=>detail(id),900)}catch(e){o.innerHTML=`<div class="note">${esc(e.message)}</div>`}}
+async function doCorrect(id,k){try{await api('/api/correct/'+id,{method:'POST',body:JSON.stringify({criterion:k,new:$('#cn-'+k).value,reason:$('#cr-'+k).value,reviewer:$('#rvwho').value})});alert('Correction stored with its context. It will be retrieved for similar companies.')}catch(e){alert(e.message)}}
+async function doRescore(id){$('#rsout').textContent='Re-scoring (~30s)…';try{const j=await api('/api/rescore/'+id,{method:'POST'});$('#rsout').textContent=`${j.from} → ${j.to}: ${j.recommendation}`;setTimeout(()=>detail(id),1200)}catch(e){$('#rsout').textContent=e.message}}
+async function doReply(id){try{await api(`/api/booking/${id}/reply`,{method:'POST',body:JSON.stringify({text:$('#reply').value})});detail(id)}catch(e){alert(e.message)}}
+async function doNoReply(id){try{await api(`/api/booking/${id}/noreply`,{method:'POST'});detail(id)}catch(e){alert(e.message)}}
+
+async function backtest(){
+  const bt=await api('/api/backtest'); if(!bt.result){$('#main').innerHTML='No backtest yet.';return}
+  const b=bt.result;
+  $('#main').innerHTML=`<div class="kpis"><div class="kpi"><b>${b.agree}/${b.n}</b><span>agrees with the fund's real decision</span></div>
+   <div class="kpi"><b>${b.passes_gate?'PASS':'FAIL'}</b><span>go-live gate: ≥ ${b.gate}/12, agreed in advance</span></div>
+   <div class="kpi"><b>${b.rows.filter(r=>!r.agree).length}</b><span>disagreements, each explained</span></div></div>
+   <div class="card small">Each memo became a pseudo-application with the decision and the “why” removed. When scoring a company, its own memo, every partner-note line naming it, and any correction seeded from it were hidden (leave-one-out). Web research was off, so hindsight could not leak in. Limit: memos hold the partners' read <i>after</i> a call; real applications only have a deck.</div>
+   <table><thead><tr><th>#</th><th>Company</th><th>Fund</th><th>Desk</th><th>Score (rev · written)</th><th>Agree?</th><th>If not: who looks wrong in hindsight</th></tr></thead><tbody>
+   ${b.rows.map(r=>`<tr><td>${r.memo}</td><td><b>${esc(r.company)}</b><div class="small mute">${esc(r.sector)}</div></td><td>${esc(r.fund)}</td><td>${pillFor(r.desk)}</td>
+    <td>${r.score} · <span class="mute">${r.score_written}</span></td><td>${r.agree?'✅':'❌'}</td>
+    <td class="small">${r.hindsight?`<b>${esc(r.hindsight.who_looks_wrong.replace(/_/g,' '))}</b> · driven by <i>${esc(r.hindsight.driving_criterion)}</i>: ${esc(r.hindsight.explanation)} ${(r.hindsight.sources||[]).slice(0,3).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener" class="chip">${esc((s.title||'src').slice(0,30))}</a>`).join('')}`:''}</td></tr>`).join('')}</tbody></table>
+   <p class="small mute">Run ${esc(bt.at)}. Full write-up: <a href="#/docs/backtest">backtest report</a>.</p>`}
+
+async function fbView(){
+  const [c,st]=await Promise.all([api('/api/feedback'),api('/api/stats')]);
+  $('#main').innerHTML=`<div class="kpis"><div class="kpi"><b>${st.corrections}</b><span>stored corrections</span></div>
+  <div class="kpi"><b>${st.mean_abs_delta??'—'}</b><span>mean |change| per correction (disagreement)</span></div>
+  <div class="kpi"><b>${st.override_rate==null?'—':Math.round(st.override_rate*100)+'%'}</b><span>recommendations overridden</span></div></div>
+  <div class="card small"><b>Act</b> desk scores → <b>Signal</b> a partner changes a criterion → <b>Capture</b> old→new + who + a one-line why (refused without a why) → <b>Store</b> linked to sector, business model, one-liner → <b>Retrieve</b> strict tag filter first, then semantic + keyword ranking → <b>Apply</b> injected into the next similar company's scoring prompt and shown on its read. The first four came from Riya's own notes (M1, M3, M4).</div>
+  <table><thead><tr><th>#</th><th>On</th><th>Criterion</th><th>Change</th><th>Why</th><th>Context it will match</th><th>By</th></tr></thead><tbody>
+  ${c.map(x=>`<tr><td>${x.id}</td><td>${esc(x.tags?.company||x.app_id)}</td><td>${esc(x.criterion)}</td><td>${x.old} → ${x.new}</td><td class="small">${esc(x.reason)}</td>
+   <td class="small">${esc(x.tags?.sector)} · ${esc((x.tags?.families||[]).join(', '))}</td><td class="small">${esc(x.reviewer)}<div class="mute">${esc(x.at.slice(0,10))}</div></td></tr>`).join('')}</tbody></table>`}
+
+function addView(){
+  $('#main').innerHTML=`<div class="card"><h3>Add an application to the pile</h3><p class="small mute">Paste the form response and deck text. The full desk runs (extract → portfolio check → web research → score), about 2–3 minutes.</p>
+  <input id="an" placeholder="Company name" style="width:100%;margin-bottom:8px"><textarea id="af" placeholder="Form response text" style="min-height:140px"></textarea>
+  <textarea id="ad" placeholder="Deck text" style="min-height:140px;margin-top:8px"></textarea><div class="row" style="margin-top:8px"><button class="primary" onclick="doAdd()">Run the desk</button><span id="aout" class="small"></span></div></div>`}
+async function doAdd(){$('#aout').textContent='Running… (2–3 min)';try{const j=await api('/api/add',{method:'POST',body:JSON.stringify({name:$('#an').value,form:$('#af').value,deck:$('#ad').value})});location.hash='#/app/'+j.id}catch(e){$('#aout').textContent=e.message}}
+
+async function docs(which){
+  const D=[['design','Design (S1–S6 step by step)'],['trust','Trust contract'],['backtest','Backtest report'],['run','This batch'],['thesis','Thesis research (sourced)']];
+  let md='';try{md=(await api('/api/doc/'+which)).markdown}catch(e){md='_Not written yet._'}
+  $('#main').innerHTML=`<div class="row" style="margin-bottom:10px">${D.map(([k,l])=>`<a href="#/docs/${k}" class="chip" style="${k===which?'font-weight:700':''}">${l}</a>`).join('')}</div><div class="doc">${marked.parse(md)}</div>`;
+  document.querySelectorAll('.doc a').forEach(a=>{a.target='_blank';a.rel='noopener'})}
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+MESA MBA C4 | TERM 2 | CASE 3 | SEED DATA All In Capital — Partner Meeting Notes
+
+Working notes from All In Capital's weekly partner meetings, kept by Riya. These are informal and written for the team's own use. They are not minutes and not a statement of policy. Shorthand is Riya's.
+
+Meeting 1 - Week of the Petalry call
+
+Present: Kushal, Aditya, Riya
+
+Petalry (D2C skincare)
+
+● Kushal: founder is lovely, deck is lovely, numbers are not. Paid social is \~2/3 of orders and she couldn't give a repeat rate.
+
+● Aditya: 'that's the whole question for a consumer brand.' If repeat is good, CAC is survivable. If we can't see it, we're guessing.
+
+● Riya had scored it 6.5/10 on the first pass. Kushal said that was too high given the missing repeat data; a missing number should drag the score, not be skipped.
+
+● Decision: pass for now. Revisit only with cohort data and someone covering ops.
+
+HopBox (10-min delivery)
+
+● Operators are excellent. Aditya wouldn't touch the model: needs more capital than a pre-seed cheque and density we can't help with.
+
+● Kushal agreed. Pass on structure, not people. Riya to send a kind note and say what would change our view.
+
+General
+
+● Kushal reminded Riya: a founder getting defensive when pushed on a weak spot is information. Write it down even if the deck is clean.
+
+● Riya's time check: 3 of this week's 11 applications took more than 40 minutes because founder background was hard to find.
+
+Meeting 2 - Rural credit discussion (Jai Kisan)
+
+Present: Kushal, Aditya, Riya. Aditya had to leave early.
+
+Does rural credit fit?
+
+● Riya raised it directly: our public line says fintech, deeptech, consumer tech, consumer brands. A farm-loan business is fintech by label but nothing like what most people mean.
+
+● Kushal: label matters less than whether the founders own the risk. These two went into the field first, registered thousands of farmers and built channel partners before scaling credit.
+
+● Aditya was more sceptical: 'rural credit is a graveyard.' His worry is collections and monsoon seasonality. He would want a real credit hire inside the year.
+
+● Resolved: yes, subject to a credit-risk hire plan. Kushal to say it clearly in the term-sheet conversation.
+
+Side note - CampusCredit
+
+● Compared to Jai Kisan. Kushal: same sector, opposite answer, because the CampusCredit founder said default rates were 'the NBFC's problem'.
+
+● Riya asked whether we write that rule down. Kushal: no. Written rules turn into checklists and founders learn to pass them.
+
+Meeting 3 - Deeptech and regulatory timing
+
+Present: Kushal, Aditya, Riya, one outside advisor (aerospace) for the first half
+
+AeroDrop
+
+● Advisor liked the flight systems. Said beyond-visual-line-of-sight approvals for routine commercial use are 'years, not quarters'.
+
+● Aditya compared it to ePlane: also a long regulatory path, but those founders gave us a milestone sequence. AeroDrop's founder said it would be 'solved once the tech works'.
+
+● Pass. If they bring a signed pilot customer and a plan for the regulator, we will take another call.
+
+● Aditya's rule of thumb: for deeptech we do the second call ourselves, not delegated. Kushal, for fintech or consumer, is fine with Riya running the first screen.
+
+Scoring
+
+● Riya had scored AeroDrop 7.5, partly because the founder's credentials were excellent. Kushal: credentials are not a business. Score the evidence, not the pedigree.
+
+● Agreed to separate 'founder quality' from 'path to market' in scoring going forward. Riya had been mixing them.
+
+Meeting 4 - Conflict check near-miss
+
+Present: Kushal, Aditya, Riya. Short meeting.
+
+Overlap with a portfolio company
+
+● An application from a meeting-notes and call-summary startup came in. Strong founder, solid early traction.
+
+● Riya noticed it overlaps with MeetRecord, which is already in the portfolio. She had given it a 7 before catching this.
+
+● Kushal: it didn't show up in the first read because nothing in the application mentioned MeetRecord. 'We only found it because Riya happens to know the portfolio.'
+
+● Aditya: we do invest in competitors sometimes, but only if the founder knows and the portfolio founder is told. Default is no.
+
+● Decision: hold. Kushal to speak to the MeetRecord founder before anything else happens.
+
+Note to self (Riya)
+
+● Any new application should be checked against the full list of portfolio companies, not just ones I remember.
+
+● Kushal said he would rather get a flag on a false alarm than miss a real conflict.
+
+Meeting 5 - Calibration, and the thing nobody has reconciled
+
+Present: Kushal, Aditya, Riya
+
+Riya's drift observation
+
+● Riya raised something she had been sitting on for months: the applications that excite us now do not look like the ones we said we wanted in the fund pitch. More commerce infrastructure and consumer plays with real repeat, fewer pure technology bets.
+
+● Evidence she offered: two recent yeses (SuperK-style small-town retail and a founder-led fixed-income platform) would have scored lower against the public wording than several things we passed on.
+
+● Aditya disagreed: he thinks the thesis is stable and the pipeline just changed. 'Maybe we are getting a different mix of applicants.'
+
+● Kushal said both could be true and he didn't know. Nobody offered to go back and compare the two.
+
+● Left open. Riya asked if she should score against the written thesis or what we actually do. Kushal: 'tell me which one you used and why.'
+
+Where we disagree with our own past
+
+● Kushal on Prepnest: at the time he was sure it was a pass, but a competitor with a similar format has since done well. Not sure we were wrong, since the founder was defensive on retention, but he wants to look at it again.
+
+● Aditya: do not re-litigate every pass. Pick the three where we feel most uneasy and look at those.
+
+● Ledgerly (older, not in the memo pack): Kushal still thinks that was a miss. Founder was weak in the call, but the company worked. Riya to dig out the notes.
+
+Process
+
+● When promising applicants get a call, we don't want back-and-forth on calendars. Tuesday or Thursday afternoons, 30 minutes. Aditya joins only for deeptech.
+
+● Kushal sees every outcome before anything is decided. Nobody is auto-rejected or auto-advanced.
+
+● When a score is corrected, Riya should say why in a line so the correction can be reused for similar companies.
+
+Actions
+
+● Riya: dig out Ledgerly notes; list three uneasy passes for review; start checking every application against the full portfolio list.
+
+● Kushal: speak to the MeetRecord founder about the overlap.
+
+● Aditya: nothing, he says, until he sees the three passes.
