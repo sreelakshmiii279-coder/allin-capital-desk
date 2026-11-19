@@ -5678,7 +5678,7 @@
     "one_liner": "Millet-based breakfast foods sold D2C"
    }
   },
-  "expected": "Petalry and Giva included; not all 12",
+  "expected": "Petalry and Giva + the 2 gate-defining memos; 6 of 12, not all",
   "assertions": [
    {
     "kind": "hard",
@@ -5696,7 +5696,13 @@
     "kind": "hard",
     "path": "memos",
     "op": "len_lte",
-    "value": 5
+    "value": 6
+   },
+   {
+    "kind": "hard",
+    "path": "memos",
+    "op": "any_contains",
+    "value": "Coinlane"
    }
   ]
  },
@@ -5716,7 +5722,7 @@
     "one_liner": "Salary advances for blue-collar workers"
    }
   },
-  "expected": "CampusCredit and Jai Kisan included",
+  "expected": "CampusCredit and Jai Kisan + gate memos; 6 of 12",
   "assertions": [
    {
     "kind": "hard",
@@ -5734,7 +5740,13 @@
     "kind": "hard",
     "path": "memos",
     "op": "len_lte",
-    "value": 5
+    "value": 6
+   },
+   {
+    "kind": "hard",
+    "path": "memos",
+    "op": "any_contains",
+    "value": "Coinlane"
    }
   ]
  },

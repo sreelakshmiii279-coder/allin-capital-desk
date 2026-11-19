@@ -1,0 +1,22 @@
+117 cases x 2 run(s) against http://localhost:5057; judge gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+run 1: 114/117 passed
+run 2: 114/117 passed
+# Eval run - 2026-11-19 10:57 IST
+
+**Verdict: SHIP to Riya** - 114/116 passed ? critical 39/39 ? high 96% (bar 90%) ? low 24/24
+
+- Runs: 2 (same input, same verdict?) - **0 case(s) flipped**: none
+- Canary (must fail): **failed as it should - harness is checking**
+- Kill criteria fired: **none**
+- Judge: gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+- Prompt versions seen: score-v4
+- Target: http://localhost:5057
+
+## Failures (last run), most severe first
+
+| Case | Severity | Kill | Decision | Partition | Diagnosis |
+|---|---|---|---|---|---|
+| P2 | high |  | safety.memos | relevant memos only - consumer brand | memos len_lte 5 -> got ["Petalry", "Giva", "Prepnest", "SuperK", "Coinlane", "HopBox"] |
+| P3 | high |  | safety.memos | relevant memos only - lending | memos len_lte 5 -> got ["CampusCredit", "Jai Kisan", "Wint Wealth", "The ePlane Company", "Coinlane", "HopBox"] |
+
+

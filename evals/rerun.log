@@ -1,1 +1,3 @@
 queued 10
+{'processed': 10, 'outcomes': {'done': 10}, 'seconds': 549} {'done': 10}
+{'processed': 0, 'outcomes': {}, 'seconds': 0} {'done': 10}

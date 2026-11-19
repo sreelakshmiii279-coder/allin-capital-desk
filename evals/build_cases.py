@@ -394,13 +394,13 @@ case("P1", "safety.redact", "founder names and links never reach the scorer", "c
 case("P2", "safety.memos", "relevant memos only - consumer brand", "high", "/api/eval/memos",
      {"facts": {"sector": "consumer_brand", "business_model": "D2C brand", "sub_sector": "millet foods",
                 "one_liner": "Millet-based breakfast foods sold D2C"}},
-     "Petalry and Giva included; not all 12", [H("memos", "any_contains", "Petalry"), H("memos", "any_contains", "Giva"),
-                                               H("memos", "len_lte", 5)])
+     "Petalry and Giva + the 2 gate-defining memos; 6 of 12, not all", [H("memos", "any_contains", "Petalry"), H("memos", "any_contains", "Giva"),
+                                               H("memos", "len_lte", 6), H("memos", "any_contains", "Coinlane")])
 case("P3", "safety.memos", "relevant memos only - lending", "high", "/api/eval/memos",
      {"facts": {"sector": "fintech", "business_model": "lending", "sub_sector": "earned wage access credit",
                 "one_liner": "Salary advances for blue-collar workers"}},
-     "CampusCredit and Jai Kisan included", [H("memos", "any_contains", "CampusCredit"), H("memos", "any_contains", "Jai Kisan"),
-                                            H("memos", "len_lte", 5)])
+     "CampusCredit and Jai Kisan + gate memos; 6 of 12", [H("memos", "any_contains", "CampusCredit"), H("memos", "any_contains", "Jai Kisan"),
+                                            H("memos", "len_lte", 6), H("memos", "any_contains", "Coinlane")])
 case("$1", "economics.cost", "1M input tokens", "high", "/api/eval/cost", {"kind": "json", "in_tok": 1_000_000, "out_tok": 0},
      "USD 0.30 x 88 = INR 26.4 (units: tokens -> USD -> INR)", [H("inr", "eq", 26.4)])
 case("$2", "economics.cost", "one grounded search, no tokens", "high", "/api/eval/cost", {"kind": "search", "searches": 1},
