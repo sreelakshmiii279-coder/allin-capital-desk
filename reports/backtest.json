@@ -7,44 +7,49 @@
    "fund": "INVESTED",
    "desk": "Partner judgement - borderline",
    "merit": "Partner judgement - borderline",
-   "score": 54,
-   "score_written": 75,
+   "score": 48,
+   "score_written": 65,
    "agree": false,
    "criteria": {
     "founder": 3,
-    "path": 2,
+    "path": 1,
     "traction": 1,
     "fit": 3,
-    "defensibility": 4,
+    "defensibility": 3,
     "candour": 5
    },
    "flags": [
     "portfolio_adjacent",
     "capital_density"
    ],
-   "two_lines": "The ePlane Company is an IIT Madras deeptech startup building eVTOL aircraft for intracity transport, led by a technically credentialed founder duo. The crux is whether a pre-seed cheque can bridge a massive hardware capex and long regulatory certification path without any signed customer LOIs or flight metrics yet.",
+   "two_lines": "The ePlane Company is building eVTOL aircraft out of IIT Madras with a committed technical and commercial co-founder pair. However, missing key numbers, absent customer commitments, and high capital intensity make it a structural mismatch for a pre-seed cheque.",
    "error": null,
    "hindsight": {
     "who_looks_wrong": "desk",
-    "driving_criterion": "traction",
-    "explanation": "The AI triage desk penalized the company with a low traction score (1/5) due to the absence of pre-orders, LOIs, and operating metrics at the early stage. The VC fund recognized that early-stage deeptech required underwriting the team and a long-duration horizon rather than immediate traction. The ePlane Company subsequently raised a $14 million Series B, secured government RDI debt backing, achieved DGCA Design Organisation Approval, and expanded operations successfully.",
+    "driving_criterion": "path",
+    "explanation": "The AI triage desk gave the startup a borderline score of 48/100, heavily penalising it under 'path' (score 1) and 'traction' (score 1) due to a lack of immediate commercial revenue or signed paying customers. In hindsight, the desk was wrong: as a deeptech venture, the company successfully secured $14 million in Series B funding, ~$34 million in government RDI support, and initiated a $50 million Series C round, validating the VC fund's thesis to underwrite long-duration founder commitment over early revenue milestones.",
     "source_numbers": [
      3,
-     4,
+     7,
+     8,
      9
     ],
     "sources": [
      {
       "title": "indiatimes.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFeV_LiqojxTX6rEW4_xPERVp_K0LsBu9KsST0AwKCBSxsUcETHaSQlyRR9btCQZy2QPOyT2_QeCQLYBMKSCe9JH-RnNvqUWJQcQsvz177ZkJXIS_bCNkVNvn2Ft5YZcXCqLzzs02Co8hG5jJ9tDCBuWko_HgTwS6yunxfMbJxlmFVTbgpxzsT2t6aGAQ910F3xYJl21P1ZDgNmohNIcsVi8tKbUwVSCCA9fBO991QjGg4sCjNLoFh5c9Xcq-TtrEJK9IZH_slzeqNxtaxOwfcsamupNKGFiwH909DJQGfuCpCd"
-     },
-     {
-      "title": "economictimes.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEXgy7ydIVDDNcYe9VHpSe5Iw94iHR3gG_j9oMIM4JPQ4ODeQp_zVXh9rUi7nu5hMDa4IdZoxwpCFKMKIEzosJBi0FkkJtwERFTuNBzQeqYMvvGZ76REwVrGmCCU4IX0MSZjON2cK57cJL6u1XkZrLYt5Vi5vM5Ac9dUV7uiUYOuEH6fz3eejCHkzyNgsTiVNhL8CPVzWiNZl9qZe4Z86D_8Hhn1EPzMdGL-Uczxr0AssITN8UtjveqVj-W5JCnCu4YSTY="
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHEf7Mt-bocwGQ_kZMtTKIwqOOpWS8IHxa-L0gsqOW3WNgURjSpK4j6z0Ojs-L_WJSqkA-JxEh8DeF8yL3SmpT8Pwzi-IN99KRU4qeiVo4WJL_OiSck7yABzzCv5yrsMPJoSYomVoirexTUf0cAFcyG5QkRNQC9OdNgp8yXuj_ud-fMQ6UxDARum9Cq-59QEiT5Oeulqrux3P4o_3DOITmCZx7vuUOKEjuPe8CluycOKmysz4xlDa6rLvxFIIbCmHyK6sbVHs84JoR38AFflnawV7bAcxxP_qc="
      },
      {
       "title": "thehindu.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFzgM0UC_GHW6sRBy1L8dEtEodAUaBaYMvuK9c9uda-p0VRRBSk31QDuMmmI3P-S76tq3Kot9JOmj8eVRu1Onby01Xf0K8lNQQOk-RvieiKWYXJWjg1dyAbMi2HObNI-Njbeyx5VI_Pub6WjUm_6DpTRuxIyGr2WFju6XEyyD3ddsl9Wy4s2OP_9XyPD_vsAG9nxUfPFqgxWJd2yBxFHPvh1fr435-iLiTBlAJb0yHig7bA03POrE4c8PPUqZsKS_o="
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlmNh7ZkPZq8P0PXtW8AlO-n4SewuDhkbBfdQDRtjdw9MCc7Pm5fzLqP4sVhLuF9JmWegH5hE2Ss-TK2dylztOzJ28zj9k3rl_Gyt7kq06ZftT7q2XTjCzly93vITCNmx1Pz9EpNRJZBa6IK0jSf-4Tdp8GYiqKAVCjrnfa4n8rBqOiv0_RGn5cIUNpz5od6cDxKh8n8c13ZjDUuuI36EAM9enRUB3p1BomyRd6ODqReXNQdkwZnR5tKguL0sPfg=="
+     },
+     {
+      "title": "inc42.com",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEe7nPpTBEcuCp7iSIy0awW3Vt5PrGe5w1S0ZXx1UFxiWnDurBxgfGK-d0_xSrhQ2Pz1AJly3nMezo1s8u2DhUCw6mNJ6JKVzAXd-tOnl7QPusWKhFN8ThNQEKx719kRCPd8A=="
+     },
+     {
+      "title": "indiatimes.com",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEUSu11Vf0PIso8lNRVy9y_Xnaaq5AIsyaeilld3JQRARvY_-0bWPU94_uiVdgFi-s_QBVTCwfAv4scv-bmSZ-KcZFsQHQtpiMmmDAKEiQctP4zvB3AQyZEyrH2vWmqVmHNhz7cfoHrjE4VmFO6MoLM4p4rH9sd_xX9QuJCq1FNKdDX9bKJE0hNKnbAmKc1vjqrkQgcH28u7i36M6NfMs_iDatJ3PxfeJQzUBfrWBo2dJna-jTvAyWLhROWXq2Ha5BNM8log1gU5DVjfqw0D4-vh31nvXIjKJeH9wCB6AM0dVg="
      }
     ]
    }
@@ -54,13 +59,13 @@
    "company": "Petalry",
    "sector": "Consumer brand (D2C beauty)",
    "fund": "PASSED",
-   "desk": "Partner judgement - borderline",
-   "merit": "Partner judgement - borderline",
-   "score": 44,
-   "score_written": 69,
-   "agree": false,
+   "desk": "Pass",
+   "merit": "Pass",
+   "score": 38,
+   "score_written": 66,
+   "agree": true,
    "criteria": {
-    "founder": 2,
+    "founder": 1,
     "path": 3,
     "traction": 1,
     "fit": 3,
@@ -70,62 +75,8 @@
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "Petalry is an 18-month-old D2C skincare brand generating a few thousand monthly orders. The crux is that two-thirds of orders are paid-social driven with rising CAC, and the solo founder does not track cohort repeat rates.",
-   "error": null,
-   "hindsight": {
-    "who_looks_wrong": "not_public",
-    "driving_criterion": "traction",
-    "explanation": "Web searches confirm that no Indian D2C beauty startup named 'Petalry' exists or has public funding, revenue, or business records; the name only appears in design mockups, textile patterns, and unrelated domain names. The disagreement between the fund's decision to pass and the desk's borderline recommendation was driven by the traction criterion, specifically the lack of tracked cohort repeat rate data and reliance on paid acquisition.",
-    "source_numbers": [
-     1,
-     2,
-     3,
-     4,
-     5,
-     6,
-     7,
-     8,
-     9
-    ],
-    "sources": [
-     {
-      "title": "productiontype.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1fPSJBnPUD-HuOrDdxIrcLdTs5JDI3AMfjkly1dKZ-tLo2QE47WNMfxErflrohKPwLLJ9xlJ3z4cFKHqi6P_LNPUNmrwW5lFvcKTwEHWjaE2ii1K9LI1iVvkOOZf-"
-     },
-     {
-      "title": "dribbble.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFrx12Wql4d3kzayfuEvpsEOtfpt9pooOR2YU6NArVSjS7p7uUn-ZcqvoyM1xXsAqQossAvqn7diGIbsWgcO-SlHmeE87wm7AwTn5uwpsHIZm2ZFZ4ulJ_b3XJ3TOW_7FrIkhfBFnWizBKFO4CmSQ=="
-     },
-     {
-      "title": "contra.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEhM-5R_kFsZD_LCbNzU5hyuA5QZoJeo6s6SPdCA60S4Cf4-NIOmNCST080rxtp70rfC3pYPumNTEmgEooAY0V1BF7IsgnRC9yB2jBwlLb-h5bORNAu9ra7Bp3kSVgOBCjdVbH4RD3nFHjFQus9CLyPBfurobkTiIdHuuitXUtL7FNhhj18VcG-"
-     },
-     {
-      "title": "demchenko.design",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFc2E_Ln5ceuPkwfq1vjbasgZgf4qsde3OjDFKqDbygKKMDmaAlLnptACSyGuIo3ECMaNW5mkaxXI8slUq61SKIUjRUVIlyZcFhMKuHSPhRDmV_7w=="
-     },
-     {
-      "title": "ddecor.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHc_XW89IUYafRucLRJDjverxuBf_YFgf3ALJ-ndtFSic9yd8A3t1V2ahOhWWLvAJt5xkOSGUIh5MoOm5UrBwELGgYtnneepBbya1jpJa9SEimZuJnCewEj_CrTe-p3bCseOyulXjU-F2KsKkAWMsOTjyHO2qyu_Q0MU_axdA=="
-     },
-     {
-      "title": "ogaan.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF5cE1rHHMSe_QuEPP8lqLxXsqjVLrWOiZsYZa16QB6zJLx55T9Ma33FKY-2y85MWd6rPq7OusTJTbmH1G9LCAU3m3MlojeOPg1E-UivLepJlfeVkA0opM2vSg="
-     },
-     {
-      "title": "luxepetalry.com",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH0CnYHFG85SAwOQnKSnbNikpWGA8lA4z4p0U4IzcfeBUnx02v7KZuVU7QNmcjlyuPo8ts55WBSlKUqXABntjPnzDtll07lLt_X3PkgFL8XzygW"
-     },
-     {
-      "title": "petalry.com.au",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGYSF7W5aNOJdWHMEJn7_jmR2-urZ0lNSh3NYvENVPWmZzdPU6bcE8sEgVM9lLycWz8m3m9xF6FPwJQSJ-E1pruEmfnX8-x9eELyB0lPg=="
-     },
-     {
-      "title": "petalry.co",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG7Q4QwX-ekUU1X9w2q7pXenMC2luEEZAx4lT_190gA2bXCjLQN1f8YFGGdGSPETNpFl9phnnc-H10xXqqRX9MMosRMWdllAUFKl0uwBQ=="
-     }
-    ]
-   }
+   "two_lines": "Petalry is a direct-to-consumer skincare brand roughly 18 months old doing a few thousand monthly orders. The crux is that repeat rate is not tracked, two thirds of orders come from paid social with CAC rising month on month, and the solo founder lacks operational cohort numbers.",
+   "error": null
   },
   {
    "memo": 3,
@@ -134,22 +85,21 @@
    "fund": "INVESTED",
    "desk": "Take the call",
    "merit": "Take the call",
-   "score": 76,
-   "score_written": 81,
+   "score": 66,
+   "score_written": 73,
    "agree": true,
    "criteria": {
-    "founder": 5,
+    "founder": 4,
     "path": 3,
-    "traction": 2,
+    "traction": 1,
     "fit": 5,
     "defensibility": 3,
     "candour": 5
    },
    "flags": [
-    "portfolio_adjacent",
-    "capital_density"
+    "portfolio_adjacent"
    ],
-   "two_lines": "Unbox Robotics builds compact AI package-sorting robots for warehouses. The founders demonstrate strong field grounding and exceptional candour, but key metrics on pilot conversion and hardware margins are absent.",
+   "two_lines": "Unbox Robotics builds compact AI-assisted package sorting robots for e-commerce warehouses in Pune. The crux is whether the team can convert site pilots into paid enterprise contracts while competing against better-funded global competitors.",
    "error": null
   },
   {
@@ -174,7 +124,7 @@
     "portfolio_adjacent",
     "capital_density"
    ],
-   "two_lines": "HopBox offers 10-minute grocery delivery run by ops-focused founders, but contribution margin is negative and it requires massive capital density that a pre-seed cheque cannot solve.",
+   "two_lines": "HopBox delivers daily essentials in under 10 minutes from dark stores in one neighbourhood, founded by two former quick-commerce operations managers. The crux is negative contribution margins and reliance on massive future capital to reach network density, making it a mismatch for a pre-seed cheque.",
    "error": null
   },
   {
@@ -184,21 +134,21 @@
    "fund": "INVESTED",
    "desk": "Take the call",
    "merit": "Take the call",
-   "score": 64,
+   "score": 62,
    "score_written": 71,
    "agree": true,
    "criteria": {
     "founder": 4,
     "path": 3,
     "traction": 1,
-    "fit": 5,
+    "fit": 4,
     "defensibility": 2,
     "candour": 5
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "Wint Wealth is a fintech platform opening retail investor access to corporate bonds in India. The crux is whether the founders can navigate evolving regulatory constraints and build scale after proving demand via manual groundwork.",
+   "two_lines": "Wint Wealth is a retail bond distribution platform where founders manually conducted early customer onboarding and transaction execution. The crux is whether they can transition from manual groundwork to a scalable, automated engine while navigating an evolving debt market regulatory perimeter.",
    "error": null
   },
   {
@@ -208,21 +158,21 @@
    "fund": "PASSED",
    "desk": "Pass",
    "merit": "Pass",
-   "score": 32,
-   "score_written": 52,
+   "score": 26,
+   "score_written": 48,
    "agree": true,
    "criteria": {
     "founder": 1,
     "path": 1,
     "traction": 1,
-    "fit": 5,
+    "fit": 3,
     "defensibility": 1,
-    "candour": 3
+    "candour": 2
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "CampusCredit provides student BNPL through campus networks, but the founders treat default risk as the NBFC partner's problem rather than owning it. A distribution business carrying lender liability without credit expertise is a clear pass.",
+   "two_lines": "CampusCredit provides BNPL and small-ticket credit to college students via campus networks and parent co-signers. The crux is that the founders dismiss default rates as the NBFC partner's problem, acting as a distribution channel while taking on a lender's liabilities.",
    "error": null
   },
   {
@@ -232,21 +182,21 @@
    "fund": "INVESTED",
    "desk": "Take the call",
    "merit": "Take the call",
-   "score": 80,
-   "score_written": 79,
+   "score": 60,
+   "score_written": 65,
    "agree": true,
    "criteria": {
-    "founder": 5,
-    "path": 4,
-    "traction": 2,
-    "fit": 5,
-    "defensibility": 3,
-    "candour": 5
+    "founder": 4,
+    "path": 3,
+    "traction": 1,
+    "fit": 4,
+    "defensibility": 2,
+    "candour": 4
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "An online-first fine silver jewellery D2C brand expanding into gold, lab-grown diamonds, and offline retail. The crux is whether the founder's metric fluency translates to high organic repeat rates despite heavy early reliance on paid marketplace channels.",
+   "two_lines": "Giva is an online-first fine silver and diamond jewellery brand founded in 2019 that is expanding into omnichannel retail. The founder exhibits strong fluency in unit economics, but the application omits concrete numerical figures for cohort repeat rates, margins, and CAC.",
    "error": null
   },
   {
@@ -254,10 +204,10 @@
    "company": "AeroDrop",
    "sector": "Deeptech (drone delivery)",
    "fund": "PASSED",
-   "desk": "Pass - outside the fund's game (partner to confirm)",
-   "merit": "Pass - outside the fund's game (partner to confirm)",
-   "score": 30,
-   "score_written": 58,
+   "desk": "Pass",
+   "merit": "Pass",
+   "score": 32,
+   "score_written": 61,
    "agree": true,
    "criteria": {
     "founder": 1,
@@ -265,14 +215,12 @@
     "traction": 1,
     "fit": 3,
     "defensibility": 2,
-    "candour": 3
+    "candour": 4
    },
    "flags": [
-    "portfolio_adjacent",
-    "regulation_bet",
-    "capital_density"
+    "portfolio_adjacent"
    ],
-   "two_lines": "AeroDrop builds autonomous medical delivery drones, led by an aerospace PhD. The crux is that BVLOS regulatory approval is years away, there are no signed pilot customers, and the founder treats regulatory and commercial execution as problems that get solved automatically once the tech works.",
+   "two_lines": "AeroDrop provides autonomous drone delivery of medical supplies and small parcels over short distances at pre-seed stage. The crux is strong technical flight capability paired with no signed customers, unmapped regulatory approval, and a founder who dismisses commercial/liability risks as 'solved once the tech works'.",
    "error": null
   },
   {
@@ -282,21 +230,21 @@
    "fund": "INVESTED",
    "desk": "Take the call",
    "merit": "Take the call",
-   "score": 78,
-   "score_written": 77,
+   "score": 66,
+   "score_written": 74,
    "agree": true,
    "criteria": {
-    "founder": 5,
+    "founder": 4,
     "path": 3,
-    "traction": 2,
+    "traction": 1,
     "fit": 5,
     "defensibility": 4,
-    "candour": 5
+    "candour": 4
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "Tech-enabled grocery retail network rebranding neighbourhood kiranas in Andhra Pradesh. Crux: store-owner retention and same-store sales growth in an operationally intense supply chain.",
+   "two_lines": "SuperK is a tech-enabled grocery retail network rebranding neighbourhood stores in small towns of Andhra Pradesh. The crux is strong field groundwork by complementary founders, balanced against missing store count, GMV, and 30/90-day store retention metrics.",
    "error": null
   },
   {
@@ -306,14 +254,14 @@
    "fund": "PASSED",
    "desk": "Pass - outside the fund's game (partner to confirm)",
    "merit": "Pass - outside the fund's game (partner to confirm)",
-   "score": 30,
-   "score_written": 57,
+   "score": 28,
+   "score_written": 46,
    "agree": true,
    "criteria": {
     "founder": 1,
     "path": 1,
     "traction": 1,
-    "fit": 3,
+    "fit": 2,
     "defensibility": 1,
     "candour": 4
    },
@@ -321,7 +269,7 @@
     "portfolio_adjacent",
     "regulation_bet"
    ],
-   "two_lines": "Coinlane is a pre-seed retail crypto app relying on referral campaigns and third-party payment rails in India. The crux is that the business model depends entirely on Indian crypto regulation becoming friendlier, with no fallback plan if rules stay hostile.",
+   "two_lines": "Coinlane is a pre-seed retail crypto trading app and wallet in India growing via referral campaigns. The crux is that its existence relies on future favorable regulatory changes, with no plan for adverse regulatory outcomes.",
    "error": null
   },
   {
@@ -332,20 +280,20 @@
    "desk": "Take the call",
    "merit": "Take the call",
    "score": 72,
-   "score_written": 81,
+   "score_written": 80,
    "agree": true,
    "criteria": {
     "founder": 4,
-    "path": 3,
+    "path": 4,
     "traction": 2,
-    "fit": 5,
+    "fit": 4,
     "defensibility": 4,
-    "candour": 5
+    "candour": 4
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "Jai Kisan provides rural asset-backed lending by building physical channel partner networks directly with farmers. The crux is whether the founders can maintain low NPLs and recruit a senior credit-risk lead before scaling loan volume.",
+   "two_lines": "Jai Kisan provides financing for rural households purchasing agricultural and dairy equipment, with thousands of farmers registered and assessed across multiple districts. The crux is whether the founders own credit risk and can maintain low default rates as lending scales.",
    "error": null
   },
   {
@@ -355,30 +303,30 @@
    "fund": "PASSED",
    "desk": "Pass",
    "merit": "Pass",
-   "score": 32,
-   "score_written": 56,
+   "score": 30,
+   "score_written": 53,
    "agree": true,
    "criteria": {
     "founder": 1,
     "path": 2,
     "traction": 1,
-    "fit": 4,
+    "fit": 3,
     "defensibility": 1,
     "candour": 2
    },
    "flags": [
     "portfolio_adjacent"
    ],
-   "two_lines": "Prepnest is a pre-seed exam-prep app with strong teacher audience reach, but the founder lacks 30/90-day retention metrics and bristled when pressed on defensibility. The model is bottlenecked by single-teacher content in a hyper-competitive category.",
+   "two_lines": "Prepnest is a mobile-first test-prep app for competitive exams reporting 'Strong early download numbers.' The crux is that 30- and 90-day retention numbers are missing, the business is content-led and dependent on one teacher, and the founder bristled when asked about copycat risk.",
    "error": null
   }
  ],
- "agree": 10,
+ "agree": 11,
  "n": 12,
  "gate": 10,
  "passes_gate": true,
  "written_vs_revealed": {
-  "revealed_agree": 10,
+  "revealed_agree": 11,
   "note": "Scores against the written thesis are kept per row (score_written) to show the drift Riya raised in M5."
  }
 }

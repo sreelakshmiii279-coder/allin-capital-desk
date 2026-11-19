@@ -1,0 +1,683 @@
+S2
+Term 2 | Advanced AI
+Read, Trace, Break, Fix
+Finish reading, then find what is wrong in code you did not write
+MESA PGP COHORT 4   .   TERM 2: ADVANCED AI   .   12 NOV 2026   .   90 MIN
+Ekta Shah  |  Coding & More
+Today: finish the Sprinto reading, then trace and fix Dhruva
+2MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Clock Block What you do You leave with
+0-4 Where you are Pre-work status, what S1 left open Know what is done and what is not
+4-12 Reading toolkit, and .env A claim poll, a traceback read bottom-up, and where keys live Three things you will use all day
+12-30 Sprinto reading lab, then drill Annotate six places, verify claims (14 min). Then a founder asks, you answer (4 min) An annotation file and a claims table
+30-40 Dhruva: read and trace Read run.py, predict a score, step with the debugger A traced value and a hypothesis
+40-68 Find and fix two bugs, with AI Three symptoms, two faults, one loop (6 min), then Lab 2 (20 min) Two commits with a business consequence
+68-82 Fix one bug without AI Traceback, docs and debugger only. Lab 3 One commit and a one-line diagnosis
+82-85 Recap Assignment and S3 preview A plan for tonight
+Scripted for 85 minutes, with 5 spare. Slow is fine. The third bug and the Reading Check are take-home.
+Before today: the Sprinto reading you brought
+PAIR
+3MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Done in S1
+Environment doctor: the setup checks, VS 
+Code, git, Claude Code in your folder.
+The explain-only rule for Claude Code.
+One or two prompts to understand the Sprinto 
+repo.
+Pre-work (due before today)
+Clone, run sprinto-outreach and dhruva-triage 
+offline.
+Claude Code, explain-only: the map prompt, 
+then the risk prompt.
+Open every line Claude names and mark it 
+true, false or cannot tell.
+Did not finish?
+Do not hide it. Pair with someone who did.
+Run the map prompt now, in the first two 
+minutes of the lab.
+Reading Clinic after today if you want more 
+time.
+Today's first task
+Today, in class: annotate six places, build a claims table with one wrong claim, then answer a founder from your own notes.
+i Reading is not done when Claude explains it. It is done when you can point at the line.
+Reading toolkit
+Two moves: check a claim, read an error from the bottom.
+Poll: Claude says it. Do you believe it?
+POLL
+5MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Claude: "qualify.py retries a failed scrape up to MAX_ROUNDS times before giving up." 
+True, false, or cannot tell without opening it?
+Vote, then pair for 2 minutes and settle it from the code.
+Open: qualify.py lines 14-23 and scrape.py lines 8-17.
+Quote the line that decides it.
+What the code does Line
+Fetches /about when the model says it needs more qualify.py:17-18
+Stops after MAX_ROUNDS (2) extra rounds qualify.py:17
+A failed fetch returns an empty string scrape.py:16-17
+Nothing retries the failed fetch none
+i Answer: false. The loop fetches more information; it never retries a failure. A founder who believes 'it retries' will not look for lost leads.
+Why this matters: 'retry' and 'fetch more' sound alike but have different failure modes and costs. Precision in the verb is the skill.
+Read an error from the bottom up
+6MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Traceback (most recent call last): 
+  File "run.py", line 28, in run 
+    row["send"] = send.send(d, mail["subject"], mail["body"]) 
+  File "send.py", line 17, in send 
+    s.login(config.TO_ADDRESS, os.environ["GMAIL_APP_PASSWORD"]) 
+KeyError: 'GMAIL_APP_PASSWORD' 
+Three moves
+1. Last line: what broke (KeyError, key 
+GMAIL_APP_PASSWORD).
+2. Line above: where (send.py, line 17).
+3. Lines above: how we got there (run.py line 28 
+called send).
+Exception Usually means First thing to check
+KeyError A dictionary or environment key is not there Print the keys; look for spelling or spaces
+TypeError A value has the wrong type (None, string for number) Print the value and its type
+FileNotFoundError A path is wrong or the file does not exist Check the folder you ran from
+ModuleNotFoundError A package is not installed in this environment Activate .venv; pip install
+i Aloud: 'KeyError GMAIL_APP_PASSWORD, send.py line 17, called from run.py line 28.' The fix is in .env, not the code.
+Python docs, 'Errors and Exceptions': the last line gives the exception; the lines above show the stack. docs.python.org/3/tutorial/errors.html
+Keys live in .env, never in the code
+PREDICT
+7MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+.env.example   GEMINI_API_KEY=              <- empty form, goes in git 
+.env           GEMINI_API_KEY=AIza...       <- your real key, never in git 
+.gitignore     .env                         <- tells git to skip it 
+config.py:7    API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDEMO-...") 
+Three files, three jobs
+The template is shared. Your .env is private.
+The code reads the value when it runs.
+Run: cp .env.example .env, then fill it in.
+Predict
+Line 7 has a second value after the comma. What happens if .env is missing?
+In a real project, what would someone be tempted to type in that second slot? Who can then read it?
+i Before every commit run git status. If .env is listed, stop. A key in git history is a key you must replace.
+Lab: read Sprinto with Claude Code (14 min)
+LAB
+8MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Minutes Do
+0-2 Open your pre-work notes. No notes? Run the map prompt now, explain-only
+2-11 Annotate six places (next slide): file, line, one sentence each, verified in the code
+11-14 Claims table: 3 rows now (5 by tonight), at least one Claude claim wrong or vague
+Hands-up triggers
+Environment error you cannot read.
+Claude edited a file: undo with git checkout -- <file>.
+A claim you cannot settle in two minutes: write cannot 
+tell.
+Prompt formula and rules
+Point at a file and line, ask what breaks, demand line numbers, allow 'cannot tell'.
+Do not edit the code. Every row in your table cites a file and a line you opened yourself.
+i Deliverable: docs/annotations.md with six marks and three claims. Founder note and push are tonight's assignment.
+Annotate six places, and write what you find
+9MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Mark In the Sprinto code Question to answer in one line
+Where inputs enter data/domains.txt, data/contacts.csv, fixtures/ What if a row is missing or malformed?
+Where the model is called llm.py ask(); prompts in extract.py, qualify.py, drafts.py Which model, which temperature, what does it return?
+Where the verdict comes out qualify.py:22 then run.py:22 What exactly turns a score into yes or no?
+What is hardcoded config.py (key fallback, temperature, threshold, address) Which should be config or environment instead?
+Where a money figure comes from impact.py: hours saved and net value; nothing computes model cost per company Where do these numbers come from, and for which period?
+What is written out outbox/, runs/run_log.jsonl Could you audit a decision from the log alone?
+i Same six marks for any tool you inherit: inputs, model call, verdict, hardcoded values, money, output. Do not edit anything.
+Pairs: the founder asks, you answer from your Sprinto notes
+PAIR
+10MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Ask 1
+"Can I trust the score on this company?"
+Look for: where the score is made 
+(qualify.py:22), what it is compared with, 
+the units on each side.
+Ask 2
+"Why did it email that company?"
+Look for: the line that decides (run.py:22), 
+the threshold (config.py:11) and what fed 
+it.
+Ask 3
+"The run said zero qualified. What do I tell 
+my Growth Lead?"
+Look for: a failed scrape scoring 0 
+(scrape.py:16-17); zero may mean 'could 
+not read', not 'poor fit'.
+A strong 60-second answer has Example opening
+What happened, in one sentence 'It emailed brickbox.example because its score passed the threshold.'
+Where, as file and line 'run.py line 22 checks the verdict that qualify.py line 22 produced.'
+How sure you are, and why 'Sure about the lines: I opened them. Not sure about the model's score: it is read from a file.'
+What you would do next 'Print both sides of the comparison, then ask the team who owns the threshold.'
+i 1 minute each way, then swap. Listener scores: clear, vague or wrong. Faculty cold-calls two pairs.
+A new case: Dhruva Capital
+Ira Bhandari wants the whole pile read, with the source behind every claim.
+Dhruva reads 380 applications a quarter: 19 working days
+12MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+The firm
+Micro-VC, Mumbai. Fund II is Rs 120 crore.
+Cheques of Rs 50 lakh to Rs 2.5 crore at 
+pre-seed and seed.
+Founding partner: Ira Bhandari.
+The funnel
+380 applications last quarter.
+About 25 minutes per first-pass read: roughly 
+158 hours, 19 working days, a whole quarter 
+of one analyst.
+40 reach a first call, 12 reach diligence, 3 get a 
+term sheet.
+Ira's rules
+Score every application against the thesis, 
+criterion by criterion, with the source for each 
+claim.
+Say what could not be found.
+Recommend. Do not decide.
+Constraint from the case What it means for the code
+Under Rs 20 per application; report the actual figure and the quarterly projection Cost must be computed in rupees from token counts
+Same application twice moves by at most 1 point; position in the batch never matters No hidden state across the loop; no randomness in the score
+A missing criterion reads INSUFFICIENT DATA and the score reflects the absence Missing evidence must lower the score, not raise it
+Source: MESA Term 2, Case 3 (Dhruva Capital), course pre-read for Lecture 7. Company names in the repo are fictional.
+The thesis: six criteria, one anti-thesis list
+13MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Criterion (config.py:11) What the model decides from the application
+stage Pre-seed or seed
+sector Back-office and process software
+geography India-based
+founder_profile Domain-experienced founders
+business_model Recurring or pilot revenue
+round_size Within cheque range
+Each verdict is one of four
+match = 1 point
+partial = 0.5
+no-match = 0
+insufficient-data = the application does not say; the case 
+says the score must reflect this absence.
+Anti-thesis (guard.py:1-2)
+consumer social, gaming, creator economy, nbfc, lending 
+licence, d2c, crypto, web3. A hit means PASS whatever the 
+score."stage": { 
+  "verdict": "no-match", 
+  "citation": "form: stage=Series B" } 
+i Raw score runs 0 to 6; fit is that scaled to 0-10. Hold on to this: it is the number we will trace.
+Read run.py first: it is the whole flow in 34 lines
+14MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+13 def run(path): 
+14     apps = loader.load(path) 
+15     best = 0 
+17     for app in apps: 
+18         reply = llm.assess(app["id"], str(app)) 
+19         verdicts = reply["criteria"] 
+20         raw = score.raw_score(verdicts) 
+21         best = max(best, raw) 
+22         fit = round(raw / best * 10, 1) 
+23         gaps = score.missing(verdicts) 
+24         term = guard.anti_thesis(app) 
+25         rec = score.recommend(fit, len(gaps), term) 
+26         inr = cost.cost_inr(reply["tokens_in"], 
+                            reply["tokens_out"]) 
+27         rows.append({... "fit": fit, "rec": rec, 
+                      "cost_inr": round(inr, 2)}) 
+32     for r in sorted(rows, key=lambda r: -r["fit"]): 
+Read it aloud
+14: load the applications.
+17-19: for each one, get the model's verdict for each 
+criterion.
+20: add up the points (score.py).
+21-22: make the score out of 10. Say what 'best' is. Is it a 
+constant?
+23-25: find gaps, check the anti-thesis list, decide the 
+recommendation.
+26: turn tokens into rupees.
+32: print, highest fit first.
+i Do the five questions from S1 on this file. Which two lines would you read twice?
+A number on screen is the end of a chain. Find the links
+15MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Link Where What happens to the fit score Question to ask
+Created fixtures/llm_responses.json (live: Gemini) The model gives a verdict per criterion, with a citation What if it returns a verdict we do not expect?
+Converted score.py:6 Verdicts become points; six add up to a raw score 0-6 What if a verdict is not in the points table?
+Changed run.py:21-22 Raw score becomes a score out of 10 What is it divided by, and does that change?
+Used run.py:25, score.py:13-19 Decides advance, pass or insufficient data Which check runs first?
+Shown run.py:31-33 Ranked list, highest first Would the order survive a shuffled input?
+Logged run.py:37-40, reports/ One line per application in runs/run_log.jsonl Could you audit a decision from this log?
+i Tracing = for one value, ask where it was made, changed, shown and logged. The faults live at the changes.
+Predict, then step to it
+PREDICT
+16MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+run.py
+15      best = 0 
+21      best = max(best, raw) 
+22      fit = round(raw / best * 10, 1) 
+Write down before you run: the first application in the CSV has a raw 
+score of 2. What is best after line 21? What does line 22 give for fit?
+The second has a raw score of 5. What does it get?
+Application (in CSV order) raw best after line 21 fit from line 22 Your prediction
+first (raw 2) 2 ? ? 
+second (raw 5) 5 ? ? 
+third (raw 3) 3 ? ? 
+Then set a breakpoint on line 22 and watch raw, best and fit. If your prediction was wrong, the debugger just taught you something. If right, you earned trust in 
+your reading.
+i Do not name the fault yet. Write down what you notice about the third row.
+Print first, debugger second: the four moves you need
+17MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Breakpoint
+Click left of the line number. A 
+red dot appears.
+Execution stops before that line 
+runs.
+Also: logpoints print a message 
+without stopping.
+Variables / Watch
+Left panel shows every local 
+value at the stop.
+Add an expression to Watch (for 
+example raw / best * 10) to see 
+what the line would compute.
+Step over (F10)
+Run this line, stop at the next in 
+the same function.
+Use it to move down a function 
+without going inside calls.
+Step into (F11)
+Enter the function on this line 
+and stop at its first line.
+Use it when a call is suspicious: 
+score.raw_score, cost.cost_inr.
+Run and Debug (Cmd/Ctrl+Shift+D)  ->  'Python File'  ->  F5     (Continue: F5, Stop: Shift+F5) 
+Lightest option:  print("DEBUG", raw, best)     # delete before committing 
+i Pick the right interpreter (the one in .venv) or imports fail. Docs: code.visualstudio.com/docs/python/debugging
+VS Code docs cover breakpoints and logpoints; stepping and Watch detail is in the handout.
+Bug hunt, with AI
+Three faults. Find, fix, explain the business cost, commit each separately.
+Start from the symptom. Where does the fault live?
+POLL
+19MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+application     fit  recommendation 
+StoryPal       10.0  ADVANCE TO CALL 
+VaultNine      10.0  INSUFFICIENT DATA TO RECOMMEND 
+FactoryDesk    10.0  ADVANCE TO CALL 
+LedgerLoop     10.0  ADVANCE TO CALL 
+PayBridge       8.2  PASS (anti-thesis: nbfc) 
+QuickKart       5.5  PASS (anti-thesis: d2c) 
+cost per application: Rs 0.38 (ceiling Rs 20) 
+Vote 1
+StoryPal is a US Series B company with an Rs 80 crore 
+round. It is ADVANCE TO CALL. Fault in:
+A) the model's verdicts
+B) the scoring code
+C) the anti-thesis list
+Vote 2 Vote 3
+VaultNine, almost empty, scores 10.0. Whose mistake: the model's or ours? Rs 0.38 against a Rs 20 ceiling. Is Dhruva safe? (Your take-home bug.)
+Vote before anyone opens the debugger. Two volunteers defend a vote against a different vote.
+i Evidence beats instinct. Commit to a hypothesis, then test it.
+Fault 1 in depth: a silent default (score.py)
+20MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+1  POINTS = {"match": 1, "partial": 0.5, "no-match": 0} 
+6      return sum(POINTS.get(v["verdict"], 1) 
+                  for v in verdicts.values()) 
+What .get(key, 1) says
+'Look up the verdict. If it is not in the table, use 1.' Missing 
+evidence becomes a full point.
+Step VaultNine (almost empty)
+Model says (correctly) insufficient-data for all six criteria
+POINTS lookup no 'insufficient-data' key, so the default 1 is used six times
+Raw score 6 of 6, a perfect score for an application that says nothing
+Recommendation Saved only because more than 3 criteria are missing; the fit still reads 10.0 and is ranked first
+Direction of the fix
+Add the missing verdict to the table with 0 points, and index with [] so an unknown verdict raises an error instead of passing quietly.
+Fault 2 in depth: hidden state in a loop (run.py)
+21MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+15      best = 0 
+17      for app in apps: 
+21          best = max(best, raw) 
+22          fit = round(raw / best * 10, 1) 
+Why it is hidden
+best lives outside the loop and changes on every pass. So each fit 
+depends on what came before it in the file.
+CSV order raw best fit shown What a reader concludes
+StoryPal first 2 2 10.0 A US Series B company is a perfect fit
+then a stronger company 5 5 10.0 Two perfect fits; the ranking is meaningless
+StoryPal last 2 5 4.0 Same company, different score: breaks Ira's order rule
+Test it yourself
+Shuffle the rows of data/applications.csv and re-run. Every application must keep the same 
+fit.
+Direction of the fix
+Divide by a constant (the six criteria), not by 
+something the loop changes.
+The loop: symptom, hypothesis, evidence, fix, consequence, 
+commit
+22MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Think
+1. Symptom: what did you see?
+2. Hypothesis: which line, and why?
+3. Evidence: print or breakpoint. A hypothesis 
+with no evidence is a guess.
+Act
+4. Fix one thing.
+5. Re-run the same case that showed the 
+symptom.
+6. Commit alone. One fix per commit.
+Explain
+7. One sentence: what the business lost while 
+this was wrong.
+That sentence goes in the commit body and in 
+your bug note.
+Fix order dependence: divide fit by the 6 criteria, not the best so far 
+Effect before: a score depended on its position in the batch; a Series B US company advanced. 
+Effect after:  each application keeps the same fit in any order. 
+Bad messages: 'fix bug', 'updates', 'final2'. A stranger should be able to tell what changed, why, and what effect it had.
+i A reviewer should be able to revert any single fix without breaking the others.
+Lab 2: find and fix two bugs, 20 minutes, Claude Code on
+LAB
+23MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Bug A
+VaultNine scores 10.0 with almost no data.
+Find where a missing verdict becomes points.
+Make absence lower the score.
+Check: VaultNine ends near 0.8.
+Bug B
+StoryPal scores 10 because it is first.
+Shuffle the CSV rows and re-run.
+Make the score independent of order.
+Check: StoryPal ends at 3.3 in any order.
+Take-home: Bug C
+The cost reads Rs 0.38 per application.
+Check the units on every line of cost.py.
+State the quarterly figure at 380 applications.
+Expected: about Rs 32 each.
+Steps for each bug Fast finishers
+1 Write the chain for the wrong number. 2 Guess the line, then check. 3 Fix one thing. 4 Re-run 
+the same case. 5 Commit alone, with the business consequence in the message.
+Start Bug C. Or: Ira wants the same application twice to move by at most 1 point. Which line in 
+config.py puts that at risk?
+i Deliverable: two commits, each with a one-sentence business consequence. Prompts: reference pages. Hands up at minute 8.
+Check your fixes: expected output after A and B
+24MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+application     fit  recommendation 
+LedgerLoop     10.0  ADVANCE TO CALL 
+FactoryDesk     7.5  ADVANCE TO CALL 
+PayBridge       7.5  PASS (anti-thesis: nbfc) 
+QuickKart       5.0  PASS (anti-thesis: d2c) 
+StoryPal        3.3  PASS 
+VaultNine       0.8  INSUFFICIENT DATA TO RECOMMEND 
+cost per application: Rs 0.38 ...   (Bug C, still to fix) 
+Read it like Ira
+PayBridge has a high fit but is a lender: the anti-thesis list 
+wins.
+VaultNine says nothing, so it is not recommended either 
+way.
+Two applications advance: a shortlist an analyst can read 
+in a day.
+If your output differs Likely reason
+Scores shift when you shuffle rows Bug B is still there, or you fixed it in the wrong place
+VaultNine still above 5 Bug A: check that the missing verdict now scores 0
+A number is close but not equal Rounding or the wrong divisor: it should be the six criteria
+i Matching the output proves the fix works. It does not prove you understood the fault: write the note.
+Fix one bug without AI
+Claude Code and Gemini off. Traceback, docs and the debugger.
+Four steps for a bug you cannot ask about
+PREDICT
+26MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+1  Last line
+Read the exception name and 
+message aloud.
+KeyError: 'round_size_cr' means: 
+a dictionary has no key with that 
+exact text.
+2  Which line
+Find the file and line in the last 
+frame. Open it.
+loader.py line 17: 
+row["round_size_cr"].
+3  Print the keys
+Print what the code actually has, 
+not what you assume.
+print(list(row.keys())) just before 
+line 17.
+4  Fix at load
+Fix once, where the data enters. 
+Do not patch where it fails.
+Clean the header names when 
+the file is read.
+Predict before you start: the crash says KeyError: 'round_size_cr'. The CSV looks right on screen. What do you check first? Write your guess on 
+paper, then start.
+python run.py --apps data/applications_v2.csv     # traceback, docs and debugger only 
+i Two things look identical on screen and differ in the data: spelling and invisible characters. Print repr, not the pretty version.
+Lab 3: fix it without AI, 12 minutes, then compare
+LAB
+27MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Minutes Do
+0-10 AI off. Docs allowed: docs.python.org, csv module
+10-12 Fix, re-run, commit. Message: what, why, effect
+After Switch Claude Code on. Ask it to explain the same bug
+After Write one line: where did Claude differ from your reasoning?
+Stuck at minute 6?
+Use the 4-step card.
+Print list(row.keys()).
+Hints go to the clinic list, not to shame.
+What counts as allowed
+Python docs, the debugger, print statements and your own notes. Not allowed: Claude Code, Gemini, search engines.
+i Deliverable: one commit and a one-line diagnosis. An honest 'I could not' is useful: it routes you to the clinic.
+Recap, assignment and what is next
+EXIT
+28MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Today
+Closed the Sprinto reading loop.
+Traced the Dhruva fit score.
+Found and fixed two faults with AI, in separate 
+commits.
+Fixed one without AI.
+Hand in this week
+One-page note per bug: what, where, why, fix, 
+how I would have caught it. Bug C is yours to 
+find.
+Founder note (5 lines) and push 
+s1-annotations. Push dhruva-triage-bugs: Bug 
+A, Bug B, Bug C and the no-AI fix, one commit 
+each. Optional: the 10-question Reading Check 
+at home.
+CS50P lectures 4-6 this week.
+Next: S3, after the break
+Git: reading and shipping a diff, using your 
+own S2 commits.
+A tool schema with a failure return.
+Reading Clinic: after today, optional.
+Milestone
+Four separate, readable commits and a fresh-clone run that works.
+i The Question Shapes sheet is in your folder: interview questions for S1 and S2, and what a founder will ask you.
+Reference pages
+Keep these open during labs and for revision. They are not taught live.
+The loop: map, risk, verify (prompts and checks)
+30MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+1  Map
+Prompt: 'Which file does each of the 7 
+pipeline steps? Give file and function names.'
+You get: a table of step, file, function.
+Check: does it match the 7-step Sprinto table 
+from S1? Open one file per step to confirm.
+2  Risk
+Prompt: 'Which 3 lines are riskiest if the input 
+is wrong? Give line numbers and why.'
+You get: three line numbers with reasons.
+Check: are the line numbers right? Does each 
+reason match the code?
+3  Verify
+Open every line Claude names.
+Mark each claim: true, false, or cannot tell.
+Find at least one claim that is wrong or vague.
+Write it in the claims table with the file and 
+line that decides it.
+Verdict Meaning
+True The line says exactly this. You can quote it
+False The line says something different. Quote the line
+Cannot tell It depends on code or data you have not opened yet. Say what to open
+i AI reads faster than you do. It also states wrong things with the same confidence as right ones.
+Good questions point at a line. Weak questions ask for a summary
+31MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Weak prompt Why it fails Stronger prompt
+Explain this code A summary you cannot check against a line What does qualify.py line 22 compare, and what are the units on each side?
+Is this code good? An opinion with no evidence What breaks if scrape.fetch returns an empty string, and what does run.py then do?
+Find the bugs Invites invented bugs to please you List every place a failure is caught and say what the caller sees. Cite lines.
+Summarise run.py Hides the flow and the order Trace one domain through run.py and name each function call in order, with line numbers.
+What does config.py do? Lists settings but not which matter Which values in config.py are business rules a founder should own? Which are technical?
+Prompt formula
+Point at a file and line  +  ask 'what breaks if...'  +  demand line numbers in the answer  +  say 'if you are not sure, say cannot tell'.
+i Two students: rewrite one weak prompt aloud, in the formula.
+Fault 3 in depth: the unit slip (cost.py)
+32MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+2  INPUT_USD_PER_M = 2.00 
+3  OUTPUT_USD_PER_M = 8.00 
+4  USD_INR = 85 
+7  def cost_inr(in_tokens, out_tokens): 
+8      usd = in_tokens * INPUT_USD_PER_M / 1_000_000 
+             + out_tokens * OUTPUT_USD_PER_M / 1_000_000 
+9      return usd 
+Spot the slip
+The function is called cost_inr, the variable is usd, and line 
+9 returns usd.
+USD_INR on line 4 is never used. The print statement then 
+says 'Rs'.
+Quantity Shown Real Against the Rs 20 ceiling
+Per application Rs 0.38 Rs 32.45 Over by about 60 percent
+Per quarter at 380 applications about Rs 145 about Rs 12,332 Budget decision made on the wrong figure
+Check it by hand
+About 150,000 tokens in at $2 per million is $0.30; about 10,000 out at $8 per million is $0.08. Total about $0.38. At Rs 85 per dollar that is about Rs 32. 
+Rates and exchange rate are illustrative; check the live price sheet.
+Generated code plants four families of fault
+33MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Family Where it hides in Dhruva What it costs the business Question that finds it
+Silent defaults score.py:1 and :6: an unknown verdict counts as a match Missing evidence raises the score; an empty application tops the ranking What happens on a value the code did not expect?
+Hidden state in a loop run.py:15 and :21-22: scale set by the best so far Score depends on position in the batch: breaks Ira's rule Does the answer depend on what ran before?
+Units and currency cost.py:9 returns USD; USD_INR on line 4 is never used Rs 0.38 reported, Rs 32 real; the Rs 20 ceiling silently broken Same unit on both sides of every line?
+Hardcoded numbers config.py:9: TEMPERATURE = 0.7 Same application twice can move by more than 1 point Where did this value come from?
+i Knight Capital was dead code; Mars Climate Orbiter was units. The families are old. AI produces them faster.
+Why practise without AI: you must be able to check it
+34MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+A reason, from a study
+METR (July 2025): 16 experienced developers, 
+246 real issues. With AI allowed, tasks took 
+19% longer.
+Developers expected a 24% speedup and, 
+afterwards, still believed AI had sped them up 
+by about 20%.
+METR says that result is out of date for newer 
+tools.
+What we take from it
+Not 'AI is slow'. The tools have moved.
+The gap between what people felt and what 
+was measured is the lesson.
+You verify with evidence, not with how fast it 
+feels.
+What it means for you
+If the assistant is down or wrong you can still 
+read a traceback.
+Interviewers and founders both ask: what if 
+the AI is not available, or is wrong?
+Fifteen minutes of practice builds that.
+Source: METR, 'Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity', 10 Jul 2025 (metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study).
+i Do not quote this as 'AI makes developers slower today'. It was one study of one group, flagged out of date by its authors.
+Eight constructs, part 1: what each looks like and what it tells you
+35MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Construct In the Sprinto code How to read it The question to ask
+import run.py: import scrape, import send Pulls in another file or library; each import is a part the file depends on Which file does the real work?
+function (def) qualify.py:14  def qualify(domain, company): A named, reusable block. Names in brackets are what goes in; return is what comes out What goes in, what comes out?
+dictionary / JSON result["score"]; fixtures/llm_responses.json Pairs of key and value. JSON is the same idea as text, which is what models return What if the key is missing?
+list and for loop run.py:16  for d in domains: Do the indented block once for each item in the list What happens on the last item? On an empty list?
+result = llm.ask("qualify", domain, PROMPT.format(company=company))   # function call: ask(...) returns a dict 
+score = result["score"]                                            # dictionary lookup: KeyError if "score" is absent 
+i Every row ends in a question. Reading code is asking those questions, not memorising syntax.
+Eight constructs, part 2: decisions, repeats and what can go wrong
+36MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Construct In the Sprinto code How to read it The question to ask
+if / else run.py:22  if q["qualified"]: Run the block only when the condition is true; otherwise skip it or run else What happens in the else case? Is it handled?
+while loop qualify.py:17  while result["needs_more"] and rounds < config.MAX_ROUNDS: Keep repeating while the condition holds; something inside must change it What stops it? Can it run for ever?
+try / except scrape.py:10-17 Try the block; if it raises an error, run the except block instead What does it hide? What does the caller see?
+constants / config config.py: TEMPERATURE = 0.7, QUALIFY_THRESHOLD = 0.7 Named values the rest of the code relies on What is hardcoded? Which of these are business rules?
+Bare except
+'except:' with nothing after it catches every error and often returns a value as if 
+all is well.
+Default values
+'.get(key, default)' and 'or []' hide a missing value by replacing it. Ask who notices.
+Worked read: qualify.py top to bottom, one line at a time
+37MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+14 def qualify(domain, company): 
+15     result = llm.ask("qualify", domain, 
+                       PROMPT.format(company=company)) 
+16     rounds = 0 
+17     while result["needs_more"] and rounds < config.MAX_ROUNDS: 
+18         more = scrape.fetch(domain, "about") 
+19         company = {**company, **extract.extract(domain, more)} 
+20         result = llm.ask("qualify_more", domain, 
+                           PROMPT.format(company=company)) 
+21         rounds += 1 
+22     result["qualified"] = result["score"] >= config.QUALIFY_THRESHOLD 
+23     return result 
+Read it aloud
+15: ask the model for a score and a 'needs more' flag.
+16-17: count rounds; repeat while the model wants more 
+and we are under the cap (MAX_ROUNDS = 2).
+18-19: fetch the /about page, extract fields, merge them 
+into the company.
+20-21: ask again with the richer data; count the round.
+22: turn the score into yes/no by comparing with a 
+threshold.
+23: hand the result back to run.py.
+Now ask: units on both sides of line 22?
+i One function, nine lines, five of the five questions answered. Do this to every file you inherit.
+Five ways AI explanations go wrong, and how to catch each
+38MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Pattern What it looks like How to catch it
+Plausible summary Describes what the code is for, not what it does Ask for line numbers; open them
+Intent over behaviour 'Handles errors gracefully' when it swallows them Ask 'what does the caller see on failure?'
+Wrong line numbers Right idea, line 38 when it is line 22 Always open the line before you quote it
+Invented names Mentions a function or setting that does not exist Search the folder for the name (Cmd/Ctrl + Shift + F)
+Silence about the missing Never says what is NOT checked Ask 'what inputs would break this?' and 'what is not validated?'
+A reliable test: take one claim Claude makes and try to prove it wrong from the code. If you cannot prove it wrong or right in two minutes, write 
+'cannot tell' and say what you would open next.
+i These five patterns are the checklist behind your claims table.
+What not to trust in generated code: six checks
+39MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Check Ask Seen in Dhruva (and S1 Sprinto)
+Hardcoded numbers Where did this value come from? TEMPERATURE 0.7; ADVANCE_AT 7.0
+Units, scales, periods, currency Same units, period and currency on both sides? USD reported as rupees; 0-100 vs 0.7 in Sprinto
+Silent defaults and swallowed errors What happens on a value the code did not expect? POINTS.get(..., 1); Sprinto's bare except
+Hidden state Does the answer depend on what ran before? best-so-far in the batch loop
+Invented functions and secrets Does it exist? Is anything private in the repo? find_decision_maker; default key in Sprinto's config
+Works on one example What three other inputs would break it? Six applications only
+i Paste this into your review habit. It works on any generated build, in any role.
+Reference: reading a traceback, the four exceptions you will meet
+40MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Traceback (most recent call last): 
+  File "run.py", line 14, in run 
+    apps = loader.load(path) 
+  File "loader.py", line 17, in load 
+    "round_size_cr": row["round_size_cr"], 
+KeyError: 'round_size_cr' 
+Bottom up
+Last line: what broke.
+Last frame: where.
+Frames above: how we got there.
+Exception Usually means First check
+KeyError A dictionary key is not there Print list(row.keys()); look for spaces and spelling
+TypeError A value has the wrong type (None, str for number) Print the value and type(value)
+FileNotFoundError A path is wrong Print the folder you ran from
+ZeroDivisionError A divisor is 0 Print the denominator before the division
+i Python docs: docs.python.org/3/tutorial/errors.html (built-in exceptions are in the library reference).
+Reference: the commit message pattern and a review checklist
+41MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Fix <what>: <why> 
+Effect before: <business consequence> 
+Effect after: <what changes> 
+Bad Good
+fix bug Fix cost units: return INR, not USD
+updates Score missing evidence as 0
+final2 Divide fit by 6 criteria, not best-so-far
+Before you commit Answer yes
+Did I fix one thing? The diff is small and has one purpose
+Did I re-run the same case? The symptom is gone
+Would a stranger understand the message? What, why, effect
+Did I leave debug prints? No
+Reference: prompts for the labs
+42MESA Term 2 | Advanced AI | S2: Read, Trace, Break, Fix
+Use Prompt
+Lab 1: trace Do not modify any files. Trace fit from where it is created in run.py to where it is printed. Cite file and line numbers. If you are not sure, say cannot tell.
+Lab 1: units Follow the cost value from tokens to the printed Rs figure. State the unit at each line in cost.py and run.py. Which line changes the unit, and does the name match?
+Lab 2: diagnose The output shows VaultNine at 10.0 with almost no data. Do not edit yet. Which lines turn a missing verdict into points? Cite lines.
+Lab 2: order Would the fit scores change if I shuffled the CSV rows? Point at the lines that decide, and say how I can test it.
+Lab 2: units Is the cost per application in rupees? Check every line of cost.py and say which one is wrong.
+Lab 2: fix Propose the smallest change. Show a before and after diff and say what happens to every other application's score.
+Lab 2: commit Write a commit message: what changed, why, and the business effect before and after, for a reader who has not seen the code.
+i Lab 3 has no prompts. A model may call raw / best or .get(..., 1) fine: check its answer against the expected output.

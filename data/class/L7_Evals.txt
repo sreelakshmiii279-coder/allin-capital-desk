@@ -1,0 +1,556 @@
+Evals
+MESA   ·   COHORT C4   ·   TERM 2   ·   12 NOV 2026
+We've Seen This.
+A McDonald’s AI drive-through bot goes viral. Videos circulate of the 
+system adding bacon to someone’s ice cream. Another order grows into 
+hundreds of dollars of nuggets while two customers laugh and film it. 
+Each item confirmed. The bot was doing exactly what it was designed to 
+do.
+McDonald’s eventually ends the IBM partnership and pulls the system 
+from over 100 locations.
+This Was Not a Code Failure.
+The code ran. Orders were 
+placed and confirmed.
+Every demo in the lab probably looked 
+fine. What failed was the absence of an 
+instrument - nobody wrote the 
+assertion: "order over 20 units → flag 
+and escalate." Nobody ran the test: 
+"what happens when a customer orders 
+500 nuggets?"
+An eval failure is invisible until it isn't. And when it becomes visible, it's usually on someone else's phone.
+You Have an Agent. 
+You've Tested It 
+Informally. Against What?
+"It seemed to work" is not a measurement. That's how every system 
+enters production before it fails on input 47.
+What is the precise, automated assertion against a defined threshold 
+that tells you - objectively, not by feel - whether this system is doing 
+what you built it to do?
+If you can't answer that, you haven't tested it. You've watched it work. 
+Today: build the instrument.
+PART 1
+What a Test 
+Case Actually Is
+Not "does it seem fine." But, Binary.
+Like a Driving Test, Not a Vibe Check
+A driving examiner doesn't ask "did that feel like good driving?" They give a fixed route (parallel park on this street, stop at this 
+junction), a specific standard (wheels within 18 inches of the curb, full stop for 3 seconds), and a checklist with boxes that get 
+ticked or not. At the end: pass or fail. Not "pretty good." Not "mostly fine."
+1
+ROUTE GIVEN
+Parallel park between the two 
+cones on Elm Street
+2
+STANDARD
+Vehicle fully inside bay, no cone 
+touched, completed in one attempt
+3
+RESULT
+☐  PASS   ☐  FAIL
+A test case is this same checklist, for your agent instead of a driver.
+Three Parts. All Three Required.
+Just like a driving test, an effective test case for your agent isn't about subjective feeling. It comprises three non-negotiable 
+components, each critical for objective evaluation:
+1. A Fixed Scenario
+What is the exact input the agent 
+will receive? This includes the user 
+prompt, system context, and any 
+relevant data. No variations, no 
+assumptions.
+2. A Stated Standard
+What does a "correct" response 
+look like? This is a precise definition 
+of the expected output, covering 
+content, format, and behavior.
+3. A Binary Checklist
+A clear, unambiguous pass or fail 
+judgment. Did the agent meet the 
+standard for the given scenario? 
+There's no "almost" in a real test.
+Every single test case you write for your agent must incorporate these three elements to provide truly objective, actionable 
+results.
+Three Parts. All Three Required.
+Same shape as the driving test — a fixed scenario, a stated standard, a pass/fail checklist. Here it is for an agent, using a new 
+example: a customer-support agent answering refund questions.
+1
+01: INPUT
+the "route given"
+What's your refund policy if I 
+bought the item 45 days ago?
+The exact string the agent 
+receives. Not a paraphrase.
+2
+02: EXPECTED BEHAVIOUR
+the "standard"
+Cites the refund policy document 
+by name. States the 30-day 
+window. Does not invent an 
+exception.
+3
+03: ASSERTION
+the "checklist"
+☐  Did it cite the policy document?
+☐  Did it state 30 days?
+☐  Did it decline to invent an 
+exception?
+Binary. Every box, checked.
+Some Things Can Be Checked 
+by a Machine. Some Can't.
+Two real assertions, side by side — not descriptions of the categories, the actual checks:
+HARD ASSERTION ✅ (code can run this)
+if "30-day" in response and "refund_policy.pdf" in 
+citations:
+    return PASS
+A regex or a line of code either finds it or doesn't. No one needs 
+to read the output.
+SOFT ASSERTION ⚠ (a person 
+— or a judge — has to read it)
+The agent cited the right document and the right number. 
+But does the tone sound dismissive to a frustrated 
+customer?
+No regex catches tone. This is why Part 2 exists.
+Most teams write hard assertions and skip soft ones, because soft ones are harder to write. Those are usually the ones that 
+fail in ways that make it to social media.
+Not a Pass Rate. A Hard Stop.
+A 92% pass rate sounds good. It means 8 out of 100 
+test cases fail. Depending on which 8, this is either 
+fine - or a crisis.
+Kill criteria are different. A condition so severe that 
+if it fires even once, the system does not ship. Not 
+"we'll monitor post-launch." Not "that's an edge 
+case." Stop.
+Write the kill criteria before you write the 
+test cases. They tell you what the test 
+cases need to catch.
+KILL CRITERION
+The agent cites refund_policy.pdf 
+for a refund question.
+If this ever fails, even once, the system does not ship. Not "we'll 
+monitor it." Stop.
+One sentence. Not a percentage. That's a kill criterion.
+One Test Case, Every Piece Named
+TEST CASE #14 — Refund Policy, 45 Days
+INPUT
+"What's your refund policy if I bought the item 45 days ago?"
+EXPECTED BEHAVIOUR
+Cites the refund policy document by name. States the 30-day 
+window. Does not invent an exception.
+ASSERTION
+☐  Cited refund_policy.pdf — HARD (code checks this)
+☐  Stated "30 days," not another number — HARD (code 
+checks this)
+☐  Tone doesn't read as dismissive — SOFT (needs judgment — 
+Part 2, next)
+KILL CRITERION
+If the "cited the document" box ever fails — even once, on any 
+run — the system does not ship. Not a percentage. Not "we'll 
+monitor it."
+PART 1.5
+How Big Is This, Really?
+One test case was never the 
+job. The policy document was.
+One Test Case Was the Bottom of a Tree
+
+The Real Number
+5-8
+documents
+× 4-10
+conditions each
+× ~5
+test cases per condition
+≈ 150-350
+total test cases
+Most teams write 5-10. This is the gap informal testing never shows you.
+AI can draft the condition list and test cases at this scale - a human reviews, not writes, 300 of these by hand.
+You Can Measure Coverage. Not Completeness.
+Coverage of Your Checklist
+You can achieve 100% coverage of your known 
+conditions. Every documented policy and scenario can 
+be systematically tested and validated.
+Coverage of Reality
+There will always be unforeseen edge cases, new 
+attack vectors, and evolving user behaviour. This is an 
+unquantifiable, ongoing challenge.
+One of these is a number. The other isn't - and no formula closes that gap.
+Where the Cost Actually Sits
+70%
+Writing & Review
+~50-100 hrs, one-time effort for defining test cases and 
+conditions. This is the bulk of the upfront investment.
+20%
+Judge Calibration
+~2-4 hrs, one-time setup for fine-tuning the evaluation rubric 
+and judge model. Ensures objective assessment.
+5%
+Initial Test Environment Setup
+~1-2 hrs, one-time cost for configuring the testing 
+infrastructure and initial data loading.
+5%
+Compute Per Run
+~$6-15, this recurring cost is minimal for each subsequent 
+execution of the test suite.
+The expensive part is writing it once. Running it again costs almost nothing.
+A Simple 3-Tier Severity Tag System
+🔴 Critical
+Automatic kill criterion
+🟡 High
+Counts against pass-rate 
+threshold
+⚪ Low
+Logged, never blocks shipping
+Tag severity when you write the test case. The kill criteria fall out - you don't decide them separately later.
+The Sprinto Pipeline
+Same method. A system you already built.
+
+Find Every Place the System Judges Something
+Not every stage. Only where the system decides.
+DECISION 1 · SHORTLIST — MOSTLY HARD, ONE SOFT
+Does This Company Match the ICP?
+Input Expected Behaviour Assertion Severity
+Funding stage = Seed (outside 
+Series A–C)
+Rejected shortlisted == false Low
+Funding stage = Series B, B2B 
+SaaS = No
+Rejected shortlisted == false AND reason == "not 
+B2B SaaS"
+Low
+Certifications already procured = 
+Yes (disqualifying — already has 
+what we'd sell)
+Rejected shortlisted == false AND reason == 
+"already certified"
+High
+Size = 45 employees (just under 
+50)
+Accepted — soft boundary, reasonably 
+close
+Judge: shortlisted == true, reasoning 
+notes size is near-band despite being 
+outside it
+High
+Size = 220 employees (just over 
+200)
+Accepted — same soft boundary logic, 
+upper side
+Judge: shortlisted == true, reasoning 
+consistent with Row 4's logic
+High
+Size = 600 employees, all other 
+three conditions pass
+Rejected — soft judgment still has a limit, 
+this is not "close enough"
+Judge: shortlisted == false, reasoning 
+states size is far outside any reasonable 
+band
+Critical
+
+DECISIONS 2 & 3 · PER-COMPANY SCRAPER LOOP
+Has the Loop Found Enough, and When Does It Stop?
+Decision 2 is soft - judgment on completeness. Decision 3 is hard - a number against a cap.
+Input Expected Behaviour Assertion Severity
+[Decision 2] Full firmographic + 
+contact + recent-news data 
+scraped
+Judged sufficient, loop exits Judge: sufficient == true, reasoning cites 
+all 3 fields present
+Low
+[Decision 2] Only company name 
+scraped, nothing else
+Judged insufficient, retry triggered Judge: sufficient == false High
+[Decision 2] Data looks complete 
+but is 3 years stale
+Judged insufficient on recency, not just 
+presence
+Judge catches staleness, not just "field 
+exists"
+Critical
+[Decision 2] Scraped data 
+belongs to a different company 
+(name collision)
+Judged insufficient/flagged, not accepted 
+as a match
+Judge: sufficient == false, reason 
+mentions mismatch
+Critical
+[Decision 3] Retry count = 2 of 3 Loop continues retry_count < cap → continue Low
+[Decision 3] Retry count = 3 of 3 
+(at cap)
+Loop stops, escalates — not a 4th silent 
+retry
+retry_count == cap → status == 
+"escalated"
+Critical
+DECISION 2 · SCRAPER SUFFICIENCY
+What "Sufficient" Scraper Output Really Means
+
+DECISIONS 4 & 5 · DRAFT + FEEDBACK LOOP (BOTH SOFT)
+What's Relevant, and What Counts as a Correction?
+Input Expected Behaviour Assertion Severity
+[Decision 4] Past correction 
+"mention their funding round" + 
+this prospect has a recent round
+Applied Judge: apply == true Low
+[Decision 4] Past correction is a 
+tone fix for a prior, unrelated 
+prospect's industry
+Not applied — irrelevant to this prospect Judge: apply == false High
+[Decision 4] Past correction 
+contradicts a more recent 
+correction on the same topic
+Most recent/specific wins, not both or 
+neither
+Judge resolves conflict with a stated rule Critical
+[Decision 5] Human rewrites the 
+entire opening hook
+Stored as a correction Judge: meaningful == true, stored to 
+feedback memory
+Low
+[Decision 5] Human fixes one typo 
+("teh" → "the")
+Not stored Judge: meaningful == false Low
+[Decision 5] Human changes 
+punctuation only, but it changes 
+tone
+Judged on intent, not edit size Judge doesn't default to "small edit = 
+noise"
+High
+DECISIONS 4 & 5 · DRAFT + FEEDBACK LOOP (BOTH SOFT)
+What Counts as a Correction: Resolving Conflicts
+
+DECISION 6 · SEND & WAIT (THREE HARD, ONE SOFT)
+What Does the Reply Actually Mean?
+Input Expected Behaviour Assertion Severity
+"Sounds great, let's talk." Interested reply_status == "interested" Low
+"Not a fit, please remove 
+us."
+Not interested, suppressed from 
+future outreach
+reply_status == "not_interested" 
+AND added to suppression list
+Critical
+No reply within window No reply reply_status == "no_reply" Low
+"Maybe next quarter, let's 
+see how things go."
+Judged ambiguous, routed to 
+human — not force-classified
+Judge: reply_status == 
+"ambiguous" → HITL
+High
+Three are easy. One needs judgment.
+DECISION 7 · SCHEDULE THE CALL - HARD, BOUNDARY-HEAVY
+Confirm, Counter-Propose, or Silence?
+Input Expected Behaviour Assertion Severity
+Confirms the first proposed 
+time
+Meeting proceeds to booking status == "confirmed" Low
+Counter-proposes once New time proposed back status == "counter_proposed", 
+round increments
+Low
+Counter-proposes at the 
+retry cap (boundary)
+Escalated to human — not a silent 
+extra round
+status == "escalated" at exactly cap, 
+not cap+1
+Critical
+Silent, just inside the reply 
+window (boundary)
+Still waiting, not yet timed out status == "waiting" High
+Silent, just past the reply 
+window (boundary)
+Timed out, escalated status == "timed_out" at the correct 
+hour, not a day late
+Critical
+Test the boundary, not the obvious middle case.
+DECISION 7 · SCHEDULE THE CALL - HARD, BOUNDARY-HEAVY
+Confirm, Counter-Propose, or Silence?
+
+DECISION 8 · BOOK MEETING + UPDATE CRM - HARD
+Five Tools, Five Failure Modes
+Input Expected Behaviour Assertion Severity
+check_calendar times out 
+once
+Retried, then escalated if still 
+failing
+Retry occurs before escalation High
+send_email fails (bad 
+address)
+Retried, then skipped - doesn't 
+block the pipeline
+status == "skipped", pipeline 
+continues
+High
+book_meeting returns a 
+permanent error (calendar 
+permissions revoked)
+Immediate abort, no retry status == "aborted", zero retry 
+attempts logged
+Critical
+update_crm fails after 
+meeting is already booked
+Immediate escalation - meeting 
+exists but CRM doesn't know it
+status == "escalated", human 
+alerted same-cycle
+Critical
+PART 2
+LLM-as-Judge
+When you can't write and test all evaluations.
+FROM METHOD TO PROMPT — DECISION 1 AS THE WORKED EXAMPLE
+Write the Prompt That Writes the Table
+ROLE
+You are a QA test designer. You write exhaustive equivalence-partitioned test cases for an AI agent's decision logic. You do not summarize or sample — you enumerate every partition.
+DECISION TO TEST
+Shortlist filter: a lead-qualification agent decides whether a company should be shortlisted, based on 4 conditions:
+1. Funding stage — must be Series A, B, or C
+2. Company size — target band is 50–200 employees, but this is a SOFT preference, not a hard cutoff. Sizes moderately outside the band (e.g. 40s or 200s–300s) should still often be accepted; only sizes far 
+outside the band should be rejected. There is no fixed number — this requires judgment.
+3. B2B SaaS — yes/no
+4. Certifications already procured — yes/no (if yes, this disqualifies the lead — we have nothing to sell them)
+TASK
+1. For each of the 4 conditions, list every equivalence partition (e.g. for Funding Stage: "within A–C", "outside A–C", "missing/unknown").
+2. For the Size condition specifically, since it is soft, identify: the clearly-in-band partition, the "moderately outside, still acceptable" partition, the "far outside, not acceptable" partition, and the exact boundary 
+between the second and third.
+3. Identify any conditions that INTERACT — where the correct decision for one condition depends on the value of another (e.g., does a borderline size get accepted more easily if the other 3 conditions are 
+strong?). If you don't have enough information to know whether an interaction rule exists, say so explicitly rather than inventing one.
+4. Generate one test case per partition, plus interaction cases if found. Do not generate only a representative sample — generate the full set.
+OUTPUT FORMAT
+A table with exactly these columns: Input | Expected Behaviour | Assertion | Severity (Low / High / Critical)
+- Severity = Low for clearly-correct, uncontested cases
+- Severity = High for boundary or missing-data cases
+- Severity = Critical for cases where getting it wrong would silently admit a disqualified lead or silently reject a good one with no flag for human review
+CONSTRAINT
+Do not stop at 4-6 rows for the sake of brevity. If the true partition count is 12 or 20, produce all of them. Flag with a note at the end: total partition count, and whether any partitions required judgment calls on 
+your part due to ambiguity in this brief.
+ONE WORD FOR THE MACHINE BEHIND EVERY SLIDE SO FAR
+The Harness Is What Actually Runs All This.
+Feed Input Run Agent
+Check Assertion Log Pass/Fail
+Your test table is the design. The harness is what runs it, every time, automatically.
+BUILDING THE TEST HARNESS
+Implementing the Test Harness
+Automates validation for each test case row.
+01
+Send Input to Agent
+Input is sent via the agent's interface.
+02
+Capture Agent Output
+Harness records the agent's response.
+03
+Check Assertions
+Code checks direct assertions; LLM judge 
+scores SOFT ones.
+04
+Record Results
+Pass/fail and severity are logged for traceability.
+05
+Generate Final Report
+Summarizes results by severity; rerunnable.
+FROM TABLE TO RUNNING SCRIPT
+Build the Harness That Runs All This
+ROLE
+You are building a test harness — a script that runs a set of test cases against my deployed agent system and reports results. You are not building the agent itself.
+MY SYSTEM
+My agent is deployed and reachable at: [paste your actual endpoint URL]
+It accepts: [describe the request format — e.g., "a POST with an application's deck text and form responses as JSON"]
+It returns: [describe the response format — e.g., "a JSON object with score, per-criterion breakdown, citations, recommendation"]
+TEST CASES
+Here is my finalized test case table: [paste your Input / Expected Behaviour / Assertion / Severity table]
+TASK
+For each row in the table:
+1. Send the Input to my deployed system over HTTP
+2. Capture the response
+3. Check the response against the Assertion — direct comparison for HARD rows; for SOFT rows, call an LLM as judge using the Assertion's stated criteria as the rubric
+4. Record pass/fail and the Severity of any failure
+OUTPUT
+A report: total passed/failed, broken down by Severity, with a one-line diagnosis for each failure.
+CONSTRAINT
+This script only talks to my system through its public HTTP endpoint. It does not import or read my system's internal code.
+Break It On Purpose
+Force a wrong output, confirm the harness catches it.
+Run It Twice
+Same input, same verdict, both times.
+The Test That Should Fail
+If it passes, your harness isn't checking anything.
+Most of What Your Agent Produces 
+Cannot Be Hard-Asserted.
+Hard Assertions
+"Did this response cite the document?" - yes or no.
+"Did the system refuse an out-of-scope request?" - yes or 
+no.
+Judgment Required
+"Is this email appropriate for a board-level reader?"
+"Did the agent stay within the retrieved context?" - these 
+require a judge.
+A test suite that only covers hard assertions misses the entire second class of failure. And the second class is usually where 
+the interesting failures hide. You need a judge that can exercise judgment - reliably, automatically, on every test case, every 
+run.
+HOW A SOFT ASSERTION IS BUILT - DECISIONS 4 & 5 AS THE EXAMPLE
+Same Table, Different Kind of Assertion
+               Input                            Expected Behaviour                            Assertion                            Severity             
+ HARD — for contrast             Retry count = 3 of 3 (at 
+cap)
+Loop stops, escalates retry_count == cap →  status == 
+"escalated"             
+               Critical             
+               SOFT             Past correction 
+contradicts a more recent 
+correction on the same 
+topic
+Most recent/specific correction 
+wins, not both or neither
+Judge checks three things and all 
+must hold             
+it identifies that a conflict 
+exists
+1.
+it picks the more recent 
+correction
+2.
+its stated reason names which 
+correction it chose and why
+3.
+               Critical             
+               SOFT             Human changes 
+punctuation only, but it 
+changes tone (period → 
+exclamation)
+Judged on intent, not edit size Judge checks two things and 
+both must hold             
+it does not default to "small edit 
+= noise"
+1.
+it correctly flags this as 
+meaningful
+2.
+               High             
+Same four columns every time. For a soft row, the Assertion is a short list of things the judge's answer must get right — not one value to match.
+THE PROBLEM - AND THE FIX
+A Judge From the Same Family as the Agent Shares Its Blind Spots.
+Same model as agent and judge → same blind spots, invisibly. Name the limitation. Don't let it hide.
+Different Model Family
+Judge ≠ agent's model.
+Human Audit Sample
+5-10% graded by a person, blind to the judge's verdict.
+Log Disagreements
+Track every judge-vs-human mismatch.
+PART 3
+Adversarial Inputs
+A hostile input is just a test case with intent.
+An Adversarial Test Runs 
+Exactly Like Any Other Test.
+Same runner. Same judge. Same pass/fail log.
+The only differences: the input is designed to make the 
+system fail, and the expected behaviour is the system 
+resisting correctly.
+This is not a special category of testing requiring a different 
+tool or a different team. It is three more rows in your test 
+case spreadsheet - written by someone thinking like an 
+attacker.
+Red-Teaming =
+Adversarial evaluation. A kill criterion that fires on an 
+injection attempt is exactly the McDonald's lesson: the 
+failure mode was predictable, the test wasn't written, 
+the cost was paid anyway.

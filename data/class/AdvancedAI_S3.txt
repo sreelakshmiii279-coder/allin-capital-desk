@@ -1,0 +1,568 @@
+--- slide 1
+
+S3
+Term 2 | Advanced AI
+Ship It
+Change work safely, then give an AI assistant tools it can use
+
+MESA PGP COHORT 4   .   TERM 2: ADVANCED AI   .   12 NOV 2026   .   90 MIN
+Ekta Shah  |  Coding & More
+--- slide 2
+Today: how to change work safely, and how to give AI tools
+2
+MESA Term 2 | Advanced AI | S3: Ship It
+Clock | Block | What you do | You leave with
+2-6 | The filing system | Learn git as a desk, a tray, a cabinet and a head office | Four words you can use
+6-11 | Explain your own fix | Open your S2 fix and say what changed and why | You can read a change
+11-18 | Look before you save | Five questions to ask, and a trap with a password | You can stop a leak
+18-28 | Read a change | A teammate's change called 'tweak settings' | What changed, why, who gains
+28-47 | Drafts and approvals | Two people change the same line. You decide. You write the approval memo | A resolved conflict
+47-64 | Tools for an AI assistant | What a tool is, the job card, what happens when it jams | Words you can explain
+64-82 | Write your tool cards | Two tools, with a check | tools.py with two cards
+82-85 | Close | One sentence and tonight's task | A plan
+--- slide 3
+Git is a filing system with a memory
+3
+MESA Term 2 | Advanced AI | S3: Ship It
+Where | The office picture | The git word
+1 Your desk | Papers you are editing right now | Working tree (your files)
+2 The outbox tray | The papers you picked to file next | Staging area
+3 The filing cabinet | Every past version, dated and signed | Repository (repo)
+4 Head office copy | A shared drive everyone can see | Remote (GitHub)
+
+The one idea
+Git never forgets.
+A commit is a dated snapshot you choose to file, with a note on it. A commit's receipt number is called a hash.
+
+Think of it as
+Version history in Google Docs, except you decide when to take each snapshot, and you must write a note saying what changed and why. Commit = file a snapshot. Push = send a copy to head office.
+
+
+i
+A commit is a dated snapshot with a note. The note is for the next person.
+--- slide 4
+--- slide 5
+Pairs: explain your own S2 fix, with the change open
+
+PAIR
+5
+MESA Term 2 | Advanced AI | S3: Ship It
+
+Run two commands
+git log --oneline
+(a list of your snapshots, newest first)
+Pick your partner's fix for Bug A, B or C.
+git show <receipt number>
+(opens one snapshot: the note and the change)
+
+Say, in 60 seconds
+What changed (name the lines).
+Why (what problem it removed).
+What else it affects: what happens to every other application's score?
+
+Listener scores
+Clear: I could repeat it.
+Vague: I know the file, not the line.
+Wrong: the effect is not what the change does.
+A good answer | Example
+Names the lines | 'score.py line 1 adds insufficient-data: 0. Line 6 now looks it up directly.'
+States the effect on others | 'VaultNine drops from 10.0 to 0.8. Nothing else moves.'
+Admits what it did not check | 'I did not test an unknown verdict value.'
+
+
+i
+2 minutes each way, then swap. Faculty asks two pairs.
+--- slide 6
+Five questions to ask before you save anything
+6
+MESA Term 2 | Advanced AI | S3: Ship It
+The question | The command | The office picture
+What is on my desk? | git status | A quick look at the desk before filing
+What exactly did I change? | git diff | The Track Changes view of papers not yet in the tray
+What is in my tray? | git diff --staged | Reading the tray before it goes in the cabinet
+What is in the cabinet? | git log --oneline | The index of every snapshot
+What did that one snapshot do? | git show <receipt number> | Opening a single filed document
+
+Read a change like Track Changes in Word
+A line starting with + was added (green). A line starting with - was removed (red). A line with neither is just context. 'diff' is short for 'difference'.
+
+
+i
+If you cannot say what is in the tray, do not file it.
+--- slide 7
+Predict: put everything in the tray, then file it
+
+PREDICT
+7
+MESA Term 2 | Advanced AI | S3: Ship It
+
+my-project/
+  app.py
+  .env           (GEMINI_API_KEY=abc123)
+  reports/A01.json
+  (no .gitignore)
+$ git add . && git commit -m 'save'
+
+What goes in the cabinet?
+A  Only app.py.
+B  app.py and reports/.
+C  Everything, including .env.
+D  Git refuses: it sees a key.
+
+Two words
+git add . means: put everything on my desk in the tray (the dot means everything).
+An API key is the password to a paid service. Think of it as your company credit card number.
+
+The fix
+A .gitignore is a 'do not file' list. Put .env on it before the first snapshot.
+If a key already got filed, it stays in the cabinet history. Treat it as stolen: cancel the card, get a new key.
+
+
+i
+git status is the last check before a secret leaves your desk.
+--- slide 8
+Reading a change: Track Changes for a project
+8
+MESA Term 2 | Advanced AI | S3: Ship It
+
+config.py
+  CRITERIA = [...]
+- ADVANCE_AT = 7.0
++ ADVANCE_AT = 8.0
+  MIN_EVIDENCE = 3
+
+1 What changed
+Which lines? How many?
+
+2 Why
+Is the reason in the note? If not, ask.
+
+3 Trade-off
+Who gains? Who loses? (A trade-off is what you give up to get something.)
+
+4 Risk
+What else did it touch that it should not have?
+
+ADVANCE_AT in plain words
+It is the pass mark. A startup scoring at or above it is advanced to a call with Dhruva. Raise the pass mark and fewer startups get through, which saves the analyst's time and risks missing a good one.
+
+
+i
+A change with no reason is a puzzle. A change with a reason and no trade-off is a sales pitch.
+--- slide 9
+A teammate's commit 'tweak settings': predict the effect
+
+PREDICT
+9
+MESA Term 2 | Advanced AI | S3: Ship It
+
+snapshot 4be21f7   Note: tweak settings
+
+config.py
+- ADVANCE_AT = 7.0
++ ADVANCE_AT = 8.0
+
+run.py  (after line 22)
++ print(app)
+
+Write, in pairs
+1. What changed? (Two things.)
+2. Why? What does the note tell you?
+3. Which startups change in the output?
+4. What else would worry you?
+
+Today's batch, before the change
+LedgerLoop 10.0   FactoryDesk 7.5   PayBridge 7.5 (lender, so passed)   QuickKart 5.0   StoryPal 3.3   VaultNine 0.8
+
+
+i
+Predict first. We run it next.
+--- slide 10
+What the run showed, and what the note should have said
+10
+MESA Term 2 | Advanced AI | S3: Ship It
+Startup | Before | After
+LedgerLoop | 10.0 advance | 10.0 advance
+FactoryDesk | 7.5 advance | 7.5 PASS
+PayBridge | 7.5 pass | 7.5 pass
+QuickKart | 5.0 pass | 5.0 pass
+StoryPal | 3.3 pass | 3.3 pass
+VaultNine | 0.8 no data | 0.8 no data
+The change | What it did
+Pass mark 8.0 | Shortlist drops from 2 to 1
+print(app) | Prints every founder's name and deck on screen
+
+print(app) in plain words
+A print line is a debugging aid: it shows what the program is holding. Left in, it spills private details into screens and log files, like leaving a customer list on the photocopier.
+
+
+i
+One snapshot held a business decision and an accident. Split them: one purpose per snapshot.
+--- slide 11
+Drafts, conflicts and approvals
+Change a copy, not the original. Ask someone to approve it. When two people disagree, a human decides.
+--- slide 12
+Draft, merge, conflict, approval: five words from the office
+12
+MESA Term 2 | Advanced AI | S3: Ship It
+Word | The office picture | What git does | Command
+main | The signed master contract | The version everyone trusts and runs | (the default line)
+Branch | A working draft copy of the contract | You change the draft. The signed one stays safe | git checkout -b <name>
+Merge | Accepting the draft's changes into the master | Brings the draft's snapshots into main | git merge <branch>
+Conflict | Two people redlined the same clause differently | Git stops and asks a human to decide | (appears during a merge)
+Pull request (PR) | A change-request memo asking for sign-off | A page on GitHub where reviewers approve | (opened on github.com)
+Revert | A reversing journal entry: you do not erase the old line, you post one that cancels it | A new snapshot that undoes an old one | git revert <receipt>
+
+
+i
+Never edit the signed master directly. Draft it, get it reviewed, then merge.
+--- slide 13
+--- slide 14
+Lab: merge a conflict (12 min)
+
+LAB
+14
+MESA Term 2 | Advanced AI | S3: Ship It
+Minutes | Do
+0-2 | cd git-practice && ./setup_conflict.sh && cd conflict-lab
+2-4 | git log --oneline --all --graph, then git merge ira-tighten (it merges cleanly)
+4-6 | git merge analyst-loosen. It conflicts. Open config.py and find the <<<<<<< markers
+6-10 | Decide a value. Write a reason. Delete all three marker lines
+10-12 | git add config.py, git commit with the reason, then git log --graph
+
+You are the person who decides
+Ira Bhandari wants fewer, stronger calls: pass mark (ADVANCE_AT) 8.0.
+The analyst thinks the fund is missing good seed-stage deals: 6.5.
+main says 7.0. Both gave a reason. Your note gives yours.
+
+
+i
+Deliverable: a merge with no markers left, and a note giving the reason. Check with: grep -n '<<<<' config.py
+--- slide 15
+Two redlines on one clause: how git shows a conflict
+15
+MESA Term 2 | Advanced AI | S3: Ship It
+
+<<<<<<< HEAD
+ADVANCE_AT = 8.0    # Ira: calls were thin last quarter
+=======
+ADVANCE_AT = 6.5    # analyst: missing seed-stage deals
+>>>>>>> analyst-loosen
+Marker | Means
+<<<<<<< HEAD | Your version starts
+======= | The line between them
+>>>>>>> name | Their version ends
+
+How to resolve
+Keep one line, or write a new one.
+Delete all three marker lines.
+Run the code. Does it still give the expected output?
+
+A merge note (example)
+Merge analyst-loosen: pass mark 7.5
+
+Why: 8.0 drops FactoryDesk (7.5). 6.5 adds nobody on this batch. 7.5 keeps today's shortlist. Ira to confirm.
+--- slide 16
+A change-request memo a reviewer can act on
+16
+MESA Term 2 | Advanced AI | S3: Ship It
+
+Title: Set ADVANCE_AT to 7.5
+
+What: pass mark 7.0 -> 7.5 in config.py
+Why:  8.0 dropped FactoryDesk (7.5);
+      6.5 adds no one on this batch
+Effect: shortlist stays at 2
+How to test: python run.py. Expect
+  LedgerLoop and FactoryDesk to advance
+Risk: the pass mark is a business rule;
+  Ira to confirm
+Not done: no live-mode test
+Weak | Strong
+fix | Set ADVANCE_AT to 7.5
+updates | Reconcile two threshold edits
+Please review | Says what, why, effect, how to test
+
+The reviewer asks
+Could I run this?
+Could I tell if it is wrong?
+Who decides the business rule?
+
+
+i
+A pull request is the note, plus how to test it, plus what you did not do.
+--- slide 17
+Giving an AI assistant tools
+An AI model alone is a clever person in a sealed room. Tools are the slots in the door.
+--- slide 18
+An AI model is a clever consultant in a sealed room
+18
+MESA Term 2 | Advanced AI | S3: Ship It
+Word | The picture | In plain words
+Model | The consultant: brilliant, but no phone and no files | The AI that reads and writes text
+Tool | A slot in the door: the consultant can pass out a request slip | Something the model may ask for
+Function | The clerk's standing job: 'fetch file A03' | A small piece of code that does one job
+Your code (host app) | The clerk who reads the slip, does the job, passes back the answer | The program that connects the model to the functions
+Schema | The job card taped beside each slot | A short, structured description of one tool
+Agent | The consultant plus clerk plus permission to keep going until the job is done | A model that chooses tools to finish a task
+
+
+i
+The consultant never touches your files. The clerk does.
+--- slide 19
+--- slide 20
+The five steps: slip out, clerk works, answer back
+20
+MESA Term 2 | Advanced AI | S3: Ship It
+Step | Who | The picture
+1 | You (your app) | Hand the consultant the question and the job cards
+2 | Model | Writes a slip: 'fetch application A03'
+3 | Your code | The clerk does the job and gets a result
+4 | Your code | Passes the result back through the slot
+5 | Model | Writes the answer, or sends another slip
+
+What this means
+The consultant only knows what is on the job cards.
+A vague label means the wrong slot.
+A missing 'what if it jams' means a made-up answer.
+
+Dhruva example
+User: 'Should we take a call with FactoryDesk?' The model asks for the application, then the assessment, then the score. If one slot jams, what should it do? The job card has to say.
+
+
+i
+The job card is the only thing the model knows about your function.
+--- slide 21
+The job card: five parts, one page
+21
+MESA Term 2 | Advanced AI | S3: Ship It
+
+name: get_application
+description: Fetch one startup application
+  by id. Use this first, before assessing.
+inputs:
+  app_id: text, required, example 'A03'
+output:
+  id, name, stage, sector, deck text
+if it jams:
+  NOT_FOUND     try again: no
+     agent: ask once for a valid id, then
+            hand to a human
+  MISSING_FIELD try again: no
+     agent: report the field, do not guess
+
+What each part is
+Name: a verb and a noun.
+Description: the label on the slot. When to use it, when not to.
+Inputs: the boxes on a form. Each has a type: text, whole number, yes/no. 'Required' means the form will not go through without it.
+Output: what comes back.
+If it jams: the error display, and what to do next.
+
+
+i
+The label decides which slot the consultant picks. Write it for the consultant.
+--- slide 22
+--- slide 23
+When a tool jams, the error screen tells the agent what to do
+23
+MESA Term 2 | Advanced AI | S3: Ship It
+Code | Plain meaning | Try again? | The agent does | Seen in Dhruva
+NOT_FOUND | No such record | No | Ask once for a valid id, then hand to a human | A99 is not in the file
+MISSING_FIELD | A required box is empty | No | Report the field. Never guess it | S2 Lab 3: round_size_cr
+TIMEOUT | No answer in time | Yes, once | Wait 2 seconds, retry once, then hand over | Live model call hangs
+INVALID_VERDICT | A value the table does not know | No | Stop and hand over. Never score it as a point | S2 Bug A
+AUTH | The key was refused | No | Say the tool is unavailable, then stop | Escalation service rejects key
+
+Rules
+'Try again?' is a busy phone line (yes, once) versus a wrong number (no).
+Always return a code and a message. Never an empty answer or a made-up default: the agent cannot tell a jam from an answer.
+
+Hand to a human
+The formal word is escalate.
+--- slide 24
+Your two tools: one that looks, one that acts
+24
+MESA Term 2 | Advanced AI | S3: Ship It
+Tool | What it does | Needs | Gives back | Changes anything?
+get_application | Looks up one application | app_id | the fields and deck text | No. Read only
+escalate_to_analyst | Sends a case to a human analyst | app_id, reason | ticket id, already_open | Yes. A ticket is created
+
+Safe to call twice (the formal word is idempotent)
+A lift button: press it twice and one lift comes. A pay button: press twice and you may be charged twice. A tool that changes something must behave like the lift button: if a ticket is already open, say so and do not open another.
+
+Why these two
+One looks, one acts. They teach the two kinds of tool.
+
+Take-home
+assess_application and score_application: same method, same check.
+--- slide 25
+--- slide 26
+Lab: write two job cards with Claude Code (16 min)
+
+LAB
+26
+MESA Term 2 | Advanced AI | S3: Ship It
+Minutes | Do
+0-3 | Ask Claude Code to draft the get_application card (prompt on the reference page). It may only explain. Do not let it edit files
+3-9 | Check it against the four questions on the next slide. Fix at least two gaps by hand
+9-14 | Write the escalate_to_analyst card yourself, with no AI
+14-16 | Save as tools.py. Commit it on a draft copy (a branch) called tools
+
+Rules
+New file only: tools.py. Do not change run.py, score.py or loader.py.
+Every card has all five parts.
+Every 'if it jams' says try again or not, and what the agent does next.
+Stuck at minute 8? Look at the template on the reference page.
+
+
+i
+Deliverable: tools.py with two cards, committed on branch tools. The memo (pull request) is tonight's task.
+--- slide 27
+Review checklist: four questions to ask of every job card
+27
+MESA Term 2 | Advanced AI | S3: Ship It
+# | Question | A gap looks like
+1 | Could the consultant pick this slot from the label alone? | 'Gets data'
+2 | Does every input say its type and an example, and does the output name everything the next step needs? | 'id' with no type; 'returns the result'
+3 | Does every jam say try again or not, and what to do next? Could it return something that looks like a real answer? | It returns nothing, or an unknown verdict counts as a point
+4 | If it changes something, is it safe to call twice? | Escalate opens a second ticket
+--- slide 28
+Exit ticket, tonight's task and what is next
+
+EXIT
+28
+MESA Term 2 | Advanced AI | S3: Ship It
+
+Exit ticket (one sentence)
+Which of your two job cards could hurt Dhruva if its 'if it jams' part were missing, and what would the agent do?
+
+Tonight
+Push your tools branch and open a pull request (the memo) in your ai-builds repo.
+Memo: what, why, effect, how to test, risk, not done.
+Take-home: cards for assess_application and score_application.
+
+Next session
+MCP: a standard plug, like USB, so any AI assistant can use your tools.
+Memory and context.
+The five layers of an AI system.
+
+Milestone
+Memo open, conflict resolved, tools.py with two complete cards.
+
+
+i
+Next session you plug one of these tools in with MCP. Bring tools.py.
+--- slide 29
+Reference pages
+Keep these open during the labs. They are not taught live.
+--- slide 30
+Reference: git words in plain English
+30
+MESA Term 2 | Advanced AI | S3: Ship It
+Word | The office picture | One-line meaning
+Repository (repo) | The filing cabinet | A project folder with its whole history
+Working tree | Your desk | The files as you are editing them now
+Staging area | The outbox tray | What goes into the next snapshot
+Commit | A dated, signed snapshot with a note | One saved version, plus the reason
+Hash | The receipt number | The unique id of a commit
+Diff | Track Changes | What changed between two versions
+Remote / push | Head office copy / sending it | The copy on GitHub / uploading to it
+Branch / main | A working draft / the signed master | A parallel line of work / the trusted version
+Merge / conflict | Accept the draft / two redlines clash | Combine branches / a human must decide
+Pull request | A change-request memo | A request to review and merge
+Revert | A reversing journal entry | A new commit that cancels an old one
+.gitignore / .env | A do-not-file list / a key locker | Files git skips / where passwords live
+--- slide 31
+Reference: tool words in plain English
+31
+MESA Term 2 | Advanced AI | S3: Ship It
+Word | The office picture | One-line meaning
+Model | The consultant in a sealed room | The AI that reads and writes text
+Agent | Consultant plus clerk, working until done | A model that chooses tools to finish a task
+Tool | A slot in the door | Something the model may ask for
+Function | The clerk's standing job | A small piece of code that does one thing
+Schema | The job card by each slot | A structured description of one tool
+Input / type | A form box / what the box accepts | What you give it / text, number or yes-no
+Output | The answer through the slot | What the tool returns
+Failure return | The error screen | A code, a message, and what to do next
+Retryable | Busy line versus wrong number | Is it worth trying again?
+Escalate | Hand it to the manager | Pass a case to a human
+Side effect | Writing in the ledger, not just reading it | The tool changes something in the world
+Idempotent | The lift button | Safe to call twice
+MCP (next session) | A standard plug, like USB | A common way to connect tools to any assistant
+--- slide 32
+Reference: the git commands you need
+32
+MESA Term 2 | Advanced AI | S3: Ship It
+I want to... | Command
+See what changed | git status; git diff; git diff --staged
+Save a change | git add <file>; git commit -m '<what, why>'
+See history | git log --oneline --graph; git show <hash>
+Start a draft (branch) | git checkout -b <name>
+Bring a draft in | git merge <branch>
+Share a draft | git push -u origin <branch>
+Undo a shipped commit | git revert <hash>
+Take a file out of the tray | git restore --staged <file>
+Throw away unsaved edits to a file | git checkout -- <file> (it cannot be undone)
+--- slide 33
+Reference: the job card template
+33
+MESA Term 2 | Advanced AI | S3: Ship It
+
+{
+  "name": "verb_noun",
+  "description": "What it does. When to use it. When not to.",
+  "inputs": {"param": {"type": "text", "required": true, "example": "A03"}},
+  "output": {"field": "what it holds"},
+  "changes_something": "no | yes (is it safe to call twice?)",
+  "if_it_jams": {
+     "CODE": {"try_again": false, "agent_does": "what the agent does next"}
+  }
+}
+--- slide 34
+Reference: prompts for the tools lab
+34
+MESA Term 2 | Advanced AI | S3: Ship It
+Use | Prompt
+Draft | Do not modify any files. Read loader.py. Draft a tool schema for get_application: name, description, typed inputs, output fields, failure codes with retryable and what the agent does next.
+Check | For this schema, list what could fail and which failure is missing. If you are not sure, say cannot tell.
+Safe twice | Which tools in this agent change something in the world? Is it safe to call twice? If not, how would you make it so?
+Take-home | Repeat Draft and Check for assess_application (llm.py) and score_application (score.py and guard.py).
+--- slide 35
+Reference: could someone else run it from a fresh laptop?
+35
+MESA Term 2 | Advanced AI | S3: Ship It
+Item | The office picture | Check in Dhruva
+README | The instruction leaflet | Says how to install, set up .env, run, and what you should see
+requirements.txt | The shopping list of software it needs | Lists google-genai and python-dotenv
+.env.example | A blank key form | Present, key empty, OFFLINE=1
+.gitignore | The do-not-file list | .env, reports/, runs/, .venv/, __pycache__/
+Fresh-clone test | A stranger tries it on a new laptop | A neighbour follows only the README
+
+
+i
+If the author has to be in the room for it to run, it is not a handover.
+--- slide 36
+Reference: undoing a change, and a key that got filed
+36
+MESA Term 2 | Advanced AI | S3: Ship It
+
+Revert
+A reversing journal entry: a new commit that cancels an earlier one.
+The old line stays in the ledger.
+Use it when a shipped change was wrong.
+
+A key that got filed
+Anyone who can read the repo can read the old snapshot.
+Revert does not remove it.
+Treat the key as stolen: cancel the card first (get a new key), then clean up.
+
+What prevents it
+A .gitignore before the first commit.
+git status before every add.
+A .env.example with names only.
+Source: GitGuardian, State of Secrets Sprawl 2025 (a vendor report), for how often secrets are committed to public repositories.
+
+
+i
+Replace the key first. Cleaning the history comes second.

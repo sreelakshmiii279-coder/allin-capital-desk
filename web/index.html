@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>All In Desk</title>
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <style>
 :root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mute:#6b6a64;--line:#e4e2da;--accent:#1f6f4a;--accent-soft:#e3f1e9;
 --warn:#a35c00;--warn-soft:#fbefdc;--bad:#a8322d;--bad-soft:#f8e3e1;--info:#2b5c9e;--info-soft:#e4ecf7;--chip:#efede6}
@@ -44,20 +43,35 @@ textarea{width:100%;min-height:70px}.row{display:flex;gap:8px;flex-wrap:wrap;ali
 .ok{background:var(--accent-soft);color:var(--accent);padding:8px 12px;border-radius:8px;margin:8px 0}
 .hist{font-size:12px;color:var(--mute)}.back{cursor:pointer;color:var(--info)}
 details summary{cursor:pointer;color:var(--info)}
+#chatbtn{position:fixed;right:20px;bottom:20px;z-index:20;border-radius:99px;padding:11px 18px;background:var(--accent);color:#fff;border:0;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#chat{position:fixed;right:20px;bottom:76px;z-index:20;width:min(420px,calc(100vw - 32px));height:min(560px,calc(100vh - 120px));display:none;flex-direction:column;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#chat.open{display:flex}#chat header{padding:10px 14px;border-bottom:1px solid var(--line);max-width:none;margin:0}
+#chatlog{flex:1;overflow:auto;padding:10px 14px}.msg{margin:8px 0;padding:8px 10px;border-radius:10px;white-space:pre-wrap}
+.msg.user{background:var(--info-soft);margin-left:30px}.msg.bot{background:var(--chip);margin-right:20px}
+.msg .src{display:inline-block;margin-top:4px}#chatform{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}#chatq{flex:1}
+@media(max-width:600px){#chat{right:16px;bottom:72px}#chatbtn{right:16px;bottom:16px}}
 </style>
 </head>
 <body>
 <header>
   <h1>All In Capital · Inbound Triage Desk</h1>
-  <div class="sub">Makes the case and shows its work. It does not decide: Kushal sees every outcome. MESA Term 2 · Case 03 · built with the AI with Mihirr Sose method.</div>
+  <div class="sub">Makes the case and shows its work. Riya reviews every application and Kushal sees every outcome: nothing is decided automatically.</div>
   <nav id="nav"></nav>
 </header>
 <main id="main">Loading…</main>
+<button id="chatbtn" onclick="toggleChat()">💬 Ask the desk</button>
+<div id="chat" role="dialog" aria-label="Ask the desk">
+  <header><div class="row" style="justify-content:space-between"><b>Ask the desk</b><span class="small mute" id="chatfocus"></span><button onclick="toggleChat()" aria-label="Close" style="padding:2px 8px">✕</button></div>
+  <div class="small mute">Answers only from the desk's data, with sources. It can't approve, reject or send — that's the Partner review box.</div></header>
+  <div id="chatlog"></div>
+  <form id="chatform" onsubmit="askDesk(event)"><input id="chatq" placeholder="e.g. Why is Talkbook on hold?" autocomplete="off"><button class="primary">Ask</button></form>
+</div>
 <script>
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const TABS=[['queue','Review queue'],['backtest','Backtest'],['feedback','Feedback loop'],['add','Add application'],['docs','How it was built']];
+const TABS=[['queue','Review queue'],['add','Add applications'],['cost','Cost'],['backtest','Backtest'],['feedback','Feedback loop']];
 let PW=''; try{PW=localStorage.getItem('deskpw')||''}catch(e){}
-function pw(){ if(!PW){PW=prompt('Desk password (needed to review, correct or book):')||''; try{localStorage.setItem('deskpw',PW)}catch(e){}} return PW}
+function pw(){ if(!PW){PW=prompt('Desk password (needed to review, correct, send or run the queue):')||''; try{localStorage.setItem('deskpw',PW)}catch(e){}} return PW}
 async function api(p,o={}){const h={'Content-Type':'application/json'}; if(o.method==='POST')h['X-Desk-Password']=pw();
   const r=await fetch(p,{...o,headers:h}); const j=await r.json().catch(()=>({})); if(r.status===401){PW='';try{localStorage.removeItem('deskpw')}catch(e){}}
   if(!r.ok) throw new Error(j.error||r.statusText); return j}
@@ -65,18 +79,28 @@ function pillFor(rec){rec=rec||'';const c=rec.startsWith('Take')?'p-call':rec.st
 function nav(cur){$('#nav').innerHTML=TABS.map(([k,l])=>`<a href="#/${k}" class="${cur===k?'on':''}">${l}</a>`).join('')}
 async function route(){const h=location.hash.slice(2)||'queue';const [view,id]=h.split('/');nav(view==='app'?'queue':view);
   try{ if(view==='app')return detail(id); if(view==='backtest')return backtest(); if(view==='feedback')return fbView();
-    if(view==='add')return addView(); if(view==='docs')return docs(id||'design'); return queue()}catch(e){$('#main').innerHTML=`<div class="note">${esc(e.message)}</div>`}}
+    if(view==='add')return addView(); if(view==='cost')return costView(); if(view==='run')return runView(id); return queue()}catch(e){$('#main').innerHTML=`<div class="note">${esc(e.message)}</div>`}}
 window.onhashchange=route;
+// only the view the user is on may draw (a slow earlier load must not overwrite a newer page)
+function on(v){return ((location.hash.slice(2)||'queue').split('/')[0]||'queue')===v}
 
 const ORDER=r=>r.startsWith('Take the call')&&!r.includes('capacity')?0:r.startsWith('HOLD')?1:r.startsWith('Partner')?2:r.includes('capacity')?3:r.startsWith('Pass')?4:5;
 async function queue(){
-  const [rows,st,bt]=await Promise.all([api('/api/queue'),api('/api/stats'),api('/api/backtest')]);
+  const [rows,st,bt,jb,cs]=await Promise.all([api('/api/queue'),api('/api/stats'),api('/api/backtest'),api('/api/jobs'),api('/api/cost')]);
+  if(!on('queue'))return;
   rows.sort((a,b)=>ORDER(a.recommendation||'')-ORDER(b.recommendation||'')||(b.score||0)-(a.score||0));
   const calls=rows.filter(r=>(r.recommendation||'').startsWith('Take the call')&&!r.recommendation.includes('capacity')).length;
   const b=bt.result;
+  const jc=jb.counts||{}, attn=(jb.jobs||[]).filter(j=>j.status==='needs_attention');
   $('#main').innerHTML=`
+  ${cs.paused?`<div class="note"><b>Paused:</b> today's model spend INR ${cs.today_inr} passed the daily limit of INR ${cs.limit_inr}. Queued applications wait; nothing is lost. <a href="#/cost">Cost page</a></div>`:''}
+  <details class="card" id="pulsebox" ontoggle="if(this.open)loadPulse()"><summary><b>What's happening</b> <span class="small mute">Google News, last 7 days: the fund's sectors and Indian startup funding</span></summary><div id="pulse" class="small mute">Loading headlines…</div></details>
+  <div class="card"><div class="row" style="justify-content:space-between"><div><h3 style="margin:0">Intake queue</h3>
+    <div class="small mute">${jc.queued||0} waiting · ${jc.running||0} running · ${jc.done||0} done · <b style="color:${attn.length?'var(--bad)':'inherit'}">${jc.needs_attention||0} need attention</b> · today INR ${cs.today_inr} of ${cs.limit_inr}</div></div>
+    <div class="row"><button onclick="doTick()" ${(jc.queued||0)?'':'disabled'}>Process queue</button><span id="tickout" class="small"></span></div></div>
+    ${attn.length?`<div style="margin-top:8px">${attn.slice(0,10).map(j=>`<div class="small">⚠ <b>${esc(j.name)}</b>: ${esc(j.reason||'')}</div>`).join('')}</div>`:''}</div>
   <div class="kpis">
-    <div class="kpi"><b>${rows.length}</b><span>applications this batch</span></div>
+    <div class="kpi"><b>${rows.length}</b><span>applications read</span></div>
     <div class="kpi"><b>${calls} / ${st.capacity}</b><span>"take the call" vs Tue/Thu capacity</span></div>
     <div class="kpi"><b>${st.reviewed}/${st.applications}</b><span>reviewed by a partner</span></div>
     <div class="kpi"><b>${st.override_rate==null?'—':Math.round(st.override_rate*100)+'%'}</b><span>override rate (kill > ${st.kill.override_rate*100}%)</span></div>
@@ -84,6 +108,7 @@ async function queue(){
     <div class="kpi"><b>${b?b.agree+'/'+b.n:'—'}</b><span>backtest agreement (gate ≥ ${st.kill.backtest_min})</span></div>
     <div class="kpi"><b>${st.calls_booked}</b><span>calls booked</span></div>
     <div class="kpi"><b>${st.avg_review_min??'—'}</b><span>avg review min (baseline ${st.baseline_min_per_app}, kill > ${st.kill.review_min})</span></div>
+    <div class="kpi"><b>INR ${cs.avg_per_application_inr}</b><span>avg model cost per application</span></div>
   </div>
   <table><thead><tr><th>Company</th><th>Desk's case</th><th>Score <span class="hide-m">(revealed · written)</span></th><th class="hide-m">Flags</th><th>Partner</th></tr></thead><tbody>
   ${rows.map(r=>`<tr class="click" onclick="location.hash='#/app/${r.id}'">
@@ -102,6 +127,7 @@ let T0=Date.now();
 async function detail(id){
   T0=Date.now();
   const r=await api('/api/app/'+id), d=r.read, b=r.booking;
+  if(!on('app'))return;
   const res=d.research||{};
   const resRows=Object.entries(res).filter(([k])=>!k.startsWith('_')).map(([k,v])=>`<tr><td><b>${esc(k.replace(/_/g,' '))}</b>${v.who?`<div class="small">${esc(v.who)}</div>`:''}${v.claim?`<div class="small">${esc(v.claim)}</div>`:''}</td>
      <td><span class="chip ${v.status==='confirmed'?'':v.status==='not_found'||v.status==='namesake_only'?'soft':'hard'}">${esc(v.status)}</span></td><td class="small">${esc(v.finding)}<div>${(v.sources||[]).slice(0,4).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener" class="chip">${esc((s.title||'source').slice(0,40))}</a>`).join('')}</div></td></tr>`).join('');
@@ -116,12 +142,13 @@ async function detail(id){
     ${d.withheld_reason?`<div class="note">${esc(d.withheld_reason)}</div>`:''}
     ${(d.flags||[]).map(f=>`<div class="${f.hard?'note':'small'}" style="${f.hard?'':'margin:4px 0'}"><span class="chip ${f.hard?'hard':'soft'}">${esc(f.key.replace(/_/g,' '))}</span> ${esc(f.why)}</div>`).join('')}
     ${d.deeptech_second_call?`<div class="small">🔬 ${esc(d.deeptech_second_call)}</div>`:''}
-    <p class="small mute">${esc(d.scored_against||'')}${d.previous_score!=null?` · Re-scored: ${d.previous_score} → ${d.score_revealed} (was “${esc(d.previous_recommendation)}”)`:''}</p>
+    <p class="small mute">${esc(d.scored_against||'')}${d.previous_score!=null?` · Re-scored: ${d.previous_score} → ${d.score_revealed} (was “${esc(d.previous_recommendation)}”)`:''}
+    ${d.run_id?` · <a href="#/run/${d.run_id}">open this run's trace</a>${d.cost_inr!=null?' (INR '+d.cost_inr+')':''}`:''} · prompt ${esc(d.prompt_version||'score-v1')}</p>
   </div>
 
   <div class="card"><h3>Partner review</h3>
     <div class="row"><select id="rv"><option value="accept">Accept the desk's case</option><option value="take_call">Take the call (books it)</option><option value="pass">Pass</option><option value="hold">Hold</option></select>
-    <input id="rvwho" placeholder="Reviewer" value="Kushal" style="width:120px"><input id="rvnote" placeholder="One line: why (required if you override)" style="flex:1;min-width:220px">
+    <input id="rvwho" placeholder="Reviewer" value="Riya" style="width:120px"><input id="rvnote" placeholder="One line: why (required if you override)" style="flex:1;min-width:220px">
     <button class="primary" onclick="doReview('${id}')">Record</button></div>
     <div class="small mute" style="margin-top:6px">Current: ${esc(r.status||'pending')}${r.decision?' · '+esc(r.decision):''}${r.note?' · “'+esc(r.note)+'”':''}${r.reviewer?' · '+esc(r.reviewer):''}</div>
     <div id="rvout"></div></div>
@@ -164,13 +191,24 @@ async function detail(id){
   <details class="card"><summary>Raw facts extracted (each with its quote)</summary><pre class="small" style="white-space:pre-wrap">${esc(JSON.stringify(d.facts,null,1))}</pre></details>
   `;
 }
+function fmtSlot(x){return new Date(x).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}
 function bookingCard(id,b){
-  if(!b) return `<div class="card small mute">📅 Booking starts automatically when a partner records “Take the call”. Tue/Thu afternoons, 30 min; Aditya joins for deeptech.</div>`;
-  return `<div class="card"><h3>📅 Booking agent — ${esc(b.meeting_status.replace(/_/g,' '))}</h3>
-   <div class="small">Attendees: ${esc(b.attendees.join(', '))} · round ${b.reply_round} · ${b.chosen_slot?'booked '+new Date(b.chosen_slot).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'offered: '+b.slots_proposed.map(s=>new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})).join(' · ')}</div>
+  if(!b) return `<div class="card small mute">📅 When a partner records “Take the call”, the desk holds 3 Tue/Thu slots in Riya's calendar and drafts the founder email for Riya to edit and send.</div>`;
+  if(b.meeting_status==='refused') return `<div class="card note small">${esc(b.why||'')}</div>`;
+  const draft=b.draft||{};
+  return `<div class="card"><h3>📅 Booking — ${esc(b.meeting_status.replace(/_/g,' '))}</h3>
+   <div class="small">Attendees: ${esc((b.attendees||[]).join(', '))} · round ${b.reply_round} · ${b.chosen_slot?'booked '+fmtSlot(b.chosen_slot):'held: '+(b.slots_proposed||[]).map(fmtSlot).join(' · ')}</div>
+   ${b.meeting_status==='draft_ready'?`<div style="margin-top:10px"><div class="small mute">Draft for ${esc(b.founder_name)} — edit, then send. ${draft.lessons_applied&&draft.lessons_applied.length?'Lessons from past edits applied: #'+draft.lessons_applied.join(', #'):''}</div>
+     <input id="dsub" value="${esc(draft.subject||'')}" style="width:100%;margin:6px 0">
+     <textarea id="dbody" style="min-height:200px">${esc((draft.body||'').replace(/\\n/g,'\n'))}</textarea>
+     <div class="row" style="margin-top:6px"><input id="dnote" placeholder="Optional: why you changed it (helps the next draft)" style="flex:1;min-width:240px">
+     <button class="primary" onclick="doSend('${id}')">Send</button></div>
+     <div class="small mute">In this build the email goes to our own inbox (safety rule), ready to forward.</div></div>`:''}
    ${b.meeting_status==='pending_confirmation'?`<div class="row" style="margin-top:8px"><input id="reply" placeholder="Paste the founder's reply, e.g. 'Thursday 2:45 works'" style="flex:1;min-width:240px"><button onclick="doReply('${id}')">Process reply</button><button onclick="doNoReply('${id}')">No reply after 3 days</button></div>`:''}
-   <details class="small"><summary>State object and history</summary><pre style="white-space:pre-wrap">${esc(JSON.stringify({...b,history:undefined},null,1))}</pre>${b.history.map(h=>`<div class="hist">${esc(h.at)} — ${esc(h.what)}</div>`).join('')}</details>
-   <div class="small mute">Emails go to our own inbox (safety rule), with the .ics invite, ready to forward.</div></div>`}
+   ${b.edit&&b.edit.meaningful?`<div class="small" style="margin-top:6px">✎ Riya's edit was stored as a lesson: ${esc(b.edit.summary||'')}</div>`:''}
+   <details class="small"><summary>State object and history</summary><pre style="white-space:pre-wrap">${esc(JSON.stringify({...b,history:undefined,draft:undefined},null,1))}</pre>${(b.history||[]).map(h=>`<div class="hist">${esc(h.at)} — ${esc(h.what)}</div>`).join('')}</details></div>`}
+async function doSend(id){try{await api(`/api/booking/${id}/send`,{method:'POST',body:JSON.stringify({subject:$('#dsub').value,body:$('#dbody').value,note:$('#dnote').value,editor:'Riya'})});detail(id)}catch(e){alert(e.message)}}
+async function doTick(){$('#tickout').textContent='Processing (up to ~4 min)…';try{const j=await api('/api/worker/tick',{method:'POST'});$('#tickout').textContent=`${j.processed} processed`;setTimeout(queue,800)}catch(e){$('#tickout').textContent=e.message}}
 async function doReview(id){const o=$('#rvout');o.innerHTML='Saving…';try{const j=await api('/api/review/'+id,{method:'POST',body:JSON.stringify({decision:$('#rv').value,note:$('#rvnote').value,reviewer:$('#rvwho').value,seconds:Math.round((Date.now()-T0)/1000)})});
   o.innerHTML=`<div class="ok">Recorded (${esc(j.status)}).${j.booking?' Booking agent started: '+esc(j.booking.meeting_status):''}</div>`;setTimeout(()=>detail(id),900)}catch(e){o.innerHTML=`<div class="note">${esc(e.message)}</div>`}}
 async function doCorrect(id,k){try{await api('/api/correct/'+id,{method:'POST',body:JSON.stringify({criterion:k,new:$('#cn-'+k).value,reason:$('#cr-'+k).value,reviewer:$('#rvwho').value})});alert('Correction stored with its context. It will be retrieved for similar companies.')}catch(e){alert(e.message)}}
@@ -179,7 +217,7 @@ async function doReply(id){try{await api(`/api/booking/${id}/reply`,{method:'POS
 async function doNoReply(id){try{await api(`/api/booking/${id}/noreply`,{method:'POST'});detail(id)}catch(e){alert(e.message)}}
 
 async function backtest(){
-  const bt=await api('/api/backtest'); if(!bt.result){$('#main').innerHTML='No backtest yet.';return}
+  const bt=await api('/api/backtest'); if(!on('backtest'))return; if(!bt.result){$('#main').innerHTML='No backtest yet.';return}
   const b=bt.result;
   $('#main').innerHTML=`<div class="kpis"><div class="kpi"><b>${b.agree}/${b.n}</b><span>agrees with the fund's real decision</span></div>
    <div class="kpi"><b>${b.passes_gate?'PASS':'FAIL'}</b><span>go-live gate: ≥ ${b.gate}/12, agreed in advance</span></div>
@@ -189,10 +227,11 @@ async function backtest(){
    ${b.rows.map(r=>`<tr><td>${r.memo}</td><td><b>${esc(r.company)}</b><div class="small mute">${esc(r.sector)}</div></td><td>${esc(r.fund)}</td><td>${pillFor(r.desk)}</td>
     <td>${r.score} · <span class="mute">${r.score_written}</span></td><td>${r.agree?'✅':'❌'}</td>
     <td class="small">${r.hindsight?`<b>${esc(r.hindsight.who_looks_wrong.replace(/_/g,' '))}</b> · driven by <i>${esc(r.hindsight.driving_criterion)}</i>: ${esc(r.hindsight.explanation)} ${(r.hindsight.sources||[]).slice(0,3).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener" class="chip">${esc((s.title||'src').slice(0,30))}</a>`).join('')}`:''}</td></tr>`).join('')}</tbody></table>
-   <p class="small mute">Run ${esc(bt.at)}. Full write-up: <a href="#/docs/backtest">backtest report</a>.</p>`}
+   <p class="small mute">Run ${esc(bt.at)}.</p>`}
 
 async function fbView(){
   const [c,st]=await Promise.all([api('/api/feedback'),api('/api/stats')]);
+  if(!on('feedback'))return;
   $('#main').innerHTML=`<div class="kpis"><div class="kpi"><b>${st.corrections}</b><span>stored corrections</span></div>
   <div class="kpi"><b>${st.mean_abs_delta??'—'}</b><span>mean |change| per correction (disagreement)</span></div>
   <div class="kpi"><b>${st.override_rate==null?'—':Math.round(st.override_rate*100)+'%'}</b><span>recommendations overridden</span></div></div>
@@ -202,16 +241,49 @@ async function fbView(){
    <td class="small">${esc(x.tags?.sector)} · ${esc((x.tags?.families||[]).join(', '))}</td><td class="small">${esc(x.reviewer)}<div class="mute">${esc(x.at.slice(0,10))}</div></td></tr>`).join('')}</tbody></table>`}
 
 function addView(){
-  $('#main').innerHTML=`<div class="card"><h3>Add an application to the pile</h3><p class="small mute">Paste the form response and deck text. The full desk runs (extract → portfolio check → web research → score), about 2–3 minutes.</p>
+  $('#main').innerHTML=`<div class="card"><h3>Add applications to the queue</h3><p class="small mute">Paste one application, or upload a JSON file with many: <code>[{"name":"…","form":"…","deck":"…"}]</code>. They join the queue and are processed in turn (about 2–3 minutes each, 3 at a time). Anything unreadable is marked “needs attention” with a reason — nothing disappears.</p>
   <input id="an" placeholder="Company name" style="width:100%;margin-bottom:8px"><textarea id="af" placeholder="Form response text" style="min-height:140px"></textarea>
-  <textarea id="ad" placeholder="Deck text" style="min-height:140px;margin-top:8px"></textarea><div class="row" style="margin-top:8px"><button class="primary" onclick="doAdd()">Run the desk</button><span id="aout" class="small"></span></div></div>`}
-async function doAdd(){$('#aout').textContent='Running… (2–3 min)';try{const j=await api('/api/add',{method:'POST',body:JSON.stringify({name:$('#an').value,form:$('#af').value,deck:$('#ad').value})});location.hash='#/app/'+j.id}catch(e){$('#aout').textContent=e.message}}
+  <textarea id="ad" placeholder="Deck text" style="min-height:140px;margin-top:8px"></textarea>
+  <div class="row" style="margin-top:8px"><button class="primary" onclick="doAdd()">Add to queue</button><input type="file" id="afile" accept=".json"><button onclick="doAddFile()">Queue file</button><span id="aout" class="small"></span></div></div>`}
+async function doAdd(){try{const j=await api('/api/add',{method:'POST',body:JSON.stringify({name:$('#an').value,form:$('#af').value,deck:$('#ad').value})});$('#aout').textContent=`Queued (job ${j.job_ids[0]}). Go to the review queue and press Process queue.`}catch(e){$('#aout').textContent=e.message}}
+async function doAddFile(){const f=$('#afile').files[0];if(!f)return;try{const apps=JSON.parse(await f.text());const j=await api('/api/intake',{method:'POST',body:JSON.stringify({applications:apps,batch:'upload-'+new Date().toISOString().slice(0,10)})});$('#aout').textContent=`${j.job_ids.length} queued.`}catch(e){$('#aout').textContent=e.message}}
 
-async function docs(which){
-  const D=[['design','Design (S1–S6 step by step)'],['trust','Trust contract'],['backtest','Backtest report'],['run','This batch'],['thesis','Thesis research (sourced)']];
-  let md='';try{md=(await api('/api/doc/'+which)).markdown}catch(e){md='_Not written yet._'}
-  $('#main').innerHTML=`<div class="row" style="margin-bottom:10px">${D.map(([k,l])=>`<a href="#/docs/${k}" class="chip" style="${k===which?'font-weight:700':''}">${l}</a>`).join('')}</div><div class="doc">${marked.parse(md)}</div>`;
-  document.querySelectorAll('.doc a').forEach(a=>{a.target='_blank';a.rel='noopener'})}
+async function costView(){
+  const c=await api('/api/cost'); if(!on('cost'))return; const t=(rows,cols)=>`<table><thead><tr>${cols.map(x=>`<th>${x[1]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(x=>`<td>${esc(r[x[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  $('#main').innerHTML=`${c.paused?`<div class="note"><b>Paused:</b> today's spend passed the daily limit.</div>`:''}
+  <div class="kpis"><div class="kpi"><b>INR ${c.today_inr}</b><span>spent today (limit INR ${c.limit_inr}; pauses and emails an alert when passed)</span></div>
+  <div class="kpi"><b>INR ${c.avg_per_application_inr}</b><span>average per application</span></div>
+  <div class="kpi"><b>INR ${c.projection_100_apps_inr}</b><span>projected for 100 applications (announcement day)</span></div>
+  <div class="kpi"><b>30 min</b><span>Riya's time per application today, for comparison</span></div></div>
+  <p class="small mute">${esc(c.prices.note)} Input $${c.prices.in_per_m_usd}/M tokens · output $${c.prices.out_per_m_usd}/M · search grounding $${c.prices.search_per_call_usd}/call · USD/INR ${c.prices.usd_inr}. Routed: ${c.via.map(v=>`${v.via} ${v.calls} calls (${v.retries} retries)`).join(' · ')}</p>
+  <div class="grid2"><div><h2>By day</h2>${t(c.by_day,[['day','Day (IST)'],['inr','INR'],['calls','Calls'],['searches','Searches']])}</div>
+  <div><h2>By week / month</h2>${t(c.by_week,[['week','Week of'],['inr','INR'],['calls','Calls']])}<div style="height:10px"></div>${t(c.by_month,[['month','Month'],['inr','INR'],['calls','Calls']])}</div></div>
+  <h2>By step</h2>${t(c.by_step,[['step','Step'],['kind','Kind'],['inr','INR'],['calls','Calls'],['avg_ms','Avg ms']])}
+  <h2>By application</h2>${t(c.by_application,[['app_id','Application'],['inr','INR'],['calls','Calls'],['runs','Runs'],['last','Last run']])}`}
+
+async function runView(id){
+  const r=await api('/api/run/'+id);
+  if(!on('run'))return;
+  $('#main').innerHTML=`<p class="back" onclick="history.back()">← Back</p><div class="card"><h3>Run ${esc(r.run_id)}</h3>
+  <div class="small">${esc(r.app_id)} · ${esc(r.kind)} · ${esc(r.status)} · ${esc(r.started_at)} → ${esc(r.ended_at||'')} · <b>INR ${r.total_inr}</b>
+  ${r.langfuse_url?` · <a href="${esc(r.langfuse_url)}" target="_blank" rel="noopener">open in Langfuse</a>`:' · Langfuse not connected (traces kept here)'}</div></div>
+  <table><thead><tr><th>Time</th><th>Step</th><th>Call</th><th>Prompt version</th><th>Tokens in/out</th><th>Search</th><th>INR</th><th>ms</th><th>Via</th><th>Status</th></tr></thead><tbody>
+  ${r.calls.map(c=>`<tr><td class="small">${esc(c.at.slice(11,19))}</td><td>${esc(c.step)}</td><td>${esc(c.kind)}</td><td>${esc(c.prompt_version||'')}</td><td>${c.in_tok}/${c.out_tok}</td><td>${c.searches}</td><td>${c.cost_inr}</td><td>${c.latency_ms}</td><td>${esc(c.via)}${c.retries?` (${c.retries} retries)`:''}</td><td>${esc(c.status)}${c.error?`<div class="small" style="color:var(--bad)">${esc(c.error)}</div>`:''}</td></tr>`).join('')}</tbody></table>`}
+async function loadPulse(){try{const j=await api('/api/news');$('#pulse').innerHTML=`<div class="grid2">${Object.entries(j.topics).map(([t,items])=>`<div><h3 style="margin:8px 0 4px">${esc(t)}</h3>${items.length?items.map(x=>`<div style="margin:3px 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a> <span class="mute">${esc(x.source)} · ${esc(x.date)}</span></div>`).join(''):'<div class="mute">No headlines.</div>'}</div>`).join('')}</div>`}catch(e){$('#pulse').textContent=e.message}}
+// ---- desk assistant ----
+let CHAT=[];
+function chatApp(){const h=(location.hash.slice(2)||'').split('/');return h[0]==='app'?h[1]:null}
+function toggleChat(){const c=$('#chat');c.classList.toggle('open');if(c.classList.contains('open')){paintChat();$('#chatq').focus()}}
+function paintChat(){const a=chatApp();$('#chatfocus').textContent=a?'about: '+a:'about: the whole queue';
+  $('#chatlog').innerHTML=CHAT.length?CHAT.map(m=>`<div class="msg ${m.role==='user'?'user':'bot'}">${esc(m.text)}${m.sources&&m.sources.length?`<div>${m.sources.map(s=>`<span class="src">${esc(s)}</span>`).join(' ')}</div>`:''}</div>`).join('')
+  :`<div class="small mute">Try: “Which applications should get a call this week?” · “What couldn't we verify about EarnWise?” · “Why did the backtest disagree on ePlane?” · “What did today cost?”</div>`;
+  $('#chatlog').scrollTop=1e9}
+async function askDesk(ev){ev.preventDefault();const q=$('#chatq').value.trim();if(!q)return;$('#chatq').value='';
+  CHAT.push({role:'user',text:q});CHAT.push({role:'bot',text:'Thinking…'});paintChat();
+  try{const j=await api('/api/chat',{method:'POST',body:JSON.stringify({question:q,app_id:chatApp(),history:CHAT.slice(0,-2).slice(-8)})});
+    CHAT[CHAT.length-1]={role:'bot',text:j.answer,sources:j.sources}}catch(e){CHAT[CHAT.length-1]={role:'bot',text:'Error: '+e.message}}
+  paintChat()}
+window.addEventListener('hashchange',()=>{if($('#chat').classList.contains('open'))paintChat()});
 route();
 </script>
 </body>

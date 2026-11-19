@@ -3,3 +3,7 @@ __pycache__
 runs
 .env
 runs_batch.log
+data/class
+evals/results
+evals/audit
+evals/*.log

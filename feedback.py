@@ -17,12 +17,10 @@ import math
 import os
 import re
 
-from google import genai
 
 import config
 import storage
 
-_client = None
 EMBED_MODEL = "gemini-embedding-001"
 
 MODEL_FAMILIES = {
@@ -31,7 +29,7 @@ MODEL_FAMILIES = {
     "brand": r"d2c|brand|skincare|food|jewel|beauty|millet|fmcg",
     "hardware": r"hardware|robot|drone|sensor|iot|evtol|aircraft",
     "saas": r"saas|software|seat|crm|gst|b2b",
-    "density": r"delivery|quick|dark store|clinic|store|retail|kirana",
+    "density": r"10[- ]minute|quick[- ]commerce|dark store|clinic|store network|retail network|kirana",
     "consumer_app": r"app|content|exam|edtech|travel|creator",
     "crypto": r"crypto|web3|token|exchange|wallet",
 }
@@ -44,9 +42,8 @@ def families(text):
 def _embed(text):
     try:
         import llm
-        r = llm._get_client().models.embed_content(model=EMBED_MODEL, contents=text[:2000])
-        return list(r.embeddings[0].values)
-    except Exception:  # noqa: BLE001 - retrieval still works on tags + keywords
+        return llm.embed(text)
+    except Exception:  # noqa: BLE001 - retrieval still works on tags + keywords (and the paused budget is respected)
         return None
 
 
@@ -62,16 +59,32 @@ def _words(t):
 
 
 def context_tags(facts):
-    blob = " ".join([facts.get("business_model", ""), facts.get("sub_sector", "") or "", facts.get("one_liner", "")])
+    # Families come from WHAT the business is (model + sub-sector), not from channel words in the one-liner:
+    # a food brand that "sells on quick-commerce" is not a quick-commerce business (eval FB2).
+    blob = " ".join([facts.get("business_model", "") or "", facts.get("sub_sector", "") or ""])
     return {"sector": facts.get("sector"), "business_model": facts.get("business_model"), "sub_sector": facts.get("sub_sector"),
             "one_liner": facts.get("one_liner"), "families": sorted(families(blob)), "company": facts.get("company")}
 
 
 # --- CAPTURE + STORE ---
-def capture(app_id, facts, criterion, old, new, reason, reviewer):
+def validate(old, new, reason):
+    """Is this partner edit a correction worth storing? Returns (store: bool, why). Used by capture and by the evals."""
     reason = (reason or "").strip()
     if len(reason) < 8:
-        raise ValueError("A correction needs a one-line reason (M5) - otherwise it cannot be reused.")
+        return False, "A correction needs a one-line reason (M5) - otherwise it cannot be reused."
+    try:
+        if old is not None and new is not None and float(old) == float(new):
+            return False, "No change to the score - nothing to learn (a re-check is not a correction)."
+    except (TypeError, ValueError):
+        pass
+    return True, "stored"
+
+
+def capture(app_id, facts, criterion, old, new, reason, reviewer):
+    reason = (reason or "").strip()
+    ok, why = validate(old, new, reason)
+    if not ok:
+        raise ValueError(why)
     tags = context_tags(facts)
     tags["embedding"] = _embed(f'{tags["one_liner"]} | {tags["business_model"]} | {criterion}: {reason}')
     storage.add_correction(app_id, criterion, old, new, reason, tags, reviewer)
@@ -79,13 +92,14 @@ def capture(app_id, facts, criterion, old, new, reason, reviewer):
 
 
 # --- RETRIEVE ---
-def retrieve(facts, exclude_app_ids=(), k=4):
+def retrieve(facts, exclude_app_ids=(), k=4, candidates=None):
+    """candidates: a fixed list of corrections (evals); default = everything stored."""
     tags = context_tags(facts)
     fam = set(tags["families"])
     query = f'{tags["one_liner"]} | {tags["business_model"]}'
     qvec, qwords = None, _words(query)
     hits = []
-    for c in storage.all_corrections():
+    for c in (candidates if candidates is not None else storage.all_corrections()):
         if c["app_id"] in exclude_app_ids:
             continue  # leave-one-out: in the backtest a company never learns from its own correction
         ct = c["tags"] or {}
@@ -106,7 +120,23 @@ def retrieve(facts, exclude_app_ids=(), k=4):
         hits.append({**{x: c[x] for x in ("id", "app_id", "criterion", "old", "new", "reason", "reviewer", "at")},
                      "about": ct.get("company"), "match_score": round(score, 2), "matched_on": "; ".join(why) or "process rule"})
     hits.sort(key=lambda h: -h["match_score"])
-    return hits[:k]
+    return resolve_conflicts(hits)[:k]
+
+
+def resolve_conflicts(hits):
+    """Two retrieved corrections on the same criterion that push in OPPOSITE directions conflict.
+    Stated rule (L7 Decision 4): the most recent one wins; the older one is dropped and named as superseded."""
+    keep, dropped = [], []
+    for h in sorted(hits, key=lambda h: h.get("at") or "", reverse=True):
+        d = (h["new"] or 0) - (h["old"] or 0)
+        clash = next((k for k in keep if k["criterion"] == h["criterion"] and ((k["new"] or 0) - (k["old"] or 0)) * d < 0), None)
+        if clash:
+            clash.setdefault("supersedes", []).append(h["id"])
+            dropped.append(h["id"])
+        else:
+            keep.append(h)
+    order = {h["id"]: i for i, h in enumerate(hits)}
+    return sorted(keep, key=lambda h: order[h["id"]])
 
 
 # --- APPLY ---
@@ -116,7 +146,8 @@ def as_prompt(hits):
     lines = ["Past partner corrections on similar companies. Apply the LESSON where it genuinely fits this company; "
              "say in the evidence when you applied one (cite it as 'correction #id'):"]
     for h in hits:
-        lines.append(f'- correction #{h["id"]} ({h["reviewer"]}, on {h["about"]}; matched on {h["matched_on"]}): '
+        sup = f' (supersedes older #{", #".join(map(str, h["supersedes"]))})' if h.get("supersedes") else ""
+        lines.append(f'- correction #{h["id"]} ({h["reviewer"]}, on {h["about"]}; matched on {h["matched_on"]}){sup}: '
                      f'{h["criterion"]} {h["old"]} -> {h["new"]} because "{h["reason"]}"')
     return "\n".join(lines)
 

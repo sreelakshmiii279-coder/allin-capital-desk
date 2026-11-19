@@ -1,0 +1,14 @@
+ 1 The ePlane Company   fund=INVESTED desk=Pass - outside the fund's game (partner to confirm) 48/68 DISAGREE -> desk 
+ 2 Petalry              fund=PASSED   desk=Pass                                             36/58 AGREE 
+ 3 Unbox Robotics       fund=INVESTED desk=Partner judgement - borderline                   62/73 DISAGREE -> desk 
+ 4 HopBox               fund=PASSED   desk=Pass                                             24/44 AGREE 
+ 5 Wint Wealth          fund=INVESTED desk=Pass - outside the fund's game (partner to confirm) 64/71 DISAGREE -> desk 
+ 6 CampusCredit         fund=PASSED   desk=Pass                                             30/49 AGREE 
+ 7 Giva                 fund=INVESTED desk=Take the call                                    60/59 AGREE 
+ 8 AeroDrop             fund=PASSED   desk=Pass - outside the fund's game (partner to confirm) 26/55 AGREE 
+ 9 SuperK               fund=INVESTED desk=Take the call                                    64/68 AGREE 
+10 Coinlane             fund=PASSED   desk=Pass - outside the fund's game (partner to confirm) 26/53 AGREE 
+11 Jai Kisan            fund=INVESTED desk=Take the call                                    72/80 AGREE 
+12 Prepnest             fund=PASSED   desk=Pass                                             32/48 AGREE 
+
+Agreement 9/12 (gate 10) -> FAIL: do not go live

@@ -29,7 +29,13 @@ decisions), [`reports/trust_contract.md`](reports/trust_contract.md) (where it b
 | `booking.py` | S6 agent: tools, state object, edges, retry table |
 | `pipeline.py` / `run.py` | batch run + capability ceiling |
 | `backtest.py` / `report.py` | backtest and written reports |
-| `app.py` + `web/` | partner review queue |
+| `app.py` + `web/` | review queue (Riya), intake queue, cost page, run traces |
+| `jobqueue.py` | **Case 04:** intake queue - every application ends done or needs-attention with a reason |
+| `obs.py` + `llm.py` | **Case 04:** every model call metered (INR), traced (Neon; Langfuse via OTLP), routed via Portkey when keyed, daily limit |
+| `PROMPT_AUDIT.md` | **Case 04 task 1:** what each model call sends, and what was trimmed |
+| `evals/` | **L7:** kill criteria, 111 test cases, HTTP harness, volume test, reports |
+| `CHECKLIST.md` | Case 04 + L7 + Advanced AI checklist with status |
+| `check_setup.py` | verifies Gemini, Neon, Resend, Portkey, Langfuse connections |
 
 ```
 python run.py --seed      # load the partner-notes corrections once
@@ -37,5 +43,9 @@ python run.py             # run data/applications/ into the review queue
 python backtest.py        # 12 memos, leave-one-out
 python report.py          # reports/*.md
 python app.py             # http://localhost:5057
+python jobqueue.py        # drain the intake queue locally (the dashboard's "Process queue" does the same)
+python evals/harness.py   # all eval cases, twice -> evals/reports/latest.md
+python evals/volume_test.py   # 20 at once -> evals/reports/volume.md
+python check_setup.py     # what is connected
 ```
 Needs `.env`: `GEMINI_API_KEY`, `GEMINI_MODEL`, `DATABASE_URL` (Neon), `RESEND_API_KEY`, `TO_ADDRESS`, `EDIT_PASSWORD`.

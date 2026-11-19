@@ -45,6 +45,7 @@ ADITYA_JOINS_FOR = {"deeptech"}  # Partner notes M5: "Aditya joins only for deep
 # --- Booking agent retry table (S6) ---
 MAX_REPLY_ROUNDS = 2           # re-propose times at most twice, then escalate to Riya
 TRANSIENT_RETRIES = 3          # email/calendar API timeouts, rate limits (backoff)
+REPLY_WINDOW_WORKING_HOURS = 72  # 3 working days of silence -> one follow-up
 
 # --- Kill criteria (S1/S2) - agreed in advance with Kushal ---
 BACKTEST_MIN_AGREEMENT = 10    # of 12 memos, before go-live
@@ -60,4 +61,35 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 RESEND_FROM = os.environ.get("RESEND_FROM", "").strip() or "All In Capital Desk <onboarding@resend.dev>"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+
+# --- Cost (Case 04 task 5) ---
+# ASSUMED list prices in USD - confirm against your Google AI Studio billing page and change here; every cost figure uses them.
+PRICE_IN_PER_M = float(os.environ.get("PRICE_IN_PER_M", "0.30"))       # per 1M input tokens
+PRICE_OUT_PER_M = float(os.environ.get("PRICE_OUT_PER_M", "2.50"))     # per 1M output (incl. thinking) tokens
+PRICE_SEARCH_PER_CALL = float(os.environ.get("PRICE_SEARCH_PER_CALL", "0.035"))  # Google Search grounding, per grounded call
+PRICE_EMBED_PER_M = float(os.environ.get("PRICE_EMBED_PER_M", "0.15"))
+USD_INR = float(os.environ.get("USD_INR", "88"))
+DAILY_COST_LIMIT_INR = float(os.environ.get("DAILY_COST_LIMIT_INR", "4000"))   # 100 applications x ~INR 34 (volume test) + headroom
+
+# --- Gateway + tracing (Case 04 tasks 3 and 4) - switch on by adding keys to .env ---
+PORTKEY_API_KEY = os.environ.get("PORTKEY_API_KEY", "").strip()
+PORTKEY_PROVIDER = os.environ.get("PORTKEY_PROVIDER", "google").strip()   # "google" (key sent per request) or "@your-slug"
+PORTKEY_RETRY_ATTEMPTS = int(os.environ.get("PORTKEY_RETRY_ATTEMPTS", "3"))
+PORTKEY_ROUTE_SEARCH = os.environ.get("PORTKEY_ROUTE_SEARCH", "1") == "1"
+LANGFUSE_PUBLIC_KEY = os.environ.get("LANGFUSE_PUBLIC_KEY", "").strip()
+LANGFUSE_SECRET_KEY = os.environ.get("LANGFUSE_SECRET_KEY", "").strip()
+LANGFUSE_HOST = os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com").strip()
+
+# --- Queue (Case 04 task 2) ---
+QUEUE_WORKERS = int(os.environ.get("QUEUE_WORKERS", "3"))      # applications processed at once (Gemini rate limits)
+JOB_MAX_ATTEMPTS = 2                                            # a job that fails twice becomes "needs attention"
+JOB_STUCK_MINUTES = 15                                          # a 'running' job older than this is reclaimed
 EDIT_PASSWORD = os.environ.get("EDIT_PASSWORD", "").strip()   # needed to accept/correct/book in the web app
+
+# --- Consistency ---
+SCORE_SAMPLES = int(os.environ.get("SCORE_SAMPLES", "2"))   # score twice, average, gates need agreement (volume test)
+
+# --- Google News (world context) ---
+NEWS_CACHE_HOURS = int(os.environ.get("NEWS_CACHE_HOURS", "12"))
+NEWS_DAYS_COMPANY = 365     # company mentions: last year
+NEWS_DAYS_SECTOR = 90       # sector context: last quarter

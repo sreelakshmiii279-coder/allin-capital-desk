@@ -8,6 +8,8 @@ import booking
 import config
 import feedback
 import intake
+import jobqueue
+import obs
 import pipeline
 import score
 import storage
@@ -41,7 +43,17 @@ def queue():
                      "two_lines": d.get("two_lines"), "status": r["status"], "decision": r["decision"],
                      "unknowns": len(d.get("unknown_criteria", [])), "untraced": d.get("claims_untraced"),
                      "claims": d.get("claims_total"), "batch": d.get("batch"), "at": r["at"], "error": d.get("error"),
-                     "booking": (books.get(r["app_id"]) or {}).get("meeting_status")})
+                     "booking": (books.get(r["app_id"]) or {}).get("meeting_status"), "cost_inr": d.get("cost_inr"),
+                     "run_id": d.get("run_id")})
+    # capability ceiling, per batch: only CALL_CAP_PER_WEEK "Take the call" rows; the rest are marked over capacity
+    by_batch = {}
+    for row in rows:
+        if (row["recommendation"] or "") == "Take the call":
+            by_batch.setdefault(row["batch"], []).append(row)
+    for calls in by_batch.values():
+        for i, row in enumerate(sorted(calls, key=lambda x: -(x["score"] or 0))):
+            if i >= config.CALL_CAP_PER_WEEK:
+                row["recommendation"] = "Take the call - over this week's capacity"
     return jsonify(rows)
 
 
@@ -77,7 +89,7 @@ def review(app_id):
         status = "accepted" if desk_dec == decision else "overridden"
         if status == "overridden" and len((b.get("note") or "").strip()) < 8:
             return jsonify({"error": "Overriding the desk needs a one-line reason (M5)."}), 400
-    storage.set_review(app_id, status, decision, b.get("reviewer") or "Kushal", b.get("note"), b.get("seconds"))
+    storage.set_review(app_id, status, decision, b.get("reviewer") or "Riya", b.get("note"), b.get("seconds"))
     storage.event(app_id, "review", {"decision": decision, "status": status, "note": b.get("note"), "by": b.get("reviewer")})
     out = {"ok": True, "status": status}
     if decision == "take_call":
@@ -95,7 +107,7 @@ def correct(app_id):
     if not crit:
         return jsonify({"error": "unknown criterion"}), 400
     try:
-        feedback.capture(app_id, r["read"]["facts"], crit["key"], crit["score"], float(b["new"]), b.get("reason"), b.get("reviewer") or "Kushal")
+        feedback.capture(app_id, r["read"]["facts"], crit["key"], crit["score"], float(b["new"]), b.get("reason"), b.get("reviewer") or "Riya")
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     return jsonify({"ok": True})
@@ -119,6 +131,137 @@ def rescore(app_id):
     return jsonify({"ok": True, "from": old.get("score_revealed"), "to": new["score_revealed"], "recommendation": new["recommendation"]})
 
 
+@app.post("/api/booking/<app_id>/send")
+def send(app_id):
+    """Riya edits the drafted founder email and sends it from the dashboard (Case 04)."""
+    if not _auth():
+        return _need_auth()
+    b = request.get_json(force=True)
+    r = storage.get_read(app_id)
+    return jsonify(booking.send_draft(app_id, b.get("subject", ""), b.get("body", ""), b.get("editor") or "Riya",
+                                      b.get("note"), r["read"] if r else {}))
+
+
+@app.get("/api/news")
+def news_pulse():
+    """What's happening: Google News for the fund's focus sectors + Indian startup funding (cached 12 h, no model cost)."""
+    import news
+    return jsonify({"topics": news.pulse(), "source": "Google News (India edition), last 7 days"})
+
+
+@app.post("/api/chat")
+def chat_endpoint():
+    """Desk assistant: read-only answers grounded in the desk's data (chat.py). Password-gated: each question costs a call."""
+    if not _auth():
+        return _need_auth()
+    import chat
+    b = request.get_json(force=True)
+    try:
+        return jsonify(chat.answer(b.get("question"), b.get("history"), b.get("app_id")))
+    except obs.BudgetPaused as e:
+        return jsonify({"answer": str(e), "sources": [], "not_in_data": False, "refused_action": False})
+
+
+@app.post("/api/intake")
+def intake_batch():
+    """The pile arrives: [{name, form, deck}] -> one queued job each. Returns at once; workers process in turn."""
+    if not _auth():
+        return _need_auth()
+    b = request.get_json(force=True)
+    apps = b.get("applications") or []
+    if not apps:
+        return jsonify({"error": "No applications."}), 400
+    ids = jobqueue.enqueue(apps, b.get("batch") or "intake")
+    return jsonify({"ok": True, "job_ids": ids, "counts": jobqueue.counts(b.get("batch") or "intake")})
+
+
+@app.post("/api/worker/tick")
+def worker_tick():
+    """Process the queue for up to ~4 minutes, then check booking reply windows. Called by the dashboard's
+    'Process queue' button, a cron (Authorization: Bearer CRON_SECRET), or `python jobqueue.py` locally."""
+    secret = os.environ.get("CRON_SECRET")
+    cron_ok = bool(secret) and request.headers.get("Authorization") == f"Bearer {secret}"
+    if not (_auth() or cron_ok):
+        return _need_auth()
+    out = jobqueue.work(deadline_s=int(request.args.get("deadline", 250)))
+    ticked = []
+    for app_id, st in storage.all_bookings().items():
+        if st.get("meeting_status") == "pending_confirmation":
+            r = storage.get_read(app_id)
+            new = booking.tick(app_id, r["read"] if r else {})
+            if new and new.get("reply_round") != st.get("reply_round"):
+                ticked.append(app_id)
+    out["booking_followups"] = ticked
+    out["counts"] = jobqueue.counts()
+    out["paused"] = obs.is_paused()
+    return jsonify(out)
+
+
+@app.get("/api/jobs")
+def jobs_list():
+    batch = request.args.get("batch")
+    return jsonify({"counts": jobqueue.counts(batch), "jobs": jobqueue.jobs(batch)})
+
+
+@app.get("/api/cost")
+def cost():
+    """Cost of every model call, totalled by application, day, week and month (Case 04 task 5)."""
+    ist = "(at AT TIME ZONE 'Asia/Kolkata')"
+    with storage.db() as c:
+        def q(sql):
+            return c.execute(sql).fetchall()
+        by_day = q(f"SELECT {ist}::date d, sum(cost_inr), count(*), sum(searches) FROM model_calls GROUP BY 1 ORDER BY 1 DESC LIMIT 31")
+        by_week = q(f"SELECT date_trunc('week', {ist})::date w, sum(cost_inr), count(*) FROM model_calls GROUP BY 1 ORDER BY 1 DESC LIMIT 12")
+        by_month = q(f"SELECT to_char({ist}, 'YYYY-MM') m, sum(cost_inr), count(*) FROM model_calls GROUP BY 1 ORDER BY 1 DESC LIMIT 12")
+        by_app = q("SELECT app_id, sum(cost_inr), count(*), count(DISTINCT run_id), max(at) FROM model_calls WHERE app_id IS NOT NULL "
+                   "GROUP BY 1 ORDER BY 5 DESC LIMIT 200")
+        by_step = q("SELECT coalesce(step,'-'), kind, sum(cost_inr), count(*), avg(latency_ms) FROM model_calls GROUP BY 1,2 ORDER BY 3 DESC")
+        per_run = q("SELECT avg(t) FROM (SELECT run_id, sum(cost_inr) t FROM model_calls WHERE run_id IS NOT NULL "
+                    "GROUP BY run_id HAVING count(*) > 3) x")[0][0]
+        via = q("SELECT via, count(*), sum(retries) FROM model_calls GROUP BY 1")
+
+    def f(v):
+        return round(float(v or 0), 2)
+    today = obs.spend_today()
+    return jsonify({
+        "today_inr": f(today), "limit_inr": config.DAILY_COST_LIMIT_INR, "paused": today >= config.DAILY_COST_LIMIT_INR,
+        "avg_per_application_inr": f(per_run), "projection_100_apps_inr": f((per_run or 0) * 100),
+        "prices": {"in_per_m_usd": config.PRICE_IN_PER_M, "out_per_m_usd": config.PRICE_OUT_PER_M,
+                   "search_per_call_usd": config.PRICE_SEARCH_PER_CALL, "usd_inr": config.USD_INR,
+                   "note": "Assumed list prices - confirm against the Google AI Studio billing page (config.py)."},
+        "by_day": [{"day": str(r[0]), "inr": f(r[1]), "calls": r[2], "searches": r[3]} for r in by_day],
+        "by_week": [{"week": str(r[0]), "inr": f(r[1]), "calls": r[2]} for r in by_week],
+        "by_month": [{"month": r[0], "inr": f(r[1]), "calls": r[2]} for r in by_month],
+        "by_application": [{"app_id": r[0], "inr": f(r[1]), "calls": r[2], "runs": r[3], "last": r[4].isoformat()} for r in by_app],
+        "by_step": [{"step": r[0], "kind": r[1], "inr": f(r[2]), "calls": r[3], "avg_ms": int(r[4] or 0)} for r in by_step],
+        "via": [{"via": r[0], "calls": r[1], "retries": int(r[2] or 0)} for r in via]})
+
+
+@app.get("/api/run/<run_id>")
+def run_trace(run_id):
+    """Open one application's run: every step and model call, with prompt version, tokens, cost and errors."""
+    with storage.db() as c:
+        r = c.execute("SELECT run_id, app_id, kind, meta, status, spans, started_at, ended_at FROM runs WHERE run_id=%s",
+                      (run_id,)).fetchone()
+        calls = c.execute("SELECT at, step, kind, model, prompt_version, in_tok, out_tok, searches, cost_inr, latency_ms, status, "
+                          "error, via, retries FROM model_calls WHERE run_id=%s ORDER BY at", (run_id,)).fetchall()
+    if not r:
+        return jsonify({"error": "not found"}), 404
+    keys = ["at", "step", "kind", "model", "prompt_version", "in_tok", "out_tok", "searches", "cost_inr", "latency_ms",
+            "status", "error", "via", "retries"]
+    return jsonify({"run_id": r[0], "app_id": r[1], "kind": r[2], "meta": r[3], "status": r[4], "spans": r[5],
+                    "started_at": r[6].isoformat(), "ended_at": r[7].isoformat() if r[7] else None,
+                    "calls": [dict(zip(keys, [x.isoformat() if hasattr(x, "isoformat") else x for x in row])) for row in calls],
+                    "total_inr": round(sum(float(x[8] or 0) for x in calls), 2), "langfuse_url": obs.langfuse_url(r[0])})
+
+
+@app.get("/api/setup")
+def setup():
+    return jsonify({"portkey": bool(config.PORTKEY_API_KEY), "langfuse": bool(config.LANGFUSE_PUBLIC_KEY and config.LANGFUSE_SECRET_KEY),
+                    "langfuse_host": config.LANGFUSE_HOST, "resend": bool(config.RESEND_API_KEY), "model": config.MODEL,
+                    "daily_limit_inr": config.DAILY_COST_LIMIT_INR, "workers": config.QUEUE_WORKERS})
+
+
 @app.post("/api/booking/<app_id>/reply")
 def reply(app_id):
     if not _auth():
@@ -137,20 +280,12 @@ def noreply(app_id):
 
 @app.post("/api/add")
 def add():
-    """New application into the pile: pasted form + deck text. Runs the full desk (~2-3 minutes)."""
+    """One pasted application goes into the same queue as everything else."""
     if not _auth():
         return _need_auth()
     b = request.get_json(force=True)
-    name = (b.get("name") or "").strip()
-    if not name or not (b.get("form") or b.get("deck")):
-        return jsonify({"error": "Name and at least the form or deck text are needed."}), 400
-    rec = {"id": intake.slug(name), "name": name, "batch": b.get("batch") or "manual", "form_text": b.get("form", ""),
-           "deck_text": b.get("deck", "")}
-    form = rec["form_text"].lower()
-    rec["source"] = "warm intro" if re.search(r"warm intro|introduced by|referred by", form) else "public form"
-    rec["missing_docs"] = [k for k in ("deck_text", "form_text") if not rec[k].strip()]
-    read = pipeline.run_one(rec)
-    return jsonify({"ok": True, "id": rec["id"], "recommendation": read.get("recommendation"), "score": read.get("score_revealed")})
+    ids = jobqueue.enqueue([{"name": b.get("name"), "form": b.get("form", ""), "deck": b.get("deck", "")}], b.get("batch") or "manual")
+    return jsonify({"ok": True, "job_ids": ids, "counts": jobqueue.counts()})
 
 
 @app.get("/api/backtest")
@@ -184,6 +319,22 @@ def stats():
         "kill": {"override_rate": config.OVERRIDE_RATE_KILL, "untraced": config.UNSOURCED_CLAIMS_KILL,
                  "review_min": config.REVIEW_MINUTES_KILL, "backtest_min": config.BACKTEST_MIN_AGREEMENT},
         "capacity": config.CALL_CAP_PER_WEEK, "baseline_min_per_app": 30})
+
+
+@app.post("/api/eval/<name>")
+def eval_endpoint(name):
+    """Fixed-input access to each decision, for the eval harness (L7). Password-gated: these calls cost model tokens.
+    Nothing here writes to the real queue, sends a real email or books a real slot."""
+    if not _auth():
+        return _need_auth()
+    import evalkit
+    fn = evalkit.HANDLERS.get(name)
+    if not fn:
+        return jsonify({"error": f"unknown eval '{name}'"}), 404
+    try:
+        return jsonify(fn(request.get_json(force=True)))
+    except Exception as e:  # noqa: BLE001 - the harness must see the failure, with its type
+        return jsonify({"error": f"{type(e).__name__}: {e}"}), 500
 
 
 @app.get("/api/doc/<name>")

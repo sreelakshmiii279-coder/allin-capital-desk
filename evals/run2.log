@@ -1,0 +1,20 @@
+111 cases x 2 run(s) against http://localhost:5057; judge gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+run 1: 110/111 passed
+run 2: 110/111 passed
+# Eval run - 2026-11-19 10:33 IST
+
+**Verdict: SHIP to Riya** - 110/110 passed ? critical 37/37 ? high 100% (bar 90%) ? low 24/24
+
+- Runs: 2 (same input, same verdict?) - **0 case(s) flipped**: none
+- Canary (must fail): **failed as it should - harness is checking**
+- Kill criteria fired: **none**
+- Judge: gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+- Prompt versions seen: score-v3
+- Target: http://localhost:5057
+
+## Failures (last run), most severe first
+
+| Case | Severity | Kill | Decision | Partition | Diagnosis |
+|---|---|---|---|---|---|
+
+

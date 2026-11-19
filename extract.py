@@ -44,6 +44,8 @@ SCHEMA = {
                  "claims_to_verify", "absent_numbers"],
 }
 
+PROMPT_VERSION = "extract-v1"
+
 PROMPT = """You extract facts from a startup's application to a pre-seed VC fund. Use ONLY the two documents below.
 Rules:
 - Every quote must be copied character-for-character from the named document (short, under 25 words).
@@ -77,7 +79,7 @@ def quote_found(quote, rec, doc):
 
 def extract(rec):
     facts = llm.ask_json(PROMPT.format(form=rec["form_text"][:20000], deck=rec["deck_text"][:20000]), SCHEMA,
-                         temperature=config.EXTRACT_TEMPERATURE)
+                         temperature=config.EXTRACT_TEMPERATURE, prompt_version=PROMPT_VERSION)
     unverified = 0
     for m in facts.get("metrics", []) + facts.get("claims_to_verify", []):
         m["quote_verified"] = quote_found(m.get("quote"), rec, m.get("doc", "form"))

@@ -1,0 +1,31 @@
+101 cases x 2 run(s) against http://localhost:5057; judge gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+run 1: 88/101 passed
+run 2: 89/101 passed
+# Eval run - 2026-11-19 10:05 IST
+
+**Verdict: DO NOT SHIP** - 89/100 passed ? critical 29/34 ? high 86% (bar 90%) ? low 22/22
+
+- Runs: 2 (same input, same verdict?) - **1 case(s) flipped**: S5
+- Canary (must fail): **failed as it should - harness is checking**
+- Kill criteria fired: **K11, K13, K14, K7, K8**
+- Judge: gemini:gemini-3.5-flash - SAME FAMILY as the agent (Gemini): shares its blind spots; set ANTHROPIC_API_KEY or OPENAI_API_KEY
+- Prompt versions seen: score-v1
+- Target: http://localhost:5057
+
+## Failures (last run), most severe first
+
+| Case | Severity | Kill | Decision | Partition | Diagnosis |
+|---|---|---|---|---|---|
+| FB3 | critical | K14 | feedback.retrieve | two corrections conflict - most recent wins | ids not_contains 3 -> got [4, 3] |
+| BK9 | critical | K8 | booking.agent | silent through every window | error is_null  -> got "NotImplementedError: booking has no automatic reply-window check (tick)"; state.meeting_status eq "escalated" -> got "pending_confirmation"; invites_sent eq 3 -> got 1 |
+| BK15 | critical | K11 | booking.agent | booking fails permanently (calendar permission revoked) | error is_null  -> got "PermissionError: calendar permissions revoked"; state.meeting_status eq "escalated" -> got "pending_confirmation" |
+| BK16 | critical | K11 | booking.agent | CRM write fails after the meeting is booked | error is_null  -> got "ConnectionError: CRM write failed"; events[*].kind contains "alert" -> got ["booking"] |
+| BK17 | critical | K7 | booking.agent | no partner approval | emails len_eq 0 -> got ["[Desk draft] All In Capital <> app-1: pick a time"]; state.meeting_status ne "pending_confirmation" -> got "pending_confirmation" |
+| FB2 | high |  | feedback.retrieve | irrelevant: other sector, other family | ids not_contains 2 -> got [2] |
+| CP3 | high |  | feedback.capture | no change (old == new) | store eq false -> got true |
+| BK7 | high |  | booking.agent | silent, just inside the reply window | error is_null  -> got "NotImplementedError: booking has no automatic reply-window check (tick)" |
+| BK8 | high |  | booking.agent | silent, just past the reply window | error is_null  -> got "NotImplementedError: booking has no automatic reply-window check (tick)"; state.reply_round eq 1 -> got 0; invites_sent eq 2 -> got 1 |
+| BK10 | high |  | booking.agent | calendar times out once | calls.taken_slots gte 2 -> got 1; state.meeting_status eq "pending_confirmation" -> got "escalated" |
+| BK13 | high |  | booking.agent | email transient, never recovers | state.meeting_status eq "escalated" -> got "pending_confirmation" |
+
+

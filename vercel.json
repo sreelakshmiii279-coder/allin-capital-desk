@@ -1,1 +1,1 @@
-{ "functions": { "app.py": { "maxDuration": 300 } } }
+{ "regions": ["sin1"], "functions": { "app.py": { "maxDuration": 300 } } }

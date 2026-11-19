@@ -25,6 +25,19 @@ CREATE TABLE IF NOT EXISTS slots (
   slot_start timestamptz PRIMARY KEY, app_id text NOT NULL, status text NOT NULL);
 CREATE TABLE IF NOT EXISTS events (
   id serial PRIMARY KEY, app_id text, kind text NOT NULL, payload jsonb, at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS model_calls (
+  id serial PRIMARY KEY, at timestamptz NOT NULL DEFAULT now(), app_id text, run_id text, step text, kind text, model text,
+  prompt_version text, in_tok int, out_tok int, searches int, cost_inr real, latency_ms int, status text, error text,
+  via text, retries int);
+CREATE INDEX IF NOT EXISTS model_calls_at ON model_calls (at);
+CREATE TABLE IF NOT EXISTS runs (
+  run_id text PRIMARY KEY, app_id text, kind text, meta jsonb, status text, spans jsonb,
+  started_at timestamptz NOT NULL DEFAULT now(), ended_at timestamptz);
+CREATE TABLE IF NOT EXISTS jobs (
+  id serial PRIMARY KEY, app_id text NOT NULL, name text NOT NULL, batch text, payload jsonb NOT NULL,
+  status text NOT NULL DEFAULT 'queued', attempts int NOT NULL DEFAULT 0, reason text, run_id text,
+  queued_at timestamptz NOT NULL DEFAULT now(), started_at timestamptz, finished_at timestamptz);
+CREATE TABLE IF NOT EXISTS news_cache (key text PRIMARY KEY, items jsonb NOT NULL, fetched_at timestamptz NOT NULL DEFAULT now());
 CREATE TABLE IF NOT EXISTS backtests (
   id serial PRIMARY KEY, result jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
 """
