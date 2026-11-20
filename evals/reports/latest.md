@@ -41,3 +41,4 @@
 | chat.answer | 0/2 | CH1✗, CH2✗ |
 
 Blind human audit sample (10% of soft cases, judge verdict hidden): `evals\audit\sample-20261120-1334.csv`
+**Follow-up (Cloudflare AI Gateway, same day):** a 16-case cross-section (conflict, injection, namesake, reply classification, feedback, booking, scoring, chat; 10 of them critical) re-run through the gateway twice: **16/16 pass, 0 flips, no kill criteria.** An earlier attempt failed only because of a network outage (DNS failures to Cloudflare, Neon and Google at the same moments).
