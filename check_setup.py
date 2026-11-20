@@ -24,7 +24,7 @@ def main():
     except Exception as e:  # noqa: BLE001
         line("Neon reachable", "FAIL", str(e)[:120])
     line("Resend (emails to own inbox)", "PASS" if config.RESEND_API_KEY and config.TO_ADDRESS else "NOT SET")
-    line("Daily cost limit", "PASS", f"INR {config.DAILY_COST_LIMIT_INR:.0f} (prices are assumptions in config.py)")
+    line("Daily cost limit", "PASS", f"INR {config.DAILY_COST_LIMIT_INR:.0f} (Google published prices, config.py)")
 
     if not config.PORTKEY_API_KEY:
         line("Portkey gateway", "NOT SET", "add PORTKEY_API_KEY to .env (+ PORTKEY_PROVIDER, default 'google')")
