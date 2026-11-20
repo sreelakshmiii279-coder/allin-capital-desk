@@ -41,7 +41,7 @@ L8's three leaks, and what was done:
 | Burst (50 in a minute) | Intake accepts ≤ 100 per request and ≤ 50 a minute; the rest are told to retry; nothing is half-saved |
 | Provider hiccups | Retries at 1 s, 2 s, 4 s + jitter, 4 tries, then back to "queued", never "lost" |
 | Same application twice | Cached: no second model bill unless the text, prompt or partner corrections changed |
-| Gateway | **Portkey wired but not connected:** Portkey closed self-serve sign-up (now a Palo Alto Networks sales process). Its jobs are done in the desk: retries, spend cap, cost meter, cache. Not covered: falling back to a second model vendor if Google is down. |
+| Gateway | **Cloudflare AI Gateway** (Portkey closed self-serve sign-up): every model call goes through it with retries (1/2/4 s), a 120/min rate limit and a **$28/day spend limit**; it keeps no copy of the data. Not covered: falling back to a second model vendor if Google is down. |
 
 ## Q4. Can someone other than the builder operate it?
 - `RUNBOOK.md`: who owns it (Riya; escalation to Kushal), the 10-minute daily routine, what every alert means and what to do, kill actions, and the incident log.

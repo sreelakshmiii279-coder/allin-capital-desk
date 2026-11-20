@@ -77,7 +77,15 @@ USD_INR = float(os.environ.get("USD_INR", "88"))
 DAILY_COST_LIMIT_INR = float(os.environ.get("DAILY_COST_LIMIT_INR", "2500"))   # ~INR 10 per application at published prices: 2.5x a 100-application day
 
 # --- Gateway + tracing (Case 04 tasks 3 and 4) - switch on by adding keys to .env ---
-PORTKEY_API_KEY = os.environ.get("PORTKEY_API_KEY", "").strip()
+# Cloudflare AI Gateway (replaces Portkey, which closed self-serve sign-up on 20 Nov 2026). When set, EVERY Gemini call -
+# JSON, search grounding, embeddings - goes through gateway.ai.cloudflare.com: gateway-side retries (1/2/4 s exponential),
+# rate limit 120/min, spend limit $28/day, payload logging and cache OFF (founders' data is not copied to Cloudflare).
+CF_ACCOUNT_ID = os.environ.get("CF_ACCOUNT_ID", "").strip()
+CF_GATEWAY_ID = os.environ.get("CF_GATEWAY_ID", "").strip()
+CF_AIG_TOKEN = os.environ.get("CF_AIG_TOKEN", "").strip()
+CF_GATEWAY_URL = (f"https://gateway.ai.cloudflare.com/v1/{CF_ACCOUNT_ID}/{CF_GATEWAY_ID}/google-ai-studio"
+                  if CF_ACCOUNT_ID and CF_GATEWAY_ID and CF_AIG_TOKEN else "")
+PORTKEY_API_KEY = "" if CF_GATEWAY_URL else os.environ.get("PORTKEY_API_KEY", "").strip()
 PORTKEY_PROVIDER = os.environ.get("PORTKEY_PROVIDER", "google").strip()   # "google" (key sent per request) or "@your-slug"
 PORTKEY_RETRY_ATTEMPTS = int(os.environ.get("PORTKEY_RETRY_ATTEMPTS", "3"))
 PORTKEY_ROUTE_SEARCH = os.environ.get("PORTKEY_ROUTE_SEARCH", "1") == "1"

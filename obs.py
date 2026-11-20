@@ -174,9 +174,13 @@ def _alert_once(spent):
 
 
 # ---------------- record one model call ----------------
-def record_call(kind, model, prompt_version, in_tok, out_tok, searches, latency_ms, status, error=None, via="direct",
+DEFAULT_VIA = "direct"   # set by llm.py to the active route (cloudflare / portkey / direct)
+
+
+def record_call(kind, model, prompt_version, in_tok, out_tok, searches, latency_ms, status, error=None, via=None,
                 input_preview=None, output_preview=None, retries=0):
     c = current()
+    via = via or DEFAULT_VIA
     inr = cost_inr(kind, in_tok or 0, out_tok or 0, searches or 0, model)
     row = (c["app_id"], c["run_id"], c["step"], kind, model, prompt_version, in_tok or 0, out_tok or 0, searches or 0, inr,
            int(latency_ms), status, (error or "")[:300], via, retries)

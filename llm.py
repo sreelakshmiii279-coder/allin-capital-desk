@@ -1,7 +1,7 @@
 """The ONE place that talks to a model. Every call is:
   guarded   - paused if today's spend is past DAILY_COST_LIMIT_INR (obs.guard)
-  routed    - through the Portkey gateway with automatic retries when PORTKEY_API_KEY is set, else direct to Gemini
-              (Case 04 task 3); our own retry loop stays only for the direct route
+  routed    - through the Cloudflare AI Gateway when CF_* is set (retries, rate limit, spend cap at the gateway),
+              else Portkey if PORTKEY_API_KEY is set, else direct to Gemini (Case 04 task 3)
   metered   - tokens, searches, cost in INR, latency, prompt version, step and application recorded (obs.record_call)
   traced    - as a generation span inside the application's trace (Langfuse when keys are set; Neon always)."""
 import json
@@ -23,9 +23,17 @@ TRANSIENT = ("429", "503", "500", "502", "504", "timeout", "Timeout", "UNAVAILAB
 
 
 def _get_client(fresh=False):
-    """One client per thread: a shared client gets closed under concurrent use ("client has been closed")."""
+    """One client per thread: a shared client gets closed under concurrent use ("client has been closed").
+    With the Cloudflare AI Gateway configured, the same Gemini SDK is simply pointed at the gateway: the native Gemini API
+    passes through unchanged (so search grounding and its citations still work), plus the gateway token and retry policy."""
     if fresh or getattr(_local, "client", None) is None:
-        _local.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+        if config.CF_GATEWAY_URL:
+            opts = types.HttpOptions(base_url=config.CF_GATEWAY_URL, headers={
+                "cf-aig-authorization": f"Bearer {config.CF_AIG_TOKEN}",
+                "cf-aig-max-attempts": "4", "cf-aig-retry-delay": "1000", "cf-aig-backoff": "exponential"})
+            _local.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"], http_options=opts)
+        else:
+            _local.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     return _local.client
 
 
@@ -40,7 +48,10 @@ def backoff(attempt):
 
 
 def via():
-    return "portkey" if config.PORTKEY_API_KEY else "direct"
+    return "cloudflare" if config.CF_GATEWAY_URL else "portkey" if config.PORTKEY_API_KEY else "direct"
+
+
+obs.DEFAULT_VIA = via()
 
 
 # ---------------- Portkey (OpenAI-compatible gateway) ----------------

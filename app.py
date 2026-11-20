@@ -278,7 +278,8 @@ def run_trace(run_id):
 
 @app.get("/api/setup")
 def setup():
-    return jsonify({"env": config.DESK_ENV, "portkey": bool(config.PORTKEY_API_KEY), "langfuse": bool(config.LANGFUSE_PUBLIC_KEY and config.LANGFUSE_SECRET_KEY),
+    return jsonify({"env": config.DESK_ENV, "gateway": "cloudflare" if config.CF_GATEWAY_URL else
+                    ("portkey" if config.PORTKEY_API_KEY else "direct"), "portkey": bool(config.PORTKEY_API_KEY), "langfuse": bool(config.LANGFUSE_PUBLIC_KEY and config.LANGFUSE_SECRET_KEY),
                     "langfuse_host": config.LANGFUSE_HOST, "resend": bool(config.RESEND_API_KEY), "model": config.MODEL,
                     "daily_limit_inr": config.DAILY_COST_LIMIT_INR, "workers": config.QUEUE_WORKERS})
 

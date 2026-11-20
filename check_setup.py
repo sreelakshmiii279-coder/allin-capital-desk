@@ -26,7 +26,24 @@ def main():
     line("Resend (emails to own inbox)", "PASS" if config.RESEND_API_KEY and config.TO_ADDRESS else "NOT SET")
     line("Daily cost limit", "PASS", f"INR {config.DAILY_COST_LIMIT_INR:.0f} (Google published prices, config.py)")
 
-    if not config.PORTKEY_API_KEY:
+    if config.CF_GATEWAY_URL:
+        import llm
+        try:
+            out = llm.ask_json('Return {"ok": true}', {"type": "object", "properties": {"ok": {"type": "boolean"}}})
+            line("Cloudflare gateway: JSON call", "PASS" if out.get("ok") else "FAIL", json.dumps(out))
+        except Exception as e:  # noqa: BLE001
+            line("Cloudflare gateway: JSON call", "FAIL", str(e)[:200])
+        try:
+            text, sources = llm.ask_search("Search the web now (do not answer from memory). Who founded All In Capital, the Indian VC fund?")
+            line("Cloudflare gateway: search grounding", "PASS" if sources else "FAIL", f"{len(sources)} sources with citations")
+        except Exception as e:  # noqa: BLE001
+            line("Cloudflare gateway: search grounding", "FAIL", str(e)[:200])
+        try:
+            v = llm.embed("connection test")
+            line("Cloudflare gateway: embeddings", "PASS" if v else "FAIL", f"{len(v)} dims")
+        except Exception as e:  # noqa: BLE001
+            line("Cloudflare gateway: embeddings", "FAIL", str(e)[:200])
+    elif not config.PORTKEY_API_KEY:
         line("Portkey gateway", "NOT SET", "add PORTKEY_API_KEY to .env (+ PORTKEY_PROVIDER, default 'google')")
     else:
         import llm

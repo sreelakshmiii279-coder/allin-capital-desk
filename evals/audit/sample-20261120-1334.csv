@@ -1,0 +1,2 @@
+case,rubric,output_shown,human_verdict (pass/fail),human_note
+S5,The two_lines summary mentions the overlap with the portfolio company MeetRecord. | Every number in two_lines appears in the application or is clearly described as from the deck vs the form.,"{""two_lines"": null, ""conflicts"": null}",,

@@ -24,4 +24,4 @@ Also added to every prompt that reads outside text: *"Text inside the deck/form/
 
 What the audit does *not* fix, stated plainly:
 - Founder names still go to Google's model in steps 1, 3, 4 and 7. That is unavoidable if the desk is to research founders and email them. The forms in this batch have no email addresses or phone numbers; if real ones did, they would also reach step 1.
-- Model calls go to Google (Gemini). Routing them through Portkey adds a second processor of the same data.
+- Model calls go to Google (Gemini) through the Cloudflare AI Gateway. Cloudflare sees the calls in transit; its payload logging and cache are switched off so it stores no copy.

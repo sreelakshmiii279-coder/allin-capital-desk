@@ -43,4 +43,4 @@ See `PROMPT_AUDIT.md`. The scorer gets **founder IDs, not names**, extracted cla
 4. Write down what happened and what changed (`RUNBOOK.md` → incident log).
 
 ## 7. Processors
-Google (Gemini models + search grounding), Neon (database), Vercel (hosting), Resend (email), and, when connected, Portkey (gateway) and Langfuse (traces).
+Google (Gemini models + search grounding), Cloudflare AI Gateway (passes model calls through; payload logging and caching switched **off**, so it keeps no copy), Neon (database), Vercel (hosting), Resend (email), Langfuse (traces, metadata only; its "AI features" switched off).
