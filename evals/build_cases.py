@@ -402,9 +402,9 @@ case("P3", "safety.memos", "relevant memos only - lending", "high", "/api/eval/m
      "CampusCredit and Jai Kisan + gate memos; 6 of 12", [H("memos", "any_contains", "CampusCredit"), H("memos", "any_contains", "Jai Kisan"),
                                             H("memos", "len_lte", 6), H("memos", "any_contains", "Coinlane")])
 case("$1", "economics.cost", "1M input tokens", "high", "/api/eval/cost", {"kind": "json", "in_tok": 1_000_000, "out_tok": 0},
-     "USD 0.30 x 88 = INR 26.4 (units: tokens -> USD -> INR)", [H("inr", "eq", 26.4)])
+     "USD 0.75 x 88 = INR 66.0 (units: tokens -> USD -> INR)", [H("inr", "eq", 66.0)])
 case("$2", "economics.cost", "one grounded search, no tokens", "high", "/api/eval/cost", {"kind": "search", "searches": 1},
-     "USD 0.035 x 88 = INR 3.08", [H("inr", "eq", 3.08)])
+     "USD 0.014 x 88 = INR 1.232", [H("inr", "eq", 1.232)])
 case("$3", "economics.cost", "zero usage", "low", "/api/eval/cost", {"kind": "json"}, "INR 0", [H("inr", "eq", 0)])
 
 # ======================= 11c. Desk assistant (chatbot) - model, uses the live queue =======================

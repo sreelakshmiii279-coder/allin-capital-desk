@@ -249,7 +249,7 @@ def cost():
         "avg_per_application_inr": f(per_run), "projection_100_apps_inr": f((per_run or 0) * 100),
         "prices": {"in_per_m_usd": config.PRICE_IN_PER_M, "out_per_m_usd": config.PRICE_OUT_PER_M,
                    "search_per_call_usd": config.PRICE_SEARCH_PER_CALL, "usd_inr": config.USD_INR,
-                   "note": "Assumed list prices - confirm against the Google AI Studio billing page (config.py)."},
+                   "note": "Google Gemini API published prices, read 20 Nov 2026 (aistudio.google.com/docs/pricing). 3.5 Flash is no longer listed, so it is priced conservatively at 3.8 Flash rates; search is per query, 5,000 free a month not deducted."},
         "by_day": [{"day": str(r[0]), "inr": f(r[1]), "calls": r[2], "searches": r[3]} for r in by_day],
         "by_week": [{"week": str(r[0]), "inr": f(r[1]), "calls": r[2]} for r in by_week],
         "by_month": [{"month": r[0], "inr": f(r[1]), "calls": r[2]} for r in by_month],

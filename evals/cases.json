@@ -5763,13 +5763,13 @@
    "in_tok": 1000000,
    "out_tok": 0
   },
-  "expected": "USD 0.30 x 88 = INR 26.4 (units: tokens -> USD -> INR)",
+  "expected": "USD 0.75 x 88 = INR 66.0 (units: tokens -> USD -> INR)",
   "assertions": [
    {
     "kind": "hard",
     "path": "inr",
     "op": "eq",
-    "value": 26.4
+    "value": 66.0
    }
   ]
  },
@@ -5785,13 +5785,13 @@
    "kind": "search",
    "searches": 1
   },
-  "expected": "USD 0.035 x 88 = INR 3.08",
+  "expected": "USD 0.014 x 88 = INR 1.232",
   "assertions": [
    {
     "kind": "hard",
     "path": "inr",
     "op": "eq",
-    "value": 3.08
+    "value": 1.232
    }
   ]
  },

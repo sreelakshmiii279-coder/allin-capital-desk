@@ -65,13 +65,16 @@ DATABASE_URL_READONLY = os.environ.get("DATABASE_URL_READONLY", "").strip()   # 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "").strip()   # Kushal: erasure and other destructive actions
 
 # --- Cost (Case 04 task 5) ---
-# ASSUMED list prices in USD - confirm against your Google AI Studio billing page and change here; every cost figure uses them.
-PRICE_IN_PER_M = float(os.environ.get("PRICE_IN_PER_M", "0.30"))       # per 1M input tokens
-PRICE_OUT_PER_M = float(os.environ.get("PRICE_OUT_PER_M", "2.50"))     # per 1M output (incl. thinking) tokens
-PRICE_SEARCH_PER_CALL = float(os.environ.get("PRICE_SEARCH_PER_CALL", "0.035"))  # Google Search grounding, per grounded call
+# Prices from Google's Gemini API pricing page (aistudio.google.com/docs/pricing, read 20 Nov 2026), paid tier, USD.
+# gemini-3.5-flash is no longer listed: priced CONSERVATIVELY at Gemini 3.8 Flash rates ($0.75 / $3.75, through 31 Dec 2026).
+# Search grounding: $14 per 1,000 search queries (one request can run several), 5,000 free a month (not deducted here),
+# daily cap 1,500 requests. Flash-Lite: $0.30 / $2.50. Embedding: $0.15.
+PRICE_IN_PER_M = float(os.environ.get("PRICE_IN_PER_M", "0.75"))       # per 1M input tokens
+PRICE_OUT_PER_M = float(os.environ.get("PRICE_OUT_PER_M", "3.75"))     # per 1M output (incl. thinking) tokens
+PRICE_SEARCH_PER_CALL = float(os.environ.get("PRICE_SEARCH_PER_CALL", "0.014"))  # Google Search grounding, per grounded call
 PRICE_EMBED_PER_M = float(os.environ.get("PRICE_EMBED_PER_M", "0.15"))
 USD_INR = float(os.environ.get("USD_INR", "88"))
-DAILY_COST_LIMIT_INR = float(os.environ.get("DAILY_COST_LIMIT_INR", "4000"))   # 100 applications x ~INR 34 (volume test) + headroom
+DAILY_COST_LIMIT_INR = float(os.environ.get("DAILY_COST_LIMIT_INR", "2500"))   # ~INR 10 per application at published prices: 2.5x a 100-application day
 
 # --- Gateway + tracing (Case 04 tasks 3 and 4) - switch on by adding keys to .env ---
 PORTKEY_API_KEY = os.environ.get("PORTKEY_API_KEY", "").strip()
@@ -118,5 +121,5 @@ LOG_CONTENT_TO_TRACES = os.environ.get("LOG_CONTENT_TO_TRACES", "0") == "1"   # 
 # --- Intake limits (L8: an open form is an open door) ---
 INTAKE_MAX_PER_REQUEST = 100
 INTAKE_MAX_PER_MINUTE = 50
-PRICE_LITE_IN_PER_M = float(os.environ.get("PRICE_LITE_IN_PER_M", "0.10"))     # assumed list price for the lite model
-PRICE_LITE_OUT_PER_M = float(os.environ.get("PRICE_LITE_OUT_PER_M", "0.40"))
+PRICE_LITE_IN_PER_M = float(os.environ.get("PRICE_LITE_IN_PER_M", "0.30"))     # assumed list price for the lite model
+PRICE_LITE_OUT_PER_M = float(os.environ.get("PRICE_LITE_OUT_PER_M", "2.50"))

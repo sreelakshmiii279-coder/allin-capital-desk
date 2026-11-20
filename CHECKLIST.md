@@ -60,9 +60,9 @@ Sources: Case 04 brief (Build 5, due Fri 20 Nov 2026), L7 Evals, Advanced AI S2 
 | 🔑 | Q3: Portkey (retries, fallbacks, **budget cap**) | Wired; needs your Portkey account |
 | 🔑 | Q4: Langfuse | Neon traces ✅; Langfuse export needs your account |
 | ✅ | Q4: someone else can run it on Monday | `RUNBOOK.md`: owner, daily routine, what each alert means, kill actions, incident log |
-| ✅ | Q5: cost per run/day/month vs Riya's baseline; limit that stops the spend | Cost tab; pause + alert; avg about INR 23–28 per application in the test runs |
+| ✅ | Q5: cost per run/day/month vs Riya's baseline; limit that stops the spend | Cost tab; pause + alert at INR 2,500/day. Prices now from Google's pricing page (search was over-counted 2.5×; 3.5 Flash priced conservatively at 3.8 Flash rates) |
 | ✅ | Q5: cheaper model per step | Lite model for reply classification, email draft, edit judge; main model for judgement steps |
-| ⏳ | Q5: pricing model and the written **ship call** | To write: `reports/trust_contract.md` (Case 04 version) |
+| ✅ | Q5: pricing model and the written **ship call** | `reports/trust_contract.md`: conditional yes, per-question evidence, **~INR 10/application at published prices (~2% of hand screening)**, per-application pricing, kill switches |
 
 ## F. Found by the evals and fixed
 - Booking: no automatic reply-window timeout; no calendar retry; crashed on a permanent booking error and on a CRM failure; didn't escalate when email retries ran out; **booked without partner approval** (K7). All fixed.
