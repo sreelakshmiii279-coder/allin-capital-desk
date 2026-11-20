@@ -84,12 +84,6 @@ def _context(app_id=None):
         if r:
             ctx["focus_application"] = _detail(r, books.get(app_id))
     try:
-        import news
-        ctx["world_news_last_7_days"] = {t: [f'{x["date"]} {x["source"]}: {x["title"]} <{x["url"]}>' for x in items]
-                                         for t, items in news.pulse().items()}
-    except Exception:  # noqa: BLE001
-        pass
-    try:
         with storage.db() as c:
             spent =c.execute("SELECT coalesce(sum(cost_inr),0) FROM model_calls WHERE (at AT TIME ZONE 'Asia/Kolkata')::date = "
                               "(now() AT TIME ZONE 'Asia/Kolkata')::date").fetchone()[0]
@@ -108,7 +102,14 @@ def answer(question, history=None, app_id=None):
     if not question:
         return {"answer": "Ask me about an application, the queue, costs or the thesis.", "sources": [], "not_in_data": False,
                 "refused_action": False}
-    ctx = _context(app_id)
+    with storage.readonly():          # least privilege: the assistant reads through a SELECT-only login
+        ctx = _context(app_id)
+    try:
+        import news
+        ctx["world_news_last_7_days"] = {t: [f'{x["date"]} {x["source"]}: {x["title"]} <{x["url"]}>' for x in items]
+                                         for t, items in news.pulse().items()}
+    except Exception:  # noqa: BLE001
+        pass
     convo = "\n".join(f"{m.get('role', 'user').upper()}: {str(m.get('text', ''))[:800]}" for m in (history or [])[-8:])
     prompt = (f"{SYSTEM}\n\n=== DESK DATA ===\n{json.dumps(ctx, ensure_ascii=False, default=str)[:60000]}\n\n"
               f"=== CONVERSATION SO FAR ===\n{convo or '(none)'}\n\n=== QUESTION ===\n{question}")

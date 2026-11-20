@@ -149,6 +149,18 @@ def news_pulse():
     return jsonify({"topics": news.pulse(), "source": "Google News (India edition), last 7 days"})
 
 
+@app.post("/api/applicant/<app_id>/erase")
+def erase(app_id):
+    """DPDP / GDPR erasure request: delete everything about one applicant. Needs the ADMIN password (Kushal), not the
+    everyday desk password - least privilege for an irreversible action."""
+    if not (config.ADMIN_PASSWORD and request.headers.get("X-Admin-Password", "") == config.ADMIN_PASSWORD):
+        return jsonify({"error": "Erasure needs the admin password."}), 401
+    b = request.get_json(silent=True) or {}
+    if b.get("confirm") != app_id:
+        return jsonify({"error": "Confirm by sending the application id."}), 400
+    return jsonify({"ok": True, "deleted": storage.erase_applicant(app_id)})
+
+
 @app.post("/api/chat")
 def chat_endpoint():
     """Desk assistant: read-only answers grounded in the desk's data (chat.py). Password-gated: each question costs a call."""
@@ -171,6 +183,14 @@ def intake_batch():
     apps = b.get("applications") or []
     if not apps:
         return jsonify({"error": "No applications."}), 400
+    # L8: an open form is an open door - limits per request and per minute; extras are told to retry, never silently dropped
+    if len(apps) > config.INTAKE_MAX_PER_REQUEST:
+        return jsonify({"error": f"At most {config.INTAKE_MAX_PER_REQUEST} applications per request - split the upload."}), 413
+    with storage.db() as c:
+        last_min = c.execute("SELECT count(*) FROM jobs WHERE queued_at > now() - interval '1 minute'").fetchone()[0]
+    if last_min + len(apps) > config.INTAKE_MAX_PER_MINUTE:
+        return jsonify({"error": f"Intake limit: {config.INTAKE_MAX_PER_MINUTE} applications a minute "
+                                 f"({last_min} already this minute). Nothing was queued - retry in a minute."}), 429, {"Retry-After": "60"}
     ids = jobqueue.enqueue(apps, b.get("batch") or "intake")
     return jsonify({"ok": True, "job_ids": ids, "counts": jobqueue.counts(b.get("batch") or "intake")})
 
@@ -192,6 +212,7 @@ def worker_tick():
             if new and new.get("reply_round") != st.get("reply_round"):
                 ticked.append(app_id)
     out["booking_followups"] = ticked
+    out["purged_after_retention"] = storage.purge_expired(config.RETENTION_DAYS)
     out["counts"] = jobqueue.counts()
     out["paused"] = obs.is_paused()
     return jsonify(out)
@@ -257,7 +278,7 @@ def run_trace(run_id):
 
 @app.get("/api/setup")
 def setup():
-    return jsonify({"portkey": bool(config.PORTKEY_API_KEY), "langfuse": bool(config.LANGFUSE_PUBLIC_KEY and config.LANGFUSE_SECRET_KEY),
+    return jsonify({"env": config.DESK_ENV, "portkey": bool(config.PORTKEY_API_KEY), "langfuse": bool(config.LANGFUSE_PUBLIC_KEY and config.LANGFUSE_SECRET_KEY),
                     "langfuse_host": config.LANGFUSE_HOST, "resend": bool(config.RESEND_API_KEY), "model": config.MODEL,
                     "daily_limit_inr": config.DAILY_COST_LIMIT_INR, "workers": config.QUEUE_WORKERS})
 
@@ -325,6 +346,9 @@ def stats():
 def eval_endpoint(name):
     """Fixed-input access to each decision, for the eval harness (L7). Password-gated: these calls cost model tokens.
     Nothing here writes to the real queue, sends a real email or books a real slot."""
+    if config.IS_LIVE:
+        # least privilege + test/live separation (L8): the test surface does not exist on the live site
+        return jsonify({"error": "Eval endpoints are disabled on the live site. Run evals against the test environment."}), 404
     if not _auth():
         return _need_auth()
     import evalkit

@@ -6,6 +6,7 @@
   traced    - as a generation span inside the application's trace (Langfuse when keys are set; Neon always)."""
 import json
 import os
+import random
 import re
 import threading
 import time
@@ -28,18 +29,28 @@ def _get_client(fresh=False):
     return _local.client
 
 
+def model_for(prompt_version):
+    """L8 cost lever: cheaper model for simple steps (config.STEP_MODELS), main model for judgement."""
+    return config.STEP_MODELS.get(prompt_version or "", config.MODEL)
+
+
+def backoff(attempt):
+    """L8: wait 1 s, 2 s, 4 s ... plus a small random wobble so 20 retries don't hit the provider in lockstep."""
+    time.sleep(2 ** attempt + random.uniform(0, 0.5))
+
+
 def via():
     return "portkey" if config.PORTKEY_API_KEY else "direct"
 
 
 # ---------------- Portkey (OpenAI-compatible gateway) ----------------
-def _portkey(messages, temperature, json_schema=None, search=False):
+def _portkey(messages, temperature, json_schema=None, search=False, model=None):
     headers = {"x-portkey-api-key": config.PORTKEY_API_KEY, "Content-Type": "application/json",
                "x-portkey-config": json.dumps({"retry": {"attempts": config.PORTKEY_RETRY_ATTEMPTS,
                                                          "on_status_codes": [429, 500, 502, 503, 504]}})}
-    model = config.MODEL
+    model = model or config.MODEL
     if config.PORTKEY_PROVIDER.startswith("@"):
-        model = f"{config.PORTKEY_PROVIDER}/{config.MODEL}"          # Model Catalog route
+        model = f"{config.PORTKEY_PROVIDER}/{model}"          # Model Catalog route
     else:
         headers["x-portkey-provider"] = config.PORTKEY_PROVIDER      # direct route: our Gemini key travels per request
         headers["Authorization"] = f"Bearer {os.environ['GEMINI_API_KEY']}"
@@ -63,31 +74,33 @@ def _strip_fences(t):
 
 
 # ---------------- public calls ----------------
-def ask_json(prompt, schema, temperature=0.0, retries=2, prompt_version=None):
+def ask_json(prompt, schema, temperature=0.0, retries=None, prompt_version=None):
     """Returns a dict matching `schema`. Permanent errors are raised so the caller logs them instead of carrying on."""
     obs.guard()
+    retries = config.RETRY_ATTEMPTS - 1 if retries is None else retries
+    model = model_for(prompt_version)
     t0 = time.time()
     if config.PORTKEY_API_KEY:
         try:
-            msg, usage, n_retry, _ = _portkey([{"role": "user", "content": prompt}], temperature, json_schema=schema)
+            msg, usage, n_retry, _ = _portkey([{"role": "user", "content": prompt}], temperature, json_schema=schema, model=model)
             out = json.loads(_strip_fences(msg.get("content")))
-            obs.record_call("json", config.MODEL, prompt_version, usage.get("prompt_tokens"), usage.get("completion_tokens"), 0,
+            obs.record_call("json", model, prompt_version, usage.get("prompt_tokens"), usage.get("completion_tokens"), 0,
                             (time.time() - t0) * 1000, "ok", via="portkey", retries=n_retry,
                             input_preview=prompt[-1500:], output_preview=json.dumps(out)[:1500])
             return out
         except Exception as e:
-            obs.record_call("json", config.MODEL, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", str(e), via="portkey")
+            obs.record_call("json", model, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", str(e), via="portkey")
             raise
     last = None
     for attempt in range(retries + 1):
         try:
             res = _get_client().models.generate_content(
-                model=config.MODEL, contents=prompt,
+                model=model, contents=prompt,
                 config=types.GenerateContentConfig(temperature=temperature, response_mime_type="application/json",
                                                    response_schema=schema))
             u = res.usage_metadata
             out = json.loads(res.text)
-            obs.record_call("json", config.MODEL, prompt_version, getattr(u, "prompt_token_count", 0),
+            obs.record_call("json", model, prompt_version, getattr(u, "prompt_token_count", 0),
                             (getattr(u, "candidates_token_count", 0) or 0) + (getattr(u, "thoughts_token_count", 0) or 0), 0,
                             (time.time() - t0) * 1000, "ok", retries=attempt,
                             input_preview=prompt[-1500:], output_preview=res.text[:1500])
@@ -95,16 +108,16 @@ def ask_json(prompt, schema, temperature=0.0, retries=2, prompt_version=None):
         except json.JSONDecodeError as e:
             last = e
             if attempt == retries:
-                obs.record_call("json", config.MODEL, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", f"bad JSON: {e}")
+                obs.record_call("json", model, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", f"bad JSON: {e}")
                 raise ValueError(f"Model did not return valid JSON: {e}") from e
         except Exception as e:  # noqa: BLE001 - classified: transient retries, permanent raises
             last = e
             if "closed" in str(e):
                 _get_client(fresh=True)
             if not any(s in str(e) for s in TRANSIENT) or attempt == retries:
-                obs.record_call("json", config.MODEL, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", str(e), retries=attempt)
+                obs.record_call("json", model, prompt_version, 0, 0, 0, (time.time() - t0) * 1000, "error", str(e), retries=attempt)
                 raise
-            time.sleep(2 ** attempt * 3)
+            backoff(attempt)
     raise RuntimeError(f"unreachable: {last}")
 
 
@@ -125,7 +138,7 @@ def ask_search(prompt, prompt_version=None):
             obs.record_call("search", config.MODEL, prompt_version, 0, 0, 1, (time.time() - t0) * 1000, "error", str(e), via="portkey")
             raise
     res = None
-    for attempt in range(3):
+    for attempt in range(config.RETRY_ATTEMPTS):
         try:
             res = _get_client().models.generate_content(
                 model=config.MODEL, contents=prompt,
@@ -134,10 +147,10 @@ def ask_search(prompt, prompt_version=None):
         except Exception as e:  # noqa: BLE001 - transient: retry with backoff; permanent: raise (S6 retry table)
             if "closed" in str(e):
                 _get_client(fresh=True)
-            if attempt == 2 or not any(s in str(e) for s in TRANSIENT):
+            if attempt == config.RETRY_ATTEMPTS - 1 or not any(s in str(e) for s in TRANSIENT):
                 obs.record_call("search", config.MODEL, prompt_version, 0, 0, 1, (time.time() - t0) * 1000, "error", str(e), retries=attempt)
                 raise
-            time.sleep(2 ** attempt * 3)
+            backoff(attempt)
     sources = []
     meta = res.candidates[0].grounding_metadata if res.candidates else None
     for ch in (getattr(meta, "grounding_chunks", None) or []):

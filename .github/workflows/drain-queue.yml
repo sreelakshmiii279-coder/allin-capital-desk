@@ -1,0 +1,24 @@
+# L8: "A scheduled job scores applications at a steady rate. Nothing is lost, nothing overloads the provider."
+# Every 5 minutes this calls the live desk's worker, which processes up to QUEUE_WORKERS applications, sends any due
+# follow-ups (3 silent working days), and applies the retention purge. GitHub may delay scheduled runs at busy times.
+name: Drain the intake queue
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+concurrency:
+  group: drain-queue
+  cancel-in-progress: false
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Call the worker
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          code=$(curl -s -o out.json -w "%{http_code}" -X POST "https://allin-desk.vercel.app/api/worker/tick?deadline=250" \
+                 -H "Authorization: Bearer $CRON_SECRET" --max-time 320)
+          echo "HTTP $code"; cat out.json; echo
+          test "$code" = "200"

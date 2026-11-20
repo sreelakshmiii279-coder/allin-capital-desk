@@ -4836,7 +4836,7 @@
     "kind": "hard",
     "path": "calls.taken_slots",
     "op": "lte",
-    "value": 3
+    "value": 4
    },
    {
     "kind": "hard",
@@ -4926,7 +4926,7 @@
     "kind": "hard",
     "path": "calls.post_email",
     "op": "eq",
-    "value": 3
+    "value": 4
    },
    {
     "kind": "hard",

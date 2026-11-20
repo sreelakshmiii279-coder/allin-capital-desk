@@ -319,12 +319,12 @@ bk("BK9", "silent through every window", "critical",
 bk("BK10", "calendar times out once", "high", [*S], "retried, then proceeds",
    [H("calls.taken_slots", "gte", 2), H("state.meeting_status", "eq", "pending_confirmation")], behaviour={"calendar": "timeout_once"})
 bk("BK11", "calendar down", "high", [*S], "escalated after a capped number of retries",
-   [H("state.meeting_status", "eq", "escalated"), H("calls.taken_slots", "lte", 3), H("error", "is_null")], behaviour={"calendar": "down"})
+   [H("state.meeting_status", "eq", "escalated"), H("calls.taken_slots", "lte", 4), H("error", "is_null")], behaviour={"calendar": "down"})
 bk("BK12", "email permanently rejected (bad address)", "critical", [*S], "no retry; escalated",
    [H("calls.post_email", "eq", 1), H("state.meeting_status", "eq", "escalated"), H("error", "is_null")], "K11",
    behaviour={"email": "bad_address"})
 bk("BK13", "email transient, never recovers", "high", [*S], "retried to the cap, then escalated",
-   [H("calls.post_email", "eq", 3), H("state.meeting_status", "eq", "escalated")], behaviour={"email": "transient"})
+   [H("calls.post_email", "eq", 4), H("state.meeting_status", "eq", "escalated")], behaviour={"email": "transient"})
 bk("BK14", "email transient once", "low", [*S], "sent on retry", [H("calls.post_email", "eq", 2),
    H("state.meeting_status", "eq", "pending_confirmation")], behaviour={"email": "transient_once"})
 bk("BK15", "booking fails permanently (calendar permission revoked)", "critical", [*S, R(PICK(1))],

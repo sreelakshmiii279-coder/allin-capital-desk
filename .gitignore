@@ -7,3 +7,5 @@ runs_batch.log
 
 .vercel
 .env*
+evals/*.log
+evals/results/

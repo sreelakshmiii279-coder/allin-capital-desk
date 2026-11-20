@@ -113,9 +113,11 @@ def step(name, **attrs):
 
 
 # ---------------- cost ----------------
-def cost_inr(kind, in_tok, out_tok, searches=0):
+def cost_inr(kind, in_tok, out_tok, searches=0, model=None):
     if kind == "embed":
         usd = in_tok / 1e6 * config.PRICE_EMBED_PER_M
+    elif model and "lite" in model:
+        usd = in_tok / 1e6 * config.PRICE_LITE_IN_PER_M + out_tok / 1e6 * config.PRICE_LITE_OUT_PER_M
     else:
         usd = in_tok / 1e6 * config.PRICE_IN_PER_M + out_tok / 1e6 * config.PRICE_OUT_PER_M
     usd += searches * config.PRICE_SEARCH_PER_CALL
@@ -175,7 +177,7 @@ def _alert_once(spent):
 def record_call(kind, model, prompt_version, in_tok, out_tok, searches, latency_ms, status, error=None, via="direct",
                 input_preview=None, output_preview=None, retries=0):
     c = current()
-    inr = cost_inr(kind, in_tok or 0, out_tok or 0, searches or 0)
+    inr = cost_inr(kind, in_tok or 0, out_tok or 0, searches or 0, model)
     row = (c["app_id"], c["run_id"], c["step"], kind, model, prompt_version, in_tok or 0, out_tok or 0, searches or 0, inr,
            int(latency_ms), status, (error or "")[:300], via, retries)
     import storage
@@ -200,8 +202,10 @@ def record_call(kind, model, prompt_version, in_tok, out_tok, searches, latency_
                       "langfuse.observation.prompt.version": prompt_version or "", "langfuse.version": prompt_version or "",
                       "langfuse.observation.metadata.via": via, "langfuse.observation.metadata.cost_inr": inr,
                       "langfuse.observation.metadata.searches": searches or 0, "langfuse.observation.metadata.retries": retries,
-                      "langfuse.observation.input": (input_preview or "")[:4000],
-                      "langfuse.observation.output": (output_preview or "")[:4000]}})
+                      # L8 "logs are a second copy of founders' data": content goes to traces only if switched on
+                      **({"langfuse.observation.input": (input_preview or "")[:4000],
+                          "langfuse.observation.output": (output_preview or "")[:4000]} if config.LOG_CONTENT_TO_TRACES else
+                         {"langfuse.observation.metadata.content": "not logged (LOG_CONTENT_TO_TRACES=0)"})}})
     return inr
 
 

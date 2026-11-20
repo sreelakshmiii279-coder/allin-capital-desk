@@ -43,6 +43,27 @@ Sources: Case 04 brief (Build 5, due Fri 20 Nov 2026), L7 Evals, Advanced AI S2 
 ## E. Advanced AI S3: four questions per tool card
 - [x] All five booking tools: label, typed inputs with examples, named outputs, what happens on each failure, safe to call twice (`booking.TOOLS`)
 
+## E2. L8 "From Prototype to Production" (posted 20 Nov): extra checks, now fixed in this build
+| | Check (L8) | Status in the build |
+|---|---|---|
+| ✅ | Q1: borderline test set, kill criteria, Kushal's past-decisions test | 116 cases with boundaries; K1–K14; backtest **10/12** on score-v6 |
+| ✅ | Q2 leak 1, *what you send out* | Founder IDs; **memo sections** (header + "why"), not whole memos (memo context 22.8k → 4.7k chars); extracted claims + redacted application text; web findings, not pages; everything outside tagged as data. ⚠ "Claims only" (v5) was tried and **failed the backtest (5/12)**: the claims lost founder behaviour, so the redacted application text stays. |
+| ✅ | Q2 leak 2, *what's left lying around* | Retention purge 180 days after a decision (scheduled worker); traces carry **metadata only** (`LOG_CONTENT_TO_TRACES=0`); no prompt text stored in Neon |
+| ✅ | Q2 leak 3, *who can do what* | Chat assistant uses a **SELECT-only DB login**; erasure needs a separate **admin password**; eval endpoints **404 on live** |
+| ✅ | No keys in code | `.env` git-ignored; `.env.example` has names only |
+| ✅ | **Test and live separate** | `allin_desk_test` (local + evals) vs `allin_desk` (Vercel). The harness and volume test refuse a non-test server. Test data removed from live. Masthead badge shows Test / Live. |
+| ✅ | The law (DPDP / GDPR) | `PRIVACY.md`: founder notice text, data map, retention, erasure route, breach steps, processors. Counsel to confirm. |
+| ✅ | Q3: 20 at once, nothing lost | Volume test 20/20 (19 Nov) |
+| ✅ | Q3: retries 1 s → 2 s → 4 s + jitter, 4 tries | `llm.backoff`; booking email/calendar too (BK10–BK14) |
+| ✅ | Q3: scheduled job drains the queue; limits on bursts | GitHub Actions every 5 min → `/api/worker/tick` (5 per tick); intake ≤100 per request and ≤50 per minute, extras told to retry |
+| ✅ | Q3: cache identical application + prompt version | Read reused (no model calls) when text, prompt versions and corrections are unchanged; 7-day freshness |
+| 🔑 | Q3: Portkey (retries, fallbacks, **budget cap**) | Wired; needs your Portkey account |
+| 🔑 | Q4: Langfuse | Neon traces ✅; Langfuse export needs your account |
+| ✅ | Q4: someone else can run it on Monday | `RUNBOOK.md`: owner, daily routine, what each alert means, kill actions, incident log |
+| ✅ | Q5: cost per run/day/month vs Riya's baseline; limit that stops the spend | Cost tab; pause + alert; avg about INR 23–28 per application in the test runs |
+| ✅ | Q5: cheaper model per step | Lite model for reply classification, email draft, edit judge; main model for judgement steps |
+| ⏳ | Q5: pricing model and the written **ship call** | To write: `reports/trust_contract.md` (Case 04 version) |
+
 ## F. Found by the evals and fixed
 - Booking: no automatic reply-window timeout; no calendar retry; crashed on a permanent booking error and on a CRM failure; didn't escalate when email retries ran out; **booked without partner approval** (K7). All fixed.
 - Feedback: two conflicting corrections were both applied (K14); a drone lesson leaked into a food brand; a no-op "correction" was stored. All fixed.

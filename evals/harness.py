@@ -295,8 +295,16 @@ def main():
     if a.only:
         keep = set(a.only.split(","))
         cases = [c for c in cases if c["id"] in keep or c["id"] == "CANARY"]
+    try:
+        env = requests.get(BASE + "/api/setup", timeout=30).json().get("env")
+    except Exception:  # noqa: BLE001
+        env = None
+    if env != "test":
+        print(f"Refusing to run: {BASE} reports env={env!r}. Evals run only against the TEST environment (L8: test and live "
+              "are separate). Start the local desk with DESK_ENV=test.")
+        return 2
     judge = Judge()
-    started = dt.datetime.now(dt.timezone(dt.timedelta(hours=5, minutes=30)))
+    started =dt.datetime.now(dt.timezone(dt.timedelta(hours=5, minutes=30)))
     print(f"{len(cases)} cases x {a.runs} run(s) against {BASE}; judge {judge.describe()}", flush=True)
     allres = run(cases, 1 if a.broken else a.runs, a.workers, judge, a.broken)
     if a.broken:

@@ -4,73 +4,132 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>All In Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mute:#6b6a64;--line:#e4e2da;--accent:#1f6f4a;--accent-soft:#e3f1e9;
---warn:#a35c00;--warn-soft:#fbefdc;--bad:#a8322d;--bad-soft:#f8e3e1;--info:#2b5c9e;--info-soft:#e4ecf7;--chip:#efede6}
-@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#ecebe6;--mute:#a09f98;--line:#33322f;--accent:#5cc28f;
---accent-soft:#1d3428;--warn:#e0a24a;--warn-soft:#3a2c17;--bad:#ec7b74;--bad-soft:#3b1f1d;--info:#86aee6;--info-soft:#1d2a3d;--chip:#2a2a27}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Inter,system-ui,sans-serif}
-a{color:var(--info)}header{padding:18px 24px 0;max-width:1200px;margin:auto}
-h1{font-size:20px;margin:0}h2{font-size:16px;margin:24px 0 8px}h3{font-size:14px;margin:0 0 6px}
-.sub{color:var(--mute);font-size:13px}nav{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-nav a{padding:8px 12px;text-decoration:none;color:var(--mute);border-bottom:2px solid transparent}nav a.on{color:var(--ink);border-color:var(--accent);font-weight:600}
-main{max-width:1200px;margin:auto;padding:16px 24px 60px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.kpi b{font-size:20px;display:block}
-.kpi span{color:var(--mute);font-size:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;color:var(--mute);font-weight:600}
-tr.click{cursor:pointer}tr.click:hover{background:var(--chip)}
-.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
-.p-call{background:var(--accent-soft);color:var(--accent)}.p-hold{background:var(--warn-soft);color:var(--warn)}
-.p-pass{background:var(--bad-soft);color:var(--bad)}.p-mid{background:var(--info-soft);color:var(--info)}
-.chip{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 6px;font-size:12px;margin:2px 4px 2px 0}
+:root{--bg:#f7f4ee;--card:#ffffff;--ink:#15201b;--mute:#6e6a60;--faint:#9a958a;--line:#e6e0d4;--line2:#efeae0;
+--accent:#1f4d3a;--accent-ink:#ffffff;--accent-soft:#e7efe9;--brass:#a7843c;--brass-soft:#f4ecdc;
+--warn:#9a6411;--warn-soft:#f6ecd9;--bad:#9b2c2c;--bad-soft:#f6e2df;--info:#2e4a6b;--info-soft:#e7edf4;--chip:#f2ede3;
+--shadow:0 1px 2px rgba(21,32,27,.04),0 6px 24px rgba(21,32,27,.05);--serif:'Fraunces',Georgia,'Times New Roman',serif;
+--sans:'Inter',-apple-system,'Segoe UI',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1412;--card:#161d1a;--ink:#ece8df;--mute:#a39e92;--faint:#7d796f;
+--line:#2a332f;--line2:#212a26;--accent:#7fc2a0;--accent-ink:#0f1412;--accent-soft:#1c2e26;--brass:#cfae6a;--brass-soft:#2c2618;
+--warn:#e2b061;--warn-soft:#33291a;--bad:#e58a82;--bad-soft:#3a2220;--info:#9db8d9;--info-soft:#1d2836;--chip:#1f2723;
+--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.25)}}
+*{box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 var(--sans);letter-spacing:.005em}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}a:hover{border-bottom-color:var(--accent)}
+/* masthead */
+.masthead{max-width:1180px;margin:auto;padding:30px 32px 0}
+.eyebrow{font:600 11px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);display:flex;align-items:center;gap:10px}
+.eyebrow .rule{flex:0 0 28px;height:1px;background:var(--brass)}
+.titlerow{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:10px}
+h1{font:500 34px/1.1 var(--serif);letter-spacing:-.01em;margin:0}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--mute);font-size:13.5px;margin-top:8px;max-width:640px}
+.envbadge{font:600 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;padding:7px 11px;border-radius:99px;border:1px solid var(--line);color:var(--mute);background:var(--card)}
+.envbadge.test{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:var(--warn-soft)}
+.envbadge.live{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:var(--accent-soft)}
+nav{display:flex;gap:28px;margin-top:26px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav a{padding:0 0 12px;border:0;color:var(--mute);font-weight:500;font-size:13.5px;position:relative}
+nav a:hover{color:var(--ink)}
+nav a.on{color:var(--ink)}nav a.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--brass)}
+main{max-width:1180px;margin:auto;padding:28px 32px 96px}
+h2{font:500 21px/1.25 var(--serif);margin:34px 0 12px;letter-spacing:-.005em}
+h3{font:600 12px/1.3 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+/* figures */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:4px 0 26px;background:var(--card);
+  border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.kpi{padding:18px 20px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.kpi b{display:block;font:500 28px/1.1 var(--serif);letter-spacing:-.01em;margin-bottom:6px;font-variant-numeric:lining-nums tabular-nums}
+.kpi span{display:block;color:var(--mute);font-size:12px;line-height:1.45}
+/* surfaces */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+th{font:600 10.5px/1.2 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--chip) 45%,var(--card))}
+td{padding:16px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer;transition:background .15s}tr.click:hover{background:color-mix(in srgb,var(--brass-soft) 55%,var(--card))}
+td b{font-weight:600}
+/* status */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font:600 11.5px/1.2 var(--sans);white-space:nowrap;border:1px solid transparent}
+.pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.p-call{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 22%,transparent)}
+.p-hold{background:var(--warn-soft);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 22%,transparent)}
+.p-pass{background:var(--bad-soft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 20%,transparent)}
+.p-mid{background:var(--info-soft);color:var(--info);border-color:color-mix(in srgb,var(--info) 20%,transparent)}
+.chip{display:inline-block;background:var(--chip);color:var(--mute);border-radius:6px;padding:2px 8px;font-size:11.5px;margin:2px 5px 2px 0;border:0}
 .chip.hard{background:var(--bad-soft);color:var(--bad)}.chip.soft{background:var(--warn-soft);color:var(--warn)}
-.score{font-weight:700;font-size:16px}.mute{color:var(--mute)}.small{font-size:12px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.grid2{grid-template-columns:1fr}main,header{padding-left:16px;padding-right:16px}.hide-m{display:none}}
-.crit{border-left:4px solid var(--line);padding-left:12px;margin:14px 0}.crit.s5,.crit.s4{border-color:var(--accent)}.crit.s3{border-color:var(--info)}
-.crit.s2,.crit.s1,.crit.s0{border-color:var(--bad)}.crit.unk{border-color:var(--warn)}
-.bar{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle}.bar i{display:block;height:100%;background:var(--accent)}
-ul.ev{margin:6px 0;padding-left:18px}ul.ev li{margin:3px 0}
-.src{font-size:11px;padding:1px 6px;border-radius:4px;background:var(--chip);color:var(--mute);margin-right:4px;text-transform:uppercase}
+a.chip{border:0}
+.score{font:500 22px/1 var(--serif);font-variant-numeric:tabular-nums}
+.mute{color:var(--mute)}.small{font-size:12.5px;line-height:1.55}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* criteria */
+.crit{border-left:2px solid var(--line);padding:2px 0 2px 18px;margin:22px 0}
+.crit.s5,.crit.s4{border-color:var(--accent)}.crit.s3{border-color:var(--info)}.crit.s2,.crit.s1,.crit.s0{border-color:var(--bad)}.crit.unk{border-color:var(--warn)}
+.crit h3{font:500 16px/1.3 var(--serif);letter-spacing:0;text-transform:none;color:var(--ink);margin:0 0 6px}
+.bar{height:4px;background:var(--chip);border-radius:2px;overflow:hidden;width:110px;display:inline-block;vertical-align:middle}.bar i{display:block;height:100%;background:var(--accent)}
+ul.ev{margin:10px 0;padding-left:0;list-style:none}ul.ev li{margin:6px 0;padding-left:0}
+.src{display:inline-block;font:600 9.5px/1.4 var(--sans);letter-spacing:.1em;padding:2px 6px;border-radius:4px;background:var(--chip);color:var(--mute);margin-right:6px;text-transform:uppercase;vertical-align:1px}
 .src.web{background:var(--info-soft);color:var(--info)}.src.absence{background:var(--warn-soft);color:var(--warn)}.src.correction{background:var(--accent-soft);color:var(--accent)}
-button,select,input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
-button{cursor:pointer;font-weight:600}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-textarea{width:100%;min-height:70px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.doc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 22px;overflow-x:auto}.doc table{font-size:13px}.doc pre{overflow-x:auto;font-size:11px;background:var(--chip);padding:10px;border-radius:8px}
-.note{background:var(--warn-soft);color:var(--warn);padding:8px 12px;border-radius:8px;margin:8px 0}
-.ok{background:var(--accent-soft);color:var(--accent);padding:8px 12px;border-radius:8px;margin:8px 0}
-.hist{font-size:12px;color:var(--mute)}.back{cursor:pointer;color:var(--info)}
-details summary{cursor:pointer;color:var(--info)}
-#chatbtn{position:fixed;right:20px;bottom:20px;z-index:20;border-radius:99px;padding:11px 18px;background:var(--accent);color:#fff;border:0;box-shadow:0 4px 14px rgba(0,0,0,.25)}
-#chat{position:fixed;right:20px;bottom:76px;z-index:20;width:min(420px,calc(100vw - 32px));height:min(560px,calc(100vh - 120px));display:none;flex-direction:column;
-  background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-#chat.open{display:flex}#chat header{padding:10px 14px;border-bottom:1px solid var(--line);max-width:none;margin:0}
-#chatlog{flex:1;overflow:auto;padding:10px 14px}.msg{margin:8px 0;padding:8px 10px;border-radius:10px;white-space:pre-wrap}
-.msg.user{background:var(--info-soft);margin-left:30px}.msg.bot{background:var(--chip);margin-right:20px}
-.msg .src{display:inline-block;margin-top:4px}#chatform{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}#chatq{flex:1}
-@media(max-width:600px){#chat{right:16px;bottom:72px}#chatbtn{right:16px;bottom:16px}}
+/* controls */
+button,select,input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 13px;transition:border-color .15s,box-shadow .15s,background .15s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+button{cursor:pointer;font-weight:500}button:hover{border-color:var(--faint)}button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}button.primary:hover{filter:brightness(1.08)}
+textarea{width:100%;min-height:80px;line-height:1.6}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.note{background:var(--warn-soft);color:var(--warn);padding:11px 15px;border-radius:12px;margin:10px 0;border:1px solid color-mix(in srgb,var(--warn) 18%,transparent)}
+.ok{background:var(--accent-soft);color:var(--accent);padding:11px 15px;border-radius:12px;margin:10px 0}
+.hist{font-size:12px;color:var(--mute)}.back{cursor:pointer;color:var(--mute);font-size:13px;display:inline-block;margin-bottom:14px}.back:hover{color:var(--ink)}
+details summary{cursor:pointer;color:var(--accent);font-weight:500;list-style:none}details summary::-webkit-details-marker{display:none}
+details summary:before{content:"+ ";color:var(--brass)}details[open] summary:before{content:"– "}
+pre{font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--chip);padding:14px;border-radius:10px;overflow:auto}
+code{font:12px ui-monospace,Menlo,monospace;background:var(--chip);padding:1px 5px;border-radius:4px}
+.dhead{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.verdict{text-align:right;min-width:220px}.verdict .vscore{margin:10px 0 4px}
+.vscore span{font:500 46px/1 var(--serif);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.vscore small{color:var(--mute);font-size:14px;margin-left:2px}
+.lede{font:400 17px/1.6 var(--serif);margin:22px 0 14px;padding:16px 0 0;border-top:1px solid var(--line2)}
+@media(max-width:700px){.verdict{text-align:left}}
+/* assistant */
+#chatbtn{position:fixed;right:28px;bottom:28px;z-index:20;border-radius:99px;padding:12px 20px;background:var(--ink);color:var(--bg);border:0;
+  font-weight:500;letter-spacing:.01em;box-shadow:0 10px 30px rgba(21,32,27,.25)}
+#chatbtn:hover{filter:none;transform:translateY(-1px)}
+#chat{position:fixed;right:28px;bottom:88px;z-index:20;width:min(430px,calc(100vw - 32px));height:min(580px,calc(100vh - 130px));display:none;flex-direction:column;
+  background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px rgba(21,32,27,.22);overflow:hidden}
+#chat.open{display:flex}#chat header{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+#chat header b{font:500 18px/1.2 var(--serif)}
+#chatlog{flex:1;overflow:auto;padding:14px 18px}.msg{margin:10px 0;padding:11px 14px;border-radius:14px;white-space:pre-wrap;line-height:1.55}
+.msg.user{background:var(--accent);color:var(--accent-ink);margin-left:40px;border-bottom-right-radius:4px}
+.msg.bot{background:var(--chip);margin-right:24px;border-bottom-left-radius:4px}
+.msg .src{display:inline-block;margin-top:6px}
+#chatform{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}#chatq{flex:1}
+@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi:last-child:nth-child(odd){grid-column:1/-1}.grid2{grid-template-columns:1fr}main,.masthead{padding-left:16px;padding-right:16px}.hide-m{display:none}
+  h1{font-size:27px}nav{gap:18px}.card{padding:18px}td,th{padding:12px}}
+@media(max-width:600px){#chat{right:16px;bottom:76px}#chatbtn{right:16px;bottom:16px}}
 </style>
 </head>
 <body>
-<header>
-  <h1>All In Capital · Inbound Triage Desk</h1>
-  <div class="sub">Makes the case and shows its work. Riya reviews every application and Kushal sees every outcome: nothing is decided automatically.</div>
+<header class="masthead">
+  <div class="eyebrow"><span class="rule"></span>All In Capital · Fund II</div>
+  <div class="titlerow"><h1>Inbound <em>Desk</em></h1><span class="envbadge" id="envbadge"></span></div>
+  <div class="sub">Every application read, researched and argued with sources. Riya reviews each one and Kushal sees every outcome; nothing is decided automatically.</div>
   <nav id="nav"></nav>
 </header>
 <main id="main">Loading…</main>
-<button id="chatbtn" onclick="toggleChat()">💬 Ask the desk</button>
+<button id="chatbtn" onclick="toggleChat()">Ask the desk</button>
 <div id="chat" role="dialog" aria-label="Ask the desk">
-  <header><div class="row" style="justify-content:space-between"><b>Ask the desk</b><span class="small mute" id="chatfocus"></span><button onclick="toggleChat()" aria-label="Close" style="padding:2px 8px">✕</button></div>
-  <div class="small mute">Answers only from the desk's data, with sources. It can't approve, reject or send — that's the Partner review box.</div></header>
+  <header><div class="row" style="justify-content:space-between"><b>Ask the desk</b><span class="small mute" id="chatfocus"></span><button onclick="toggleChat()" aria-label="Close" style="padding:3px 10px">✕</button></div>
+  <div class="small mute" style="margin-top:6px">Answers only from the desk's data, with sources. It can't approve, reject or send: that's the Partner review box.</div></header>
   <div id="chatlog"></div>
   <form id="chatform" onsubmit="askDesk(event)"><input id="chatq" placeholder="e.g. Why is Talkbook on hold?" autocomplete="off"><button class="primary">Ask</button></form>
 </div>
 <script>
+const nice=s=>{s=String(s||'').replace(/_/g,' ');return s?s[0].toUpperCase()+s.slice(1):''};
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const TABS=[['queue','Review queue'],['add','Add applications'],['cost','Cost'],['backtest','Backtest'],['feedback','Feedback loop']];
 let PW=''; try{PW=localStorage.getItem('deskpw')||''}catch(e){}
+fetch('/api/setup').then(r=>r.json()).then(j=>{const b=$('#envbadge');if(!b||!j.env)return;b.textContent=j.env==='live'?'Live':'Test environment';b.classList.add(j.env==='live'?'live':'test')}).catch(()=>{});
 function pw(){ if(!PW){PW=prompt('Desk password (needed to review, correct, send or run the queue):')||''; try{localStorage.setItem('deskpw',PW)}catch(e){}} return PW}
 async function api(p,o={}){const h={'Content-Type':'application/json'}; if(o.method==='POST')h['X-Desk-Password']=pw();
   const r=await fetch(p,{...o,headers:h}); const j=await r.json().catch(()=>({})); if(r.status===401){PW='';try{localStorage.removeItem('deskpw')}catch(e){}}
@@ -94,7 +153,6 @@ async function queue(){
   const jc=jb.counts||{}, attn=(jb.jobs||[]).filter(j=>j.status==='needs_attention');
   $('#main').innerHTML=`
   ${cs.paused?`<div class="note"><b>Paused:</b> today's model spend INR ${cs.today_inr} passed the daily limit of INR ${cs.limit_inr}. Queued applications wait; nothing is lost. <a href="#/cost">Cost page</a></div>`:''}
-  <details class="card" id="pulsebox" ontoggle="if(this.open)loadPulse()"><summary><b>What's happening</b> <span class="small mute">Google News, last 7 days: the fund's sectors and Indian startup funding</span></summary><div id="pulse" class="small mute">Loading headlines…</div></details>
   <div class="card"><div class="row" style="justify-content:space-between"><div><h3 style="margin:0">Intake queue</h3>
     <div class="small mute">${jc.queued||0} waiting · ${jc.running||0} running · ${jc.done||0} done · <b style="color:${attn.length?'var(--bad)':'inherit'}">${jc.needs_attention||0} need attention</b> · today INR ${cs.today_inr} of ${cs.limit_inr}</div></div>
     <div class="row"><button onclick="doTick()" ${(jc.queued||0)?'':'disabled'}>Process queue</button><span id="tickout" class="small"></span></div></div>
@@ -112,16 +170,17 @@ async function queue(){
   </div>
   <table><thead><tr><th>Company</th><th>Desk's case</th><th>Score <span class="hide-m">(revealed · written)</span></th><th class="hide-m">Flags</th><th>Partner</th></tr></thead><tbody>
   ${rows.map(r=>`<tr class="click" onclick="location.hash='#/app/${r.id}'">
-    <td><b>${esc(r.company)}</b><div class="small mute">${esc(r.sector||'')} · ${esc(r.source||'')}</div></td>
+    <td><b>${esc(r.company)}</b><div class="small mute">${esc(nice(r.sector))} · ${esc(r.source||'')}</div></td>
     <td>${pillFor(r.recommendation)}${r.merit&&r.merit!==r.recommendation?`<div class="small mute">on merit: ${esc(r.merit)}</div>`:''}<div class="small" style="margin-top:4px">${esc(r.two_lines||r.error||'')}</div></td>
-    <td><span class="score">${r.score??'—'}</span> <span class="mute">· ${r.score_written??'—'}</span>${r.drift?'<div class="chip soft">drift</div>':''}<div class="small mute">${r.unknowns} unknown · ${r.untraced??0}/${r.claims??0} untraced</div></td>
+    <td><span class="score">${r.score??'—'}</span> <span class="mute">· ${r.score_written??'—'}</span>${r.drift?'<div class="chip soft">drift</div>':''}<div class="small mute" style="margin-top:4px">${(r.claims??0)-(r.untraced??0)}/${r.claims??0} sourced${r.unknowns?` · ${r.unknowns} unknown`:''}</div></td>
     <td class="hide-m">${r.flags.map(f=>`<span class="chip ${f.hard?'hard':'soft'}">${esc(f.key.replace(/_/g,' '))}</span>`).join('')}</td>
     <td>${r.status==='pending'?'<span class="mute">to review</span>':esc((r.status||'')+': '+(r.decision||'').replace('_',' '))}${r.booking?`<div class="small">📅 ${esc(r.booking.replace('_',' '))}</div>`:''}</td></tr>`).join('')}
   </tbody></table>
   <p class="small mute">Revealed = scored against what the fund's 12 memos and partner notes show it actually does. Written = scored against the fund's public thesis. "Drift" = they differ by 15+ points. Nobody is auto-rejected or auto-advanced.</p>`;
 }
 
-function evLi(e){const ref=e.source_type==='web'?`<a href="${esc(e.ref)}" target="_blank" rel="noopener">${esc(e.ref.replace(/^https?:\/\//,'').slice(0,60))}</a>`:`<i>${esc(e.ref)}</i>`;
+function linkLabel(u){try{const h=new URL(u).hostname.replace(/^www\./,'');return /vertexaisearch|grounding-api|news\.google/.test(u)?'source ↗':h+' ↗'}catch(e){return 'source ↗'}}
+function evLi(e){const ref=e.source_type==='web'?`<a href="${esc(e.ref)}" target="_blank" rel="noopener">${esc(linkLabel(e.ref))}</a>`:`<i>${esc(e.ref)}</i>`;
   return `<li><span class="src ${e.source_type}">${e.source_type}</span>${esc(e.claim)} <span class="small mute">— ${ref}</span></li>`}
 let T0=Date.now();
 async function detail(id){
@@ -133,11 +192,13 @@ async function detail(id){
      <td><span class="chip ${v.status==='confirmed'?'':v.status==='not_found'||v.status==='namesake_only'?'soft':'hard'}">${esc(v.status)}</span></td><td class="small">${esc(v.finding)}<div>${(v.sources||[]).slice(0,4).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener" class="chip">${esc((s.title||'source').slice(0,40))}</a>`).join('')}</div></td></tr>`).join('');
   $('#main').innerHTML=`
   <p class="back" onclick="location.hash='#/queue'">← Queue</p>
-  <div class="card"><div class="row" style="justify-content:space-between"><div><h2 style="margin:0">${esc(r.record.name)}</h2>
-    <div class="mute">${esc(d.one_liner||'')} · ${esc(d.sector||'')} · ${esc(d.source||'')}</div></div>
-    <div style="text-align:right">${pillFor(d.recommendation)}<div class="small mute">on merit: ${esc(d.merit_recommendation||'—')}</div>
-    <div><span class="score">${d.score_revealed??'—'}</span>/100 revealed · ${d.score_written??'—'} written</div></div></div>
-    <p><b>Two lines for the partners:</b> ${esc(d.two_lines||'')}</p>
+  <div class="card"><div class="dhead"><div><h2 style="margin:0;font-size:30px">${esc(r.record.name)}</h2>
+    <div class="mute" style="margin-top:4px">${esc(d.one_liner||'')}</div>
+    <div class="small mute" style="margin-top:2px">${esc(nice(d.sector))} · ${esc(d.source||'')}</div></div>
+    <div class="verdict">${pillFor(d.recommendation)}
+    <div class="vscore"><span>${d.score_revealed??'—'}</span><small>/100</small></div>
+    <div class="small mute">written thesis ${d.score_written??'—'} · on merit: ${esc(d.merit_recommendation||'—')}</div></div></div>
+    <p class="lede"><span class="eyebrow" style="display:inline;letter-spacing:.14em">Two lines for the partners</span><br>${esc(d.two_lines||'')}</p>
     ${d.error?`<div class="note">${esc(d.error)}</div>`:''}
     ${d.withheld_reason?`<div class="note">${esc(d.withheld_reason)}</div>`:''}
     ${(d.flags||[]).map(f=>`<div class="${f.hard?'note':'small'}" style="${f.hard?'':'margin:4px 0'}"><span class="chip ${f.hard?'hard':'soft'}">${esc(f.key.replace(/_/g,' '))}</span> ${esc(f.why)}</div>`).join('')}
@@ -189,6 +250,11 @@ async function detail(id){
       <h3 style="margin-top:12px">Numbers a pre-seed investor would expect, not given</h3>${(d.facts?.absent_numbers||[]).map(a=>`<div class="small">• ${esc(a)}</div>`).join('')}</div>
   </div>
   <details class="card"><summary>Raw facts extracted (each with its quote)</summary><pre class="small" style="white-space:pre-wrap">${esc(JSON.stringify(d.facts,null,1))}</pre></details>
+  ${d.purged?`<div class="card small mute">Raw deck, form, research and founder details were deleted after the retention period; only the decision record remains.</div>`:''}
+  ${d.cached?`<div class="card small mute">♻ ${esc(d.cache_note||'')}</div>`:''}
+  <details class="card small"><summary>Data protection: erase this applicant</summary>
+    <p>For a founder's erasure request (DPDP / GDPR). Deletes every record about this application: read, review, booking, research, cost lines. It cannot be undone. Needs the admin password.</p>
+    <button onclick="doErase('${id}')">Erase all data for ${esc(r.record.name)}</button></details>
   `;
 }
 function fmtSlot(x){return new Date(x).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}
@@ -207,6 +273,10 @@ function bookingCard(id,b){
    ${b.meeting_status==='pending_confirmation'?`<div class="row" style="margin-top:8px"><input id="reply" placeholder="Paste the founder's reply, e.g. 'Thursday 2:45 works'" style="flex:1;min-width:240px"><button onclick="doReply('${id}')">Process reply</button><button onclick="doNoReply('${id}')">No reply after 3 days</button></div>`:''}
    ${b.edit&&b.edit.meaningful?`<div class="small" style="margin-top:6px">✎ Riya's edit was stored as a lesson: ${esc(b.edit.summary||'')}</div>`:''}
    <details class="small"><summary>State object and history</summary><pre style="white-space:pre-wrap">${esc(JSON.stringify({...b,history:undefined,draft:undefined},null,1))}</pre>${(b.history||[]).map(h=>`<div class="hist">${esc(h.at)} — ${esc(h.what)}</div>`).join('')}</details></div>`}
+async function doErase(id){const pw2=prompt('Admin password (Kushal) to erase '+id+':');if(!pw2)return;
+  if(prompt('Type the application id to confirm: '+id)!==id)return alert('Not confirmed - nothing deleted.');
+  const r=await fetch('/api/applicant/'+encodeURIComponent(id)+'/erase',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':pw2},body:JSON.stringify({confirm:id})});
+  const j=await r.json();if(!r.ok)return alert(j.error||'Failed');alert('Erased.');location.hash='#/queue'}
 async function doSend(id){try{await api(`/api/booking/${id}/send`,{method:'POST',body:JSON.stringify({subject:$('#dsub').value,body:$('#dbody').value,note:$('#dnote').value,editor:'Riya'})});detail(id)}catch(e){alert(e.message)}}
 async function doTick(){$('#tickout').textContent='Processing (up to ~4 min)…';try{const j=await api('/api/worker/tick',{method:'POST'});$('#tickout').textContent=`${j.processed} processed`;setTimeout(queue,800)}catch(e){$('#tickout').textContent=e.message}}
 async function doReview(id){const o=$('#rvout');o.innerHTML='Saving…';try{const j=await api('/api/review/'+id,{method:'POST',body:JSON.stringify({decision:$('#rv').value,note:$('#rvnote').value,reviewer:$('#rvwho').value,seconds:Math.round((Date.now()-T0)/1000)})});
@@ -217,7 +287,7 @@ async function doReply(id){try{await api(`/api/booking/${id}/reply`,{method:'POS
 async function doNoReply(id){try{await api(`/api/booking/${id}/noreply`,{method:'POST'});detail(id)}catch(e){alert(e.message)}}
 
 async function backtest(){
-  const bt=await api('/api/backtest'); if(!on('backtest'))return; if(!bt.result){$('#main').innerHTML='No backtest yet.';return}
+  const bt=await api('/api/backtest'); if(!on('backtest'))return; if(!bt.result){$('#main').innerHTML='<div class="card"><h3>Backtest</h3><p class="mute" style="margin:0">No backtest has been run in this environment yet. It runs the desk on 12 past fund decisions with each answer hidden, and needs at least 10 of 12 to agree before go-live.</p></div>';return}
   const b=bt.result;
   $('#main').innerHTML=`<div class="kpis"><div class="kpi"><b>${b.agree}/${b.n}</b><span>agrees with the fund's real decision</span></div>
    <div class="kpi"><b>${b.passes_gate?'PASS':'FAIL'}</b><span>go-live gate: ≥ ${b.gate}/12, agreed in advance</span></div>
@@ -242,6 +312,7 @@ async function fbView(){
 
 function addView(){
   $('#main').innerHTML=`<div class="card"><h3>Add applications to the queue</h3><p class="small mute">Paste one application, or upload a JSON file with many: <code>[{"name":"…","form":"…","deck":"…"}]</code>. They join the queue and are processed in turn (about 2–3 minutes each, 3 at a time). Anything unreadable is marked “needs attention” with a reason — nothing disappears.</p>
+  <p class="small note">Data protection: applications contain founders' personal data. The fund's public form must show the privacy notice (see PRIVACY.md) before founders submit. The desk sends models only what each step needs, keeps raw material for a limited period after a decision, and can erase an applicant on request.</p>
   <input id="an" placeholder="Company name" style="width:100%;margin-bottom:8px"><textarea id="af" placeholder="Form response text" style="min-height:140px"></textarea>
   <textarea id="ad" placeholder="Deck text" style="min-height:140px;margin-top:8px"></textarea>
   <div class="row" style="margin-top:8px"><button class="primary" onclick="doAdd()">Add to queue</button><input type="file" id="afile" accept=".json"><button onclick="doAddFile()">Queue file</button><span id="aout" class="small"></span></div></div>`}
@@ -269,7 +340,6 @@ async function runView(id){
   ${r.langfuse_url?` · <a href="${esc(r.langfuse_url)}" target="_blank" rel="noopener">open in Langfuse</a>`:' · Langfuse not connected (traces kept here)'}</div></div>
   <table><thead><tr><th>Time</th><th>Step</th><th>Call</th><th>Prompt version</th><th>Tokens in/out</th><th>Search</th><th>INR</th><th>ms</th><th>Via</th><th>Status</th></tr></thead><tbody>
   ${r.calls.map(c=>`<tr><td class="small">${esc(c.at.slice(11,19))}</td><td>${esc(c.step)}</td><td>${esc(c.kind)}</td><td>${esc(c.prompt_version||'')}</td><td>${c.in_tok}/${c.out_tok}</td><td>${c.searches}</td><td>${c.cost_inr}</td><td>${c.latency_ms}</td><td>${esc(c.via)}${c.retries?` (${c.retries} retries)`:''}</td><td>${esc(c.status)}${c.error?`<div class="small" style="color:var(--bad)">${esc(c.error)}</div>`:''}</td></tr>`).join('')}</tbody></table>`}
-async function loadPulse(){try{const j=await api('/api/news');$('#pulse').innerHTML=`<div class="grid2">${Object.entries(j.topics).map(([t,items])=>`<div><h3 style="margin:8px 0 4px">${esc(t)}</h3>${items.length?items.map(x=>`<div style="margin:3px 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a> <span class="mute">${esc(x.source)} · ${esc(x.date)}</span></div>`).join(''):'<div class="mute">No headlines.</div>'}</div>`).join('')}</div>`}catch(e){$('#pulse').textContent=e.message}}
 // ---- desk assistant ----
 let CHAT=[];
 function chatApp(){const h=(location.hash.slice(2)||'').split('/');return h[0]==='app'?h[1]:null}

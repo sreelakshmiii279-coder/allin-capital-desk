@@ -1,0 +1,400 @@
+--- slide 1
+
+S5
+Term 2 | Advanced AI
+Split It
+Build one agent with Google ADK, then split it, and decide with numbers
+
+MESA PGP COHORT 4   .   TERM 2: ADVANCED AI   .   SESSION 5   .   90 MIN
+
+--- slide 2
+Today: build one agent, split it, and measure
+2
+MESA Term 2 | Advanced AI | S5: Split It
+Clock | Block | What you do | You leave with
+2-6 | Start here: what is an agent? | A model, an instruction, tools and a loop, with one Dhruva question traced | You can explain an agent in one breath
+6-16 | Setup check | Get the S5 folder, your key and the dev UI working, with help | An agent that answers in the browser
+16-30 | How an ADK agent is built | Read an agent file; agent, model, tools, session, runner; read the event trace | You can read any ADK agent
+30-54 | Build v1 | Claude Code writes one agent; you read it, run it, measure it | Three numbers for v1
+54-78 | Split it: v2 | An interaction agent plus an analyst and an ops specialist; measure again | Three numbers for v2
+78-83 | Decide | When would you not split? | A five-line verdict
+83-86 | Close | One sentence and tonight's task | A plan
+Scripted for 86 of 90 minutes. The spare time is for keys, rate limits and questions. A word list is in your handout.
+--- slide 3
+Start here: what is an agent?
+3
+MESA Term 2 | Advanced AI | S5: Split It
+
+A model
+Reads text, writes text. It cannot look anything up or change anything.
+
+An agent
+A model plus three things: an instruction, tools, and a loop.
+Instruction: the job description.
+Tools: Python functions it may ask for.
+Loop: ask for a tool, read the result, repeat or answer.
+
+Dhruva example
+Ira asks: should we take a call with FactoryDesk?
+The agent asks for score_application, gets fit 7.5, and replies ADVANCE TO CALL.
+
+
+i
+A model talks. An agent talks and does things, because your code does the job and hands back the answer.
+--- slide 4
+--- slide 5
+--- slide 6
+Setup check: an agent that answers in your browser (10 min)
+
+LAB
+6
+MESA Term 2 | Advanced AI | S5: Split It
+Step | Do this | You should see
+1 Files | git clone https://github.com/Ekta-Shah/ai-builds.git, or git pull; then cd ai-builds/S5 | dhruva_tools.py, dhruva_v1, dhruva_v2
+2 Library | Activate your venv; pip install google-adk python-dotenv | No red error text
+3 Key | cp .env.example .env, then paste your key after GOOGLE_API_KEY= | The key in .env, never in a note or in git
+4 Tools | python -c "import dhruva_tools as t; print(t.score_application('A03'))" | FactoryDesk, fit 7.5, ADVANCE TO CALL
+5 Agent | adk web, open localhost:8000, pick dhruva_v1, ask: Should we take a call with FactoryDesk? | A reply that starts Recommendation: ADVANCE TO CALL
+
+
+i
+No key? Pair up with someone who has one. Step 4 needs no key, so everyone can do it. A free key may rate-limit you: ask fewer questions.
+--- slide 7
+Explain this: read an agent file in two minutes
+
+PAIR
+7
+MESA Term 2 | Advanced AI | S5: Split It
+
+root_agent = Agent(
+    model="gemini-flash-lite-latest",
+    name="dhruva_triage",
+    description="Answers Ira's questions about
+                 startup applications.",
+    instruction="Use the tools for every fact. If a
+                 tool returns an error, say so and
+                 do not retry. You recommend; a
+                 person decides.",
+    tools=[get_application, score_application,
+           escalate_to_analyst],
+)
+
+Answer in pairs, 2 minutes each way
+1  Which line says who the agent is for?
+2  Where are the job cards? (Hint: not in this file.)
+3  What should it do when a tool fails?
+4  What is it NOT allowed to do?
+5  Which tool changes something in the world?
+
+
+i
+You are reading, not writing. If you can answer all five, you can review any agent Claude Code writes for you.
+--- slide 8
+Five parts of an ADK agent, each with an office picture
+8
+MESA Term 2 | Advanced AI | S5: Split It
+Part | The picture | In Dhruva | The word
+Agent | An employee with a job description | dhruva_triage: the instruction says who it serves and what it must not do | Agent
+Model | The clever consultant | Gemini, named once in dhruva_core/config.py | model
+Tools | Slots in the door, each with a job card | list_applications, get_application, score_application, escalate_to_analyst | tools
+Session and state | This conversation, and a notepad that stays | One session per question in our test; the ticket list is the notepad | session, state
+Runner | The office manager who passes the question in and the events out | adk web, or eval_agent.py, runs the agent for you | Runner
+
+
+i
+ADK is the office around the consultant. You do not write the loop. You write the job description and the job cards.
+--- slide 9
+--- slide 10
+Your S3 job card is already the schema: ADK reads the function
+10
+MESA Term 2 | Advanced AI | S5: Split It
+Job card part (S3) | Where ADK reads it
+Name | The function name
+Label: what, when, when not | The first lines of the docstring
+Inputs, typed | The type hints: app_id: str
+If it jams | A 'Failures:' line in the docstring, and the error dict it returns
+Safe to call twice | Say so in the docstring; build it into the code
+
+def score_application(app_id: str) -> dict:
+    """Score one application against the
+    Dhruva thesis. Use it when asked whether
+    to take a call or pass. Read only.
+
+    Failures: NOT_FOUND (do not retry;
+    tell the user the id is unknown)."""
+    ...
+
+
+i
+A vague docstring means the model picks the wrong tool. S3's label rule now decides how well the agent behaves.
+--- slide 11
+--- slide 12
+Three ways to arrange agents: line, side by side, loop
+12
+MESA Term 2 | Advanced AI | S5: Split It
+Workflow agent | The picture | Use it when | Dhruva example
+Sequential | An assembly line: A finishes, then B starts | The steps are fixed and in order | Read the application, then score it, then write the note
+Parallel | Two clerks working at once | The jobs do not depend on each other | Score all six applications at the same time
+Loop | Draft, check, redo until it passes, or give up after a few rounds | A result needs checking before it goes out | S6: a maker writes the note, a checker verifies it
+Delegation (today) | A front desk that asks the right department | The model should decide who to ask | Ira asks the front agent; it asks the analyst or ops
+
+
+i
+Sequential, parallel and loop run in a fixed pattern you write. Delegation lets the model choose. Fixed is cheaper and more predictable.
+--- slide 13
+Reading the event trace: one question, four events
+13
+MESA Term 2 | Advanced AI | S5: Split It
+# | Event in the dev UI | What it means | Model call?
+1 | User: Should we take a call with FactoryDesk? | The question comes in | No
+2 | Agent: function call score_application(app_id='A03') | The consultant writes a slip for the slot | Yes (call 1)
+3 | Tool result: fit 7.5, ADVANCE TO CALL | The clerk does the job and passes it back | No
+4 | Agent: Recommendation: ADVANCE TO CALL. Fit 7.5. | The consultant writes the answer | Yes (call 2)
+
+Why count model calls
+Every model call costs money and time. One lookup takes two calls: one to choose a tool, one to write the answer. A shortlist of six takes about eight. Today you measure this.
+
+
+i
+A trace is the receipt. Read it before you trust the answer.
+--- slide 14
+Lab: build v1, one agent with all four tools (18 min)
+
+LAB
+14
+MESA Term 2 | Advanced AI | S5: Split It
+Minutes | Do
+0-4 | Ask Claude Code to write dhruva_v1/agent.py from dhruva_tools.py (prompt on the reference page). It may create only that file and __init__.py
+4-7 | Read it with the four questions on the next slide. Do not run it yet
+7-12 | Run adk web. Ask three questions: FactoryDesk, VaultNine, and application A99. Read the trace for each
+12-18 | Run: python eval_agent.py dhruva_v1. Write down passed, model calls per query, median latency
+
+If you are stuck
+Claude's file does not run in 4 minutes? Copy dhruva_v1/agent.py from the folder and carry on. The lesson is reading and measuring, not typing.
+Rate limit? Add --rpm 5.
+
+
+i
+Deliverable: v1 running, and three numbers: passed out of 5, model calls per query, median seconds.
+--- slide 15
+Read the agent before you run it: four questions
+15
+MESA Term 2 | Advanced AI | S5: Split It
+# | Question | Where to look | A gap looks like
+1 | Does the description say who the agent serves and what it does? | description= and the start of instruction= | 'A helpful assistant'
+2 | Does the instruction say what to do when a tool fails? | instruction= | Nothing, or 'try again until it works'
+3 | Can it do anything it should not? Does the tools list match the job? | tools=[...] | A tool that changes something, with no 'only when asked'
+4 | Is the model named once, from config, not buried in the file? | model= | A model name pasted in three places
+--- slide 16
+Run it: predict the model calls, then read the numbers
+
+PREDICT
+16
+MESA Term 2 | Advanced AI | S5: Split It
+Question | Your prediction: model calls
+1  Should we take a call with LedgerLoop? | 
+3  What about application A99? | 
+4  Open a ticket for VaultNine | 
+5  Escalate VaultNine again (second request) | 
+
+Then compare with your run
+Which question used the most model calls?
+Which scenarios failed, and why? Open results_dhruva_v1.csv.
+Did question 5 say already open? That is S3's lift button.
+
+
+i
+Predict first. A number you guessed beforehand teaches you more than one you only read.
+--- slide 17
+Split it
+Same job, three agents: one that talks, one that reads, one that acts.
+--- slide 18
+The split: an interaction agent, an analyst and an ops agent
+18
+MESA Term 2 | Advanced AI | S5: Split It
+Agent | The picture | Tools it holds | Why it is separate
+Partner assistant (interaction) | The front desk: talks to Ira, never looks anything up | None; asks the other two | Owns the conversation and the tone
+Analyst | The researcher: reads and scores | list, get, score (all read only) | Can be tested and changed alone; cannot change anything
+Ops | The clerk who opens tickets | escalate_to_analyst (changes something) | The only agent with write access: easy to review and restrict
+
+The cost
+Every hop is another model call. One question now goes: front agent, analyst, tools, analyst, front agent. We measure how many extra calls and how many extra seconds, and whether the answers got better.
+
+
+i
+Split when the parts have different owners, permissions or prompts. Do not split just because it looks tidy.
+--- slide 19
+--- slide 20
+Lab: build v2, the split version (15 min)
+
+LAB
+20
+MESA Term 2 | Advanced AI | S5: Split It
+Minutes | Do
+0-4 | Ask Claude Code to write dhruva_v2/agent.py: an analyst, an ops agent and a front agent that asks them (prompt on the reference page)
+4-7 | Read it with the four questions. Check that only ops holds escalate_to_analyst
+7-12 | Run adk web with dhruva_v2, ask the FactoryDesk question, and read the trace. Then python eval_agent.py dhruva_v2
+12-15 | Fill the comparison table on the next slide
+
+If you are stuck
+Claude's file does not run in 4 minutes? Copy dhruva_v2/agent.py from the folder. The numbers matter more than who typed it.
+The eval for v2 takes longer: it makes about twice as many model calls. Add --rpm 5 on a free key.
+
+
+i
+Deliverable: v2 running, and its three numbers next to v1's.
+--- slide 21
+Compare: three numbers, two rows, one verdict
+
+PREDICT
+21
+MESA Term 2 | Advanced AI | S5: Split It
+Version | Passed out of 5 | Model calls per query | Median latency (s) | Tokens per query
+v1  one agent |  |  |  | 
+v2  split into three |  |  |  | 
+Difference |  |  |  | 
+
+Before you look at your numbers
+Predict: how many times more model calls will v2 use?
+Predict: will v2 pass more scenarios than v1?
+
+After
+Did the split fix anything v1 got wrong?
+What did it cost in calls and seconds?
+Which scenarios failed in both?
+
+
+i
+A split earns its cost only if the numbers move. If pass rate is the same, you paid for nothing.
+--- slide 22
+When would you NOT split? Write the verdict
+22
+MESA Term 2 | Advanced AI | S5: Split It
+
+Reasons to split
+Different owners: the ops team runs its own agent.
+Different permissions: only one agent can change something.
+The single prompt has grown past what the model follows.
+Different models for different jobs, to save cost.
+
+Reasons not to
+The pass rate did not move.
+Every question now costs about twice the calls and time.
+Small team, four tools, one owner.
+More agents mean more places for a bug to hide.
+
+Verdict (5 lines):
+v1 passed __ of 5 with __ model calls and __ s. v2 passed __ of 5 with __ calls and __ s.
+With four tools and one owner, the split [did / did not] earn its cost because ___.
+I would split only if ___ (an owner, a permission, or a prompt that has grown).
+
+
+i
+Example: 'With four tools and one owner, the split did not earn its cost.' Yours must use your own numbers.
+--- slide 23
+Exit ticket, tonight's task and what is next
+
+EXIT
+23
+MESA Term 2 | Advanced AI | S5: Split It
+
+Exit ticket (one sentence)
+Name one part of Dhruva you would split into its own agent and one you would keep together, each with a number or a reason.
+
+Tonight
+Commit v1 and v2 on separate branches.
+Write your five-line verdict in the README.
+Check both run from a fresh clone, from the README alone.
+
+Next session
+S6: a maker and a checker. A loop agent drafts the note, checks it against the tool output, and stops at a limit.
+Bring: both versions, your numbers and your verdict.
+
+Milestone
+Both versions run from the README steps on a fresh clone, and the verdict has numbers in it.
+
+
+i
+Build one, split it, measure, then decide. The split is a choice, not a default.
+--- slide 24
+Reference pages
+Keep these open during the labs. They are not taught live.
+--- slide 25
+Reference: ADK words in plain English
+25
+MESA Term 2 | Advanced AI | S5: Split It
+Word | The picture | What it means
+Agent | An employee with a job description | A model plus instructions plus tools
+Instruction | The job description | What the agent is for, and what it must not do
+Tool | A slot in the door with a job card | A Python function the agent may ask for; ADK reads its docstring and type hints
+Session | One conversation | The messages so far
+State | A notepad that stays | Values the agent can remember within a session
+Runner | The office manager | Runs the agent and hands back events
+Event | A line in the receipt | A message, a function call, a tool result or an answer
+AgentTool | Asking another department | Wraps an agent so another agent can call it like a tool
+Orchestrator | The front desk | An agent whose job is to ask other agents
+Sequential, parallel, loop | Line, side by side, repeat | Fixed patterns for arranging agents
+--- slide 26
+Reference: the commands you need
+26
+MESA Term 2 | Advanced AI | S5: Split It
+I want to... | Command
+Install ADK | pip install google-adk python-dotenv (Python 3.10 or newer, venv active)
+Set the key | Paste it after GOOGLE_API_KEY= in S5/.env (GEMINI_API_KEY from S1 also works)
+Open the dev UI | adk web, from the S5 folder, then localhost:8000; pick dhruva_v1 or dhruva_v2
+Talk to one agent in the terminal | adk run dhruva_v1
+Measure a version | python eval_agent.py dhruva_v1 (five questions; add --rpm 5 on a free key, or --all for ten)
+Change the model | Set DHRUVA_MODEL in .env, for example gemini-2.5-flash-lite
+Keep versions apart | git switch -c v1-single-agent, commit; git switch -c v2-split, commit
+--- slide 27
+Reference: the shape of the v1 agent file
+27
+MESA Term 2 | Advanced AI | S5: Split It
+
+from google.adk.agents import Agent
+from dhruva_core import config
+from dhruva_tools import (list_applications, get_application,
+                          score_application, escalate_to_analyst)
+
+root_agent = Agent(                       # adk web looks for a variable called root_agent
+    model=config.MODEL,                   # the consultant, named once
+    name="dhruva_triage",
+    description="Answers Ira's questions about applications.",
+    instruction="Use the tools for every fact ... If a tool errors, say so, do not retry.",
+    tools=[list_applications, get_application,
+           score_application, escalate_to_analyst],   # each function is a job card
+)
+--- slide 28
+Reference: prompts for the labs
+28
+MESA Term 2 | Advanced AI | S5: Split It
+Use | Prompt
+Write v1 | Create only dhruva_v1/agent.py and dhruva_v1/__init__.py ('from . import agent'). Do not change any other file. Read dhruva_tools.py. Write an ADK root_agent with google.adk.agents.Agent, model from dhruva_core.config.MODEL, all four tools. Instruction: use the tools for every fact; for a call-or-pass question reply with the line 'Recommendation: <text exactly as returned>' then the fit and what could not be established; on a tool error say so and do not retry; escalate only when asked.
+Write v2 | Create only dhruva_v2/agent.py and dhruva_v2/__init__.py. Build three agents: analyst (list, get, score tools; read only), ops (escalate_to_analyst only) and a front agent with no tools of its own that calls the other two through AgentTool. The front agent replies in three lines or fewer and keeps the Recommendation line exactly as the analyst gave it.
+Review | Read dhruva_v1/agent.py. List the description, the tools, what the instruction says to do when a tool errors, and anything the agent can do that it should not. If you are not sure, say cannot tell.
+--- slide 29
+Reference: if something fails
+29
+MESA Term 2 | Advanced AI | S5: Split It
+You see | Do this
+No module named google | The environment is not active. Run the activate line again
+API key not valid, or 403 | The key is wrong or missing. Paste it after GOOGLE_API_KEY= with no quotes or spaces
+429 or RESOURCE_EXHAUSTED | Free-tier limit (per minute or per day). Use --rpm 5, wait a minute, or share a neighbour's screen; a daily limit resets after hours
+model not found | Set DHRUVA_MODEL in .env to another model name your key can use
+adk web shows no agents | Run it from the S5 folder, and check each agent folder has an __init__.py
+A scenario fails but the answer looks right | The reply lacks the exact 'Recommendation:' line. Fix the instruction, not the checker
+Scenario 5 does not say already open | Scenario 4 must run first in the same run. Run the five together
+--- slide 30
+Reference: only plug in code you have read
+30
+MESA Term 2 | Advanced AI | S5: Split It
+
+What to remember from S4
+A server, or an agent file, hands your assistant text and tools.
+Hidden instructions in that text are prompt injection: a forged memo in the in-tray.
+Prefer read-only tools. Make any tool that changes something ask a person first.
+
+In S5
+Ops is the only agent that can change anything.
+The instruction says escalate only when asked.
+The ticket tool is safe to call twice.

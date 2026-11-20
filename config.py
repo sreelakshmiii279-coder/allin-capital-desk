@@ -44,7 +44,7 @@ ADITYA_JOINS_FOR = {"deeptech"}  # Partner notes M5: "Aditya joins only for deep
 
 # --- Booking agent retry table (S6) ---
 MAX_REPLY_ROUNDS = 2           # re-propose times at most twice, then escalate to Riya
-TRANSIENT_RETRIES = 3          # email/calendar API timeouts, rate limits (backoff)
+TRANSIENT_RETRIES = 4          # email/calendar API timeouts, rate limits (backoff)
 REPLY_WINDOW_WORKING_HOURS = 72  # 3 working days of silence -> one follow-up
 
 # --- Kill criteria (S1/S2) - agreed in advance with Kushal ---
@@ -61,6 +61,8 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 RESEND_FROM = os.environ.get("RESEND_FROM", "").strip() or "All In Capital Desk <onboarding@resend.dev>"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+DATABASE_URL_READONLY = os.environ.get("DATABASE_URL_READONLY", "").strip()   # SELECT-only login for the chat assistant
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "").strip()   # Kushal: erasure and other destructive actions
 
 # --- Cost (Case 04 task 5) ---
 # ASSUMED list prices in USD - confirm against your Google AI Studio billing page and change here; every cost figure uses them.
@@ -81,7 +83,7 @@ LANGFUSE_SECRET_KEY = os.environ.get("LANGFUSE_SECRET_KEY", "").strip()
 LANGFUSE_HOST = os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com").strip()
 
 # --- Queue (Case 04 task 2) ---
-QUEUE_WORKERS = int(os.environ.get("QUEUE_WORKERS", "3"))      # applications processed at once (Gemini rate limits)
+QUEUE_WORKERS = int(os.environ.get("QUEUE_WORKERS", "5"))      # per 5-minute tick: ~60 an hour, 100 in under 2 h (L8 rush day)
 JOB_MAX_ATTEMPTS = 2                                            # a job that fails twice becomes "needs attention"
 JOB_STUCK_MINUTES = 15                                          # a 'running' job older than this is reclaimed
 EDIT_PASSWORD = os.environ.get("EDIT_PASSWORD", "").strip()   # needed to accept/correct/book in the web app
@@ -93,3 +95,28 @@ SCORE_SAMPLES = int(os.environ.get("SCORE_SAMPLES", "2"))   # score twice, avera
 NEWS_CACHE_HOURS = int(os.environ.get("NEWS_CACHE_HOURS", "12"))
 NEWS_DAYS_COMPANY = 365     # company mentions: last year
 NEWS_DAYS_SECTOR = 90       # sector context: last quarter
+
+# --- Environments (L8: test and live are separate) ---
+DESK_ENV = os.environ.get("DESK_ENV", "live").strip()          # "test" locally/evals, "live" on Vercel. Default live = safest.
+IS_LIVE = DESK_ENV == "live"
+
+# --- Per-step models (L8 cost lever: right-size the model to the difficulty of each step) ---
+# Judgement-heavy steps keep the main model; simple classifications use the cheaper lite model. Evals decide (R*, CL* cases).
+MODEL_LITE = os.environ.get("GEMINI_MODEL_LITE", "gemini-3.5-flash-lite")
+STEP_MODELS = {"classify-v1": MODEL_LITE, "edit-judge-v1": MODEL_LITE, "email-v1": MODEL_LITE}
+
+# --- Cache (L8: same application + same prompt version -> reuse the stored answer) ---
+CACHE_READS = os.environ.get("CACHE_READS", "1") == "1"
+
+# --- Retries (L8: 1 s, 2 s, 4 s + jitter, up to 4 tries; then queued, never lost) ---
+RETRY_ATTEMPTS = 4
+
+# --- Data protection (L8: what's left lying around; DPDP/GDPR) ---
+RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "180"))   # raw deck/form + research findings purged after a final decision
+LOG_CONTENT_TO_TRACES = os.environ.get("LOG_CONTENT_TO_TRACES", "0") == "1"   # default: traces carry metadata only
+
+# --- Intake limits (L8: an open form is an open door) ---
+INTAKE_MAX_PER_REQUEST = 100
+INTAKE_MAX_PER_MINUTE = 50
+PRICE_LITE_IN_PER_M = float(os.environ.get("PRICE_LITE_IN_PER_M", "0.10"))     # assumed list price for the lite model
+PRICE_LITE_OUT_PER_M = float(os.environ.get("PRICE_LITE_OUT_PER_M", "0.40"))

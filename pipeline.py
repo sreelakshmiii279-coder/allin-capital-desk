@@ -27,6 +27,17 @@ def run_one(rec, exclude_corrections=(), do_research=True, persist=True, holdout
     as paused (the queue puts the job back), never as a silent zero."""
     t0 = time.time()
     steps = {}
+    key = input_key(rec, holdout, do_research)
+    if config.CACHE_READS and persist and not holdout:
+        hit = cached_read(rec["id"], key)
+        if hit:
+            hit = dict(hit)
+            hit.update({"cached": True, "cache_note": "Same application, same prompt versions, no new corrections: stored read "
+                                                      "reused (no model calls, no cost).", "batch": rec.get("batch")})
+            storage.save_application({k: v for k, v in rec.items()})
+            storage.save_read(rec["id"], hit)
+            storage.event(rec["id"], "read_cached", {"key": key[:16]})
+            return hit
     with obs.run(rec["id"], kind="triage", meta={"batch": rec.get("batch"), "name": rec.get("name")}) as run_id:
         try:
             with obs.step("extract"):
@@ -55,11 +66,37 @@ def run_one(rec, exclude_corrections=(), do_research=True, persist=True, holdout
                     "seconds": round(time.time() - t0, 1)}
         read["run_id"] = run_id
         read["cost_inr"] = run_cost(run_id)
+        read["input_key"] = key
     if persist and not read.get("paused"):
         storage.save_application({k: v for k, v in rec.items()})
         storage.save_read(rec["id"], read)
         storage.event(rec["id"], "read", {"recommendation": read["recommendation"], "score": read.get("score_revealed")})
     return read
+
+
+def input_key(rec, holdout=None, do_research=True):
+    """Cache key: the application's text + every prompt version + model + the newest correction id.
+    A new partner correction changes the key, so the feedback loop is never bypassed by the cache."""
+    import hashlib
+    import conflicts as _c
+    try:
+        newest = max((c["id"] for c in storage.all_corrections()), default=0)
+    except Exception:  # noqa: BLE001
+        newest = "?"
+    parts = [rec.get("form_text", ""), rec.get("deck_text", ""), extract.PROMPT_VERSION, _c.PROMPT_VERSION, score.PROMPT_VERSION,
+             "research-judge-v2", "search-v1", config.MODEL, str(config.SCORE_SAMPLES), str(newest), str(holdout), str(do_research)]
+    return hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()
+
+
+def cached_read(app_id, key, max_age_days=7):
+    try:
+        with storage.db() as c:
+            r = c.execute("""SELECT read FROM reads WHERE app_id=%s AND read->>'input_key'=%s AND read->>'error' IS NULL
+                             AND created_at > now() - (%s || ' days')::interval ORDER BY id DESC LIMIT 1""",
+                          (app_id, key, str(max_age_days))).fetchone()
+        return r[0] if r else None
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def run_cost(run_id):

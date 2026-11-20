@@ -1,0 +1,400 @@
+--- slide 1
+
+S4
+Term 2 | Advanced AI
+Plug It In
+Connect tools with MCP, give the assistant a memory, and draw the whole system
+
+MESA PGP COHORT 4   .   TERM 2: ADVANCED AI   .   SESSION 4   .   90 MIN
+Ekta Shah  |  Coding & More
+--- slide 2
+Today: plug tools in, decide what to remember, draw the system
+2
+MESA Term 2 | Advanced AI | S4: Plug It In
+Clock | Block | What you do | You leave with
+2-16 | Install check | Get a working MCP server running on your laptop, with help | A server that lists two tools
+16-28 | Why a standard plug | MCP: host, client, server, and the four steps of a tool call | You can explain MCP to a founder
+28-46 | Lab: plug in your tool | Read a small MCP server, run it, call it | A tool that any AI app can use
+46-60 | Memory and context | What the assistant holds now, what it looks up, what stays out | A sorted list; a measured claim
+60-72 | The five layers | Draw Dhruva's system on one page | A diagram you can hand to an engineer
+72-76 | Free-roaming or bounded? | Why a bounded assistant suits a fund | A position you can argue
+76-79 | Close | One sentence and tonight's task | A plan
+Scripted for 79 of 90 minutes. The spare time is for installation problems and questions. A word list is in your handout.
+--- slide 3
+Install check: everyone gets a working server (15 min)
+
+LAB
+3
+MESA Term 2 | Advanced AI | S4: Plug It In
+Step | Do this | You should see
+1 Python | python --version | 3.10 or newer. 3.9 or lower: use a neighbour's laptop for the lab
+2 Library | python -m venv .venv, activate it, then pip install "mcp>=2" python-dotenv | No red error text
+3 Check | python -c "from mcp.server import MCPServer; print('ok')" | ok
+4 Files | git clone https://github.com/Ekta-Shah/ai-builds.git, or git pull | An S4 folder with server_fallback.py, call_tool.py and dhruva-vault
+5 Run | cp ../S4/server_fallback.py mcp_server.py, then python ../S4/call_tool.py mcp_server.py | Two tools listed; the second escalation says already_open true
+6 Notes | Open Obsidian, open the folder dhruva-vault as a vault | The thesis note, with a link to anti-thesis
+
+
+i
+Done early? Help your neighbour. Stuck for 5 minutes? Put your hand up. Step 6 can wait until the memory section.
+--- slide 4
+Why MCP: one standard plug instead of custom wiring
+4
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+Without MCP
+Every AI app needs its own wiring to every tool.
+3 apps x 3 tools = 9 custom connections.
+Change a tool and you fix it in three places.
+Picture: a different plug for every appliance in the office.
+
+With MCP
+Write the tool once as a server.
+Any AI app that speaks MCP plugs in.
+3 apps + 3 tools = 6 connections, and each is standard.
+Picture: a universal socket. The appliance does not care who made the wall.
+
+Dhruva example
+get_application could serve the triage agent, Ira's dashboard assistant and an analyst's chat tool. Written once as an MCP server, all three can use it. MCP stands for Model Context Protocol. A protocol is just an agreed set of rules, like a standard form.
+
+
+i
+MCP is a standard socket for tools. Build the tool once, plug it in anywhere.
+--- slide 5
+--- slide 6
+Three roles: host, client and server
+6
+MESA Term 2 | Advanced AI | S4: Plug It In
+Role | The picture | Dhruva example
+Host | The front desk: the AI application the user talks to | Claude Code, or Ira's dashboard assistant
+Client | A dedicated phone line from the front desk to one department | Created by the host, one per server
+Server | The department that offers services | Our dhruva-triage server, offering get_application and escalate_to_analyst
+
+Same room or a phone call
+A server on your own laptop talks through a pipe (stdio): like passing notes in the same room.
+A server on another machine talks over the web (HTTP): like a phone call to another office.
+
+Plug in only servers you trust
+A server hands your assistant text. Hidden instructions inside that text are called prompt injection: a forged memo slipped into the in-tray.
+Your own server is safe. A stranger's is a risk.
+--- slide 7
+--- slide 8
+A tool call in four steps: ask, choose, call, return
+8
+MESA Term 2 | Advanced AI | S4: Plug It In
+Step | What happens | The picture | The MCP word
+1 Ask | The host asks the server: what can you do? | The front desk asks the department for its service list | tools/list
+2 Choose | The model reads the list (the job cards) and picks a tool | The consultant picks a slot | (inside the model)
+3 Call | The host sends the call to the server, which runs the function | The department's clerk does the job | tools/call
+4 Return | The result goes back and the model writes its reply | The answer comes back through the slot | (the result)
+
+Dhruva example
+User: 'Tell me about FactoryDesk.' The host lists the tools. The model picks get_application. The server looks up A03 and returns the fields. The model writes the summary.
+
+
+i
+Same job card as S3. MCP just carries the card and the call in a standard way.
+--- slide 9
+--- slide 10
+Lab: plug in your tool (14 min)
+
+LAB
+10
+MESA Term 2 | Advanced AI | S4: Plug It In
+Minutes | Do
+0-3 | Ask Claude Code to write a small MCP server that exposes your get_application tool. It may only create one new file, mcp_server.py
+3-7 | Read it before you run it, using the four questions on the next slide
+7-12 | Run the client: python call_tool.py mcp_server.py. List the tools, then call A03 and A99
+12-14 | Commit mcp_server.py. Fast pairs: add escalate_to_analyst, or register it with Claude Code (reference page)
+
+Check before you start
+Python 3.10 or newer: python --version
+Inside your virtual environment: pip install "mcp>=2"
+No luck in 4 minutes? Copy server_fallback.py from the shared materials and carry on. The lesson is reading and running, not typing.
+
+
+i
+Deliverable: mcp_server.py committed, and a client run that shows the tool list and an A03 result.
+--- slide 11
+Read the server before you run it: four questions
+11
+MESA Term 2 | Advanced AI | S4: Plug It In
+# | Question | Where to look | A gap looks like
+1 | Is the label (description) good enough for the model to pick this tool? | The docstring under the function | 'Gets an application'
+2 | Are the inputs typed, so the server can refuse a wrong one? | The function line, e.g. app_id: str | No type, or a made-up name
+3 | Does a jam return a code and what to do next, not nothing? | The return lines | Returns None, or crashes
+4 | Does it avoid print()? It talks to the host on one line; a stray print is someone shouting on the line | Search for print( | print( anywhere in the file
+--- slide 12
+Run it: list the tools, then call them. Predict first
+
+PREDICT
+12
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+TOOLS THE SERVER OFFERS:
+ - get_application | Fetch one startup application ...
+ - escalate_to_analyst | Send an application ...
+
+CALL get_application A03   -> ok: true, FactoryDesk, Pune ...
+CALL get_application A99   -> ok: false, NOT_FOUND
+CALL escalate_to_analyst A02 'five criteria missing'
+                           -> ticket T-001, already_open: false
+CALL escalate_to_analyst A02 'again'
+                           -> ticket T-001, already_open: true
+
+Predict, before you run it
+What will the second escalate call say?
+What does A99 return, and does it crash?
+Which of these is the lift button?
+
+
+i
+Your output should match. The second escalation does not open a second ticket: safe to call twice.
+--- slide 13
+Memory and context
+What the assistant holds right now, and what it looks up when it needs it.
+--- slide 14
+The consultant's desk and the filing cabinet
+14
+MESA Term 2 | Advanced AI | S4: Plug It In
+Word | The picture | In plain words
+Context | The consultant's desk: only what is on it can be used right now | Everything the model is given in this one request
+Token | A word-piece on the invoice: you pay by the piece | The unit the model counts and bills. A word is roughly one to two tokens
+Memory | A filing cabinet the consultant may open when needed | Notes the assistant looks up instead of carrying around
+Vault (Obsidian) | A folder of one-page notes in plain text, linked together | A notes app where each note is a markdown file in a folder
+
+The trade
+A crowded desk costs more and buries the important page.
+An empty desk means the consultant guesses.
+So: put the right notes on the desk, at the right moment.
+
+
+i
+Context is the desk. Memory is the cabinet. You decide what goes where, and you pay for every sheet on the desk.
+--- slide 15
+--- slide 16
+Sort it: on the desk, in the cabinet, or out?
+
+PAIR
+16
+MESA Term 2 | Advanced AI | S4: Plug It In
+Item | Your call: desk, cabinet or out
+1  Dhruva's six criteria | 
+2  All 380 applications from last quarter | 
+3  The rule: five or more criteria missing goes to an analyst | 
+4  A founder's personal phone number | 
+5  The tone guide for a decline email | 
+6  The full chat history from last week | 
+
+How to decide
+Needed every time? On the desk.
+Needed sometimes? In the cabinet.
+Not needed, or risky to hold? Out.
+Give one reason for each.
+
+
+i
+4 minutes in pairs. Then we compare. There is a defensible answer for each, and a wrong one for item 4.
+--- slide 17
+Terse mode: measure it, do not trust the headline
+
+DEMO
+17
+MESA Term 2 | Advanced AI | S4: Plug It In
+The claim | What was measured
+'Cuts 65% of tokens' (the About line) | 33.2% fewer input tokens per session, from 54 Claude Code runs, all 18 checked answers correct (the vendor's own README)
+Terse mode beats a plain request | A plain 'answer concisely' got most of the saving; the skill adds about 3% more at the median
+It is free | The rules add about 1,160 input tokens to each request
+
+Faculty demo, 4 minutes
+Same question three times: normal, 'answer concisely', terse mode (if installed).
+Count the output words each time.
+Then ask: which would you let write to a founder?
+
+Where it belongs
+Developer notes and code review: fine.
+Customer or founder messages: never. Clarity is the product.
+Source: README of JuliusBrussee/caveman (a vendor's own measurements, reported as published). github.com/JuliusBrussee/caveman. Telemetry is on by default in its CLI.
+--- slide 18
+The five layers
+Every AI system, however small, has the same five parts. Name them and you can draw any system.
+--- slide 19
+A bank branch has five layers. So does every AI system
+19
+MESA Term 2 | Advanced AI | S4: Plug It In
+Layer | The bank picture | In Dhruva
+1 Interface | The counter and the front door | How Ira or an analyst asks: a CSV in, a shortlist out
+2 Orchestration | The branch manager who sequences the work | run.py: takes each application through the steps in order
+3 Model | The expert who writes the assessment | Gemini reads the deck and gives a verdict with a citation
+4 Tools and data | The vaults and systems of record | get_application, the CSV and decks, score.py, the vault notes
+5 Monitoring and guardrails | Compliance and audit | Cost ceiling, anti-thesis list, minimum evidence, analyst approval, the run log
+
+
+i
+Orchestration is the manager, not the expert. The model does one job inside a process someone designed.
+--- slide 20
+--- slide 21
+Lab: draw Dhruva's five layers on one page (7 min)
+
+LAB
+21
+MESA Term 2 | Advanced AI | S4: Plug It In
+Minutes | Do
+0-5 | Fill the template: for each layer, name the file or service in Dhruva that does it
+5-7 | Mark three things: where a person approves, where money is spent, where memory lives
+7-8 | Swap with a neighbour. Find one layer they left blank
+
+Rules
+One page. Five boxes, top to bottom.
+Name real files, not ideas.
+Draw an arrow for each request the user makes.
+Stuck? Use the table on the previous slide.
+
+
+i
+Deliverable: a first draft of the five-layer diagram. You finish it tonight.
+--- slide 22
+Free-roaming or bounded? What suits a fund
+22
+MESA Term 2 | Advanced AI | S4: Plug It In
+ | A free-roaming agent | A bounded agent (Dhruva)
+Picture | An employee with a company card, no manager and a wide brief | An employee with a checklist, a limit and a manager who signs off
+Memory | Keeps its own notes and updates them | Reads notes you wrote and approved
+Skills | Can write itself new routines | Has the tools you gave it, no more
+Audit | Hard: you must read what it decided to remember | Easy: fixed steps, a log, a human gate
+Fits when | Mistakes are cheap and you want exploration | Mistakes are costly and you must explain them
+
+Reference runtime to look at (faculty walkthrough, 5 minutes)
+Hermes Agent, an open-source agent from Nous Research (MIT licence, per its README): keeps memory it curates itself and writes its own skills. It is a good picture of a full agent runtime, and of what Dhruva deliberately does not do.
+
+
+i
+For a fund, the question is not 'how clever is it?' but 'can I explain what it did and stop it?'
+--- slide 23
+--- slide 24
+Exit ticket, tonight's task and what is next
+
+EXIT
+24
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+Exit ticket (one sentence)
+A founder asks: 'why would I put my tool behind MCP instead of wiring each app?' Answer in one sentence, with the picture.
+
+Tonight
+Commit mcp_server.py (it must work from a fresh clone).
+Finish your five-layer diagram.
+Write two vault notes: escalation-rules.md and tone-guide.md.
+
+Next session
+Build the first agent with Google ADK, using your tool and your notes.
+Bring: mcp_server.py, your vault and your diagram.
+
+Milestone
+The MCP tool call works on a fresh clone. The diagram has all five layers named with files.
+
+
+i
+Plug in once, remember deliberately, and draw it so someone else can build it.
+--- slide 25
+Reference pages
+Keep these open during the labs. They are not taught live.
+--- slide 26
+Reference: MCP and memory words in plain English
+26
+MESA Term 2 | Advanced AI | S4: Plug It In
+Word | The picture | In one line
+MCP | A standard socket for tools | Model Context Protocol: a common way to connect tools to any AI app
+Protocol | A standard form | An agreed set of rules for talking
+Host | The front desk | The AI application the user talks to
+Client | A dedicated phone line | The host's connection to one server
+Server | The department that offers services | A program that offers tools to a host
+Tool, resource, prompt | A service, a reference document, a standard form | Something it can do, something it can show, a ready-made template
+stdio / HTTP | Notes in the same room / a phone call | A server on your machine / a server on the web
+tools/list, tools/call | 'What do you offer?' / 'Please do this one' | The two calls a host makes
+Context, token | The desk, the word-piece you pay for | What the model sees now, and the unit it counts
+Memory, vault | The filing cabinet, a folder of notes | Notes looked up when needed, in a notes app like Obsidian
+Prompt injection | A forged memo slipped into the in-tray | Hidden instructions in text the assistant reads
+Orchestration | The branch manager | The code that sequences the steps
+Guardrail | Compliance and audit | A rule that stops or flags a bad result
+--- slide 27
+Reference: the commands you need
+27
+MESA Term 2 | Advanced AI | S4: Plug It In
+I want to... | Command
+Check Python | python --version (must be 3.10 or newer)
+Make a private Python box | python -m venv .venv, then source .venv/bin/activate (Windows: .venv\Scripts\activate)
+Install the MCP library | pip install "mcp>=2" python-dotenv
+Run the client against your server | python call_tool.py mcp_server.py (from the dhruva-triage folder)
+Add your server to Claude Code | claude mcp add dhruva -- python /full/path/to/mcp_server.py
+Check it is connected | claude mcp list (or type /mcp inside Claude Code)
+Choose where it applies | --scope local (this project, private), project (shared in .mcp.json), user (all your projects)
+--- slide 28
+Reference: the shape of a small MCP server
+28
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+import logging, os, sys
+sys.path.insert(0, os.getcwd())
+import loader
+from mcp.server import MCPServer
+
+log = logging.getLogger(__name__)   # logging, never print()
+mcp = MCPServer("dhruva-triage")
+
+@mcp.tool()
+def get_application(app_id: str) -> dict:
+    """Fetch one startup application by id. Use first. Read only."""   # the label
+    ...                                                                # your code
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+--- slide 29
+Reference: prompts for the labs
+29
+MESA Term 2 | Advanced AI | S4: Plug It In
+Use | Prompt
+Write the server | Create one new file, mcp_server.py. Do not change any other file. It should expose get_application from my tools.py as an MCP tool using the Python MCP SDK, over stdio. Use logging, not print. Use type hints and a clear docstring.
+Review it | Read mcp_server.py. List: the tool label, the input types, what a failure returns, and any print() calls. If you are not sure, say cannot tell.
+Add a second tool | Add escalate_to_analyst to mcp_server.py. It must be safe to call twice for the same id.
+Draw the layers | Read run.py, score.py, guard.py, llm.py and loader.py. For each of the five layers (interface, orchestration, model, tools and data, monitoring and guardrails) name the file that does it. If a layer has no file, say so.
+--- slide 30
+Reference: a note that a vault can use
+30
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+# Escalation rules
+
+When the agent must hand an
+application to a human analyst.
+
+- Five or more criteria cannot be
+  established.
+- The model's reply has no citation.
+- The tool returns AUTH.
+
+What the agent says: ...
+
+See also [[ira-rules]].
+
+A good note
+One topic.
+Short: a page, not a chapter.
+Written so a stranger could act on it.
+Linked to related notes with [[double brackets]].
+--- slide 31
+Reference: only plug in servers you trust
+31
+MESA Term 2 | Advanced AI | S4: Plug It In
+
+Why
+A server hands your assistant text.
+Hidden instructions in that text are called prompt injection: a forged memo slipped into the in-tray.
+A server that fetches web pages or emails can carry them.
+
+What to do
+Add only servers you wrote or trust.
+Prefer read-only tools.
+Make any tool that changes something ask a person first.
+Read what the tool returns, not just what it claims.
+Source: the Claude Code MCP documentation, code.claude.com/docs/en/mcp (the warning to verify trust before connecting a server).

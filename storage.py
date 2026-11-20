@@ -60,6 +60,12 @@ class _Reuse:
 
 
 def db():
+    if getattr(_ro, "on", False):
+        conn = getattr(_local, "ro_conn", None)
+        if conn is None or conn.closed or conn.broken:
+            conn = psycopg.connect(config.DATABASE_URL_READONLY, autocommit=True)
+            _local.ro_conn = conn
+        return _Reuse(conn)
     global _ready
     import time
     conn = getattr(_local, "conn", None)
@@ -192,3 +198,48 @@ def review_stats():
 def all_bookings():
     with db() as c:
         return {r[0]: r[1] for r in c.execute("SELECT app_id, state FROM bookings")}
+
+
+# ---------------- data protection (L8: what's left lying around; DPDP / GDPR) ----------------
+ERASE_TABLES = [("reads", "app_id"), ("reviews", "app_id"), ("bookings", "app_id"), ("slots", "app_id"), ("jobs", "app_id"),
+                ("corrections", "app_id"), ("events", "app_id"), ("model_calls", "app_id"), ("runs", "app_id"),
+                ("applications", "id")]
+
+
+def erase_applicant(app_id):
+    """Right to erasure: every row about this applicant, in every table. Returns rows deleted per table."""
+    out = {}
+    with db() as c:
+        for table, col in ERASE_TABLES:
+            out[table] = c.execute(f"DELETE FROM {table} WHERE {col}=%s", (app_id,)).rowcount
+        c.execute("INSERT INTO events (kind, payload) VALUES ('erasure', %s)", (j({"app_id_hash": hash(app_id) & 0xffffffff, "rows": out}),))
+    return out
+
+
+def purge_expired(days):
+    """Retention: once a partner has decided and `days` have passed, drop the raw deck/form, research findings and founder
+    details; keep only the decision record (scores, recommendation, who decided). Returns how many applications were purged."""
+    with db() as c:
+        ids = [r[0] for r in c.execute("""SELECT app_id FROM reviews WHERE status IN ('accepted','overridden')
+                                          AND updated_at < now() - (%s || ' days')::interval""", (str(days),)).fetchall()]
+        for a in ids:
+            c.execute("""UPDATE applications SET record = (record - 'form_text' - 'deck_text') || '{"purged": true}'::jsonb
+                         WHERE id=%s AND NOT (record ? 'purged')""", (a,))
+            c.execute("""UPDATE reads SET read = (read - 'research' - 'facts') || '{"purged": true}'::jsonb
+                         WHERE app_id=%s AND NOT (read ? 'purged')""", (a,))
+            c.execute("UPDATE jobs SET payload='{\"purged\": true}'::jsonb WHERE app_id=%s", (a,))
+    return len(ids)
+
+
+_ro = threading.local()
+
+
+class readonly:
+    """with storage.readonly(): ... - reads go through a SELECT-only database login (least privilege for the chat assistant).
+    Falls back to the normal login if DATABASE_URL_READONLY is not set."""
+    def __enter__(self):
+        _ro.on = bool(config.DATABASE_URL_READONLY)
+        return self
+
+    def __exit__(self, *a):
+        _ro.on = False

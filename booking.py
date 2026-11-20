@@ -24,6 +24,7 @@ RETRY TABLE:
 SAFETY: every email goes to TO_ADDRESS (our own inbox) - never to the founder - so the flow is real end to end
 without contacting anyone; the founder's address is shown in the email body for the human who forwards it."""
 import base64
+import random
 import datetime as dt
 import time
 import uuid
@@ -195,7 +196,7 @@ def propose_times(state):
         free = check_calendar()
         if free != "no_calendar_access":
             break
-        W().sleep(3 * 2 ** attempt)
+        W().sleep(2 ** attempt + random.uniform(0, 0.5))
     if free == "no_calendar_access":
         state["errors"].append("calendar unreachable after retries")
         return []
@@ -243,11 +244,11 @@ def send_email(subject, html, ics=None):
             if code < 300:
                 return "sent", (body or {}).get("id")
             if code == 429 or code >= 500:
-                W().sleep(3 * 2 ** attempt)
+                W().sleep(2 ** attempt + random.uniform(0, 0.5))
                 continue
             return "failed_permanent", f"HTTP {code}: {body}"
         except requests.RequestException:
-            W().sleep(3 * 2 ** attempt)
+            W().sleep(2 ** attempt + random.uniform(0, 0.5))
     return "failed_transient", "retries exhausted"
 
 

@@ -64,6 +64,8 @@ def main():
     apps = build()
     batch = "volume-" + dt.datetime.now(IST).strftime("%Y%m%d-%H%M")
     t0 = time.time()
+    if requests.get(f"{BASE}/api/setup", timeout=30).json().get("env") != "test":
+        raise SystemExit(f"Refusing: {BASE} is not the TEST environment. Volume tests never write to live data (L8).")
     r = requests.post(f"{BASE}/api/intake", headers=H, json={"applications": apps, "batch": batch}, timeout=60)
     r.raise_for_status()
     submitted = r.json()["job_ids"]
