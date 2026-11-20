@@ -57,8 +57,8 @@ Sources: Case 04 brief (Build 5, due Fri 20 Nov 2026), L7 Evals, Advanced AI S2 
 | ✅ | Q3: retries 1 s → 2 s → 4 s + jitter, 4 tries | `llm.backoff`; booking email/calendar too (BK10–BK14) |
 | ✅ | Q3: scheduled job drains the queue; limits on bursts | GitHub Actions every 5 min → `/api/worker/tick` (5 per tick); intake ≤100 per request and ≤50 per minute, extras told to retry |
 | ✅ | Q3: cache identical application + prompt version | Read reused (no model calls) when text, prompt versions and corrections are unchanged; 7-day freshness |
-| 🔑 | Q3: Portkey (retries, fallbacks, **budget cap**) | Wired; needs your Portkey account |
-| 🔑 | Q4: Langfuse | Neon traces ✅; Langfuse export needs your account |
+| ⚠ | Q3: Portkey (retries, fallbacks, **budget cap**) | Code wired (`llm.py`, switches on with `PORTKEY_API_KEY`). **Portkey closed self-serve sign-up** (20 Nov 2026: sign-up now redirects to a Palo Alto Networks sales form), so no account could be created. What Portkey would add is covered in the desk itself: retries 1/2/4 s + jitter (4 tries), daily spend cap with pause + alert, per-call cost meter, cache. Missing: provider fallback to a second model vendor. |
+| ✅ | Q4: Langfuse | **Connected** (free Hobby plan, EU). Local and live send OTLP traces: every run, step and model call with model, prompt version, tokens and cost; content not logged. "AI features" (sending data to AWS Bedrock) switched off. |
 | ✅ | Q4: someone else can run it on Monday | `RUNBOOK.md`: owner, daily routine, what each alert means, kill actions, incident log |
 | ✅ | Q5: cost per run/day/month vs Riya's baseline; limit that stops the spend | Cost tab; pause + alert at INR 2,500/day. Prices now from Google's pricing page (search was over-counted 2.5×; 3.5 Flash priced conservatively at 3.8 Flash rates) |
 | ✅ | Q5: cheaper model per step | Lite model for reply classification, email draft, edit judge; main model for judgement steps |

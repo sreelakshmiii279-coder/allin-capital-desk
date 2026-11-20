@@ -10,7 +10,7 @@ Every number below comes from a file in this repo, measured on 19–20 Nov 2026.
 2. **Deeptech "borderline" reads go to Aditya,** because that is where the desk is measurably weakest (see "Where it breaks").
 3. **The kill switches below are live and agreed now,** not after something goes wrong.
 
-Before the announcement, Kushal must also: create the Portkey and Langfuse accounts (Q3, Q4), and have counsel confirm `PRIVACY.md` and put its notice on the public form (Q2).
+Before the announcement, Kushal must also have counsel confirm `PRIVACY.md` and put its notice on the public form (Q2). Langfuse is connected; Portkey could not be (closed sign-up, see Q3).
 
 ---
 
@@ -41,11 +41,11 @@ L8's three leaks, and what was done:
 | Burst (50 in a minute) | Intake accepts ≤ 100 per request and ≤ 50 a minute; the rest are told to retry; nothing is half-saved |
 | Provider hiccups | Retries at 1 s, 2 s, 4 s + jitter, 4 tries, then back to "queued", never "lost" |
 | Same application twice | Cached: no second model bill unless the text, prompt or partner corrections changed |
-| Gateway | **Portkey wired, not yet connected** (needs Kushal's account) |
+| Gateway | **Portkey wired but not connected:** Portkey closed self-serve sign-up (now a Palo Alto Networks sales process). Its jobs are done in the desk: retries, spend cap, cost meter, cache. Not covered: falling back to a second model vendor if Google is down. |
 
 ## Q4. Can someone other than the builder operate it?
 - `RUNBOOK.md`: who owns it (Riya; escalation to Kushal), the 10-minute daily routine, what every alert means and what to do, kill actions, and the incident log.
-- Every application's run can be opened step by step: each model call, prompt version, tokens, cost and errors (`#/run/<id>`). **Langfuse export is wired, not yet connected** (needs Kushal's account).
+- Every application's run can be opened step by step: each model call, prompt version, tokens, cost and errors (`#/run/<id>`), and **in Langfuse** (connected 20 Nov; metadata only).
 - The worst failures are silent (L8). Kushal reads three random full runs a week; corrections are logged with reasons and reused.
 
 ## Q5. Does the economics work?
