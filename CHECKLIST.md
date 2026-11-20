@@ -1,71 +1,86 @@
 # All In Capital: Case 04 checklist ("Ready to hand over?")
 
-Sources: Case 04 brief (Build 5, due Fri 20 Nov 2026), L7 Evals, Advanced AI S2 and S3 (all in `data/class/`).
-✅ done and verified · 🔑 built, but needs an account/key you create before it can be verified · ⚠ partly, with the limit stated
+Sources: Case 04 brief (Build 5, due Fri 20 Nov 2026), L7 Evals, **L8 "From Prototype to Production"**, Advanced AI S2 and S3, and the AI class notes S1–S6 (all in `data/class/`).
+✅ done and verified · ⚠ done with a stated limit · ⏳ left to do · 👤 only a person (you / the fund) can do it
 
-## A. What the case says the system now does
-| | Item | Where | Status |
+Live: https://allin-desk.vercel.app · Code: https://github.com/sreelakshmiii279-coder/allin-capital-desk · Status as of 20 Nov 2026.
+
+---
+
+## What's left
+| | Item | Who | Why it isn't done |
 |---|---|---|---|
-| ✅ | Researches each applicant and scores against the rubric, with a recommendation | `pipeline.py` | 20-application volume test |
-| ✅ | **Riya** reviews the score and justification, then approves or rejects | Review queue; reviewer defaults to Riya | |
-| ✅ | System **drafts a personalised email**; **Riya edits and sends it from the dashboard** | `booking.start` → draft; `send_draft`; booking card | Verified on a test twin: the draft cited the 38% repeat rate |
-| ✅ | Reads the reply, **follows up if no response** (3 working days), handles a **counter-proposal**, escalates at the cap | `booking.on_reply`, `booking.tick` (worker) | Evals BK2–BK9 |
-| ⚠ | Checks **Riya's calendar**, offers slots, books **in both calendars** | Slots are held in the desk's calendar for Riya; booking sends an .ics invite | No Google Calendar connection: the .ics goes to our inbox. Founder replies are pasted in (no inbound mail). |
-| ✅ | Riya's corrections feed **both scoring and email drafting** | `feedback.py`; email lessons are retrieved in `draft_with_model` | Verified: Riya's edit became lesson #5, and the next brand draft opened with the number |
+| 👤 | **Judge from a different model family** for the soft eval checks (L7) | You: add an `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` to `.env` | Needs a paid key in your name. Until then every eval report states "SAME FAMILY". |
+| 👤 | **Grade the blind 10% audit sample** (L7), then `python evals/harness.py --audit-compare evals/audit/sample-….csv` | You | It is a human check by design: your verdicts, without seeing the judge's |
+| 👤 | **Counsel signs off `PRIVACY.md`** and its notice goes on the fund's public form (L8, the law) | The fund | Legal sign-off and the public form belong to the fund |
+| 👤 | **Replace the public portfolio list** (63 companies found online) with the fund's internal list | The fund | Only the fund has it. Until then a missed conflict is possible (kill switch K1). |
+| 👤 | **Sign the ship call** (`reports/trust_contract.md`) | Kushal, Aditya, Riya | "Agreed in advance" means the people who own the decision |
+| ⚠ | **Real calendars and inbound email** | Optional build | Slots are held in the desk's own calendar for Riya, and bookings send an .ics invite to our inbox. No Google Calendar sync; founder replies are pasted in. |
+| ⚠ | **Fallback to a second model vendor** if Google is down | Optional build | The gateway retries Google; it does not switch to another vendor. Retries, the queue and "needs attention" mean nothing is lost while Google is down. |
+| ⏳ | **Re-run the 20-application volume test** on the final build | Me, ~10 min, ~INR 200 | The last volume run (19 Nov) predates the scheduled worker, intake limits and the Cloudflare gateway. Those were tested piecewise; the burst test should be repeated end to end. |
 
-## B. The five questions
-| # | Question | Task | Status |
-|---|---|---|---|
-| 1 | Does it work? | Evals (L7) | ✅ 111 cases, run twice. See `evals/reports/latest.md` |
-| 2 | Is it safe? | **Task 1** prompt audit | ✅ `PROMPT_AUDIT.md`: founder IDs; relevant memos only (22.8k → 7.5k chars); findings, not pages; "data, not instructions" line |
-| 3 | Real-world use? | **Task 2** volume test + queue | ✅ `evals/reports/volume.md`: 20 at once, none lost, two bad inputs → needs-attention with a reason, injection → Pass |
-| 3 | | **Task 3** Portkey with automatic retries | 🔑 `llm.py` routes every call through Portkey when `PORTKEY_API_KEY` is set (retry config 3 attempts on 429/5xx). Verify with `python check_setup.py`. Portkey's docs don't say whether search citations come back through the gateway; the check tests it, and `PORTKEY_ROUTE_SEARCH=0` keeps research working if not. |
-| 4 | Can you operate it? | **Task 4** Langfuse tracing + prompt version | ✅ Every step and model call is traced in Neon (`runs`, `model_calls`), opens at `#/run/<id>`, and records the prompt version. 🔑 Export to Langfuse via OTLP once keys are set (the legacy ingestion API was switched off on 16 Nov 2026). |
-| 5 | Does the economics work? | **Task 5** cost per call, totals, cost page, daily limit + alert | ✅ Cost tab: by application, day, week, month, step. Pause + one alert email per day past `DAILY_COST_LIMIT_INR` (4,000). ⚠ Prices are assumed list prices: confirm them in Google AI Studio billing. |
+Everything else below is done.
 
-## C. L7 evals
-- [x] Kill criteria written first: `evals/KILL_CRITERIA.md` (K1–K14)
-- [x] Every decision point with partitions, boundaries and interactions: `evals/cases.json` (111 rows, severity tagged)
-- [x] Hard and soft assertions; the judge checks every rubric item
-- [x] Harness over HTTP only; break-on-purpose (`--break`); canary must fail; every case runs twice
-- [x] Adversarial rows: E4, C6, R7, CL8, S2, plus Promptly in the volume test
-- [x] Blind 10% human audit sample written each run (`evals/audit/`). **You** fill in the verdicts, then run `--audit-compare`.
-- [ ] 🔑 Judge from a **different model family**: set `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`. Until then every report says "SAME FAMILY".
+---
 
-## D. Advanced AI S2: six checks
-- [x] Hardcoded numbers each have a named source (config.py comments; thesis.py sources)
-- [x] Units: score 0–100 vs criteria 0–5 checked (F1–F6); ₹ Cr / lakh / USD conversion tested (F9–F12); cost tokens → USD → INR tested ($1–$3)
-- [x] Silent defaults: unknown counts as 1, not skipped (F20); a model 7/5 is clamped (F21); a broken calendar returns 'no_calendar_access', never "full"
-- [x] Hidden state: per-thread clients; the queue claims with SKIP LOCKED; scoring sampled twice and merged
-- [x] Invented functions and secrets: `.env` is git-ignored; `.env.example` has empty values
-- [x] Works on more than one example: 10 real + 7 renamed twins + 3 hostile inputs (volume test); 12 memos (backtest)
-
-## E. Advanced AI S3: four questions per tool card
-- [x] All five booking tools: label, typed inputs with examples, named outputs, what happens on each failure, safe to call twice (`booking.TOOLS`)
-
-## E2. L8 "From Prototype to Production" (posted 20 Nov): extra checks, now fixed in this build
-| | Check (L8) | Status in the build |
+## A. What the case says the system does
+| | Item | Where / evidence |
 |---|---|---|
-| ✅ | Q1: borderline test set, kill criteria, Kushal's past-decisions test | 116 cases with boundaries; K1–K14; backtest **10/12** on score-v6 |
-| ✅ | Q2 leak 1, *what you send out* | Founder IDs; **memo sections** (header + "why"), not whole memos (memo context 22.8k → 4.7k chars); extracted claims + redacted application text; web findings, not pages; everything outside tagged as data. ⚠ "Claims only" (v5) was tried and **failed the backtest (5/12)**: the claims lost founder behaviour, so the redacted application text stays. |
-| ✅ | Q2 leak 2, *what's left lying around* | Retention purge 180 days after a decision (scheduled worker); traces carry **metadata only** (`LOG_CONTENT_TO_TRACES=0`); no prompt text stored in Neon |
-| ✅ | Q2 leak 3, *who can do what* | Chat assistant uses a **SELECT-only DB login**; erasure needs a separate **admin password**; eval endpoints **404 on live** |
-| ✅ | No keys in code | `.env` git-ignored; `.env.example` has names only |
-| ✅ | **Test and live separate** | `allin_desk_test` (local + evals) vs `allin_desk` (Vercel). The harness and volume test refuse a non-test server. Test data removed from live. Masthead badge shows Test / Live. |
-| ✅ | The law (DPDP / GDPR) | `PRIVACY.md`: founder notice text, data map, retention, erasure route, breach steps, processors. Counsel to confirm. |
-| ✅ | Q3: 20 at once, nothing lost | Volume test 20/20 (19 Nov) |
-| ✅ | Q3: retries 1 s → 2 s → 4 s + jitter, 4 tries | `llm.backoff`; booking email/calendar too (BK10–BK14) |
-| ✅ | Q3: scheduled job drains the queue; limits on bursts | GitHub Actions every 5 min → `/api/worker/tick` (5 per tick); intake ≤100 per request and ≤50 per minute, extras told to retry |
-| ✅ | Q3: cache identical application + prompt version | Read reused (no model calls) when text, prompt versions and corrections are unchanged; 7-day freshness |
-| ✅ | Q3: AI gateway with retries + budget cap (L8 named Portkey) | **Cloudflare AI Gateway** `allin-desk` (Portkey closed self-serve sign-up on 20 Nov 2026). Every Gemini call (JSON, search grounding, embeddings) goes through it: retries 1/2/4 s exponential (up to 4 tries), rate limit 120/min, **spend limit $28/day**, payload logging and cache off. Run-only token. Verified: wrong token → refused by the gateway; grounding citations survive; live site reports `gateway: cloudflare`. Not covered: fallback to a second model vendor. |
-| ✅ | Q4: Langfuse | **Connected** (free Hobby plan, EU). Local and live send OTLP traces: every run, step and model call with model, prompt version, tokens and cost; content not logged. "AI features" (sending data to AWS Bedrock) switched off. |
-| ✅ | Q4: someone else can run it on Monday | `RUNBOOK.md`: owner, daily routine, what each alert means, kill actions, incident log |
-| ✅ | Q5: cost per run/day/month vs Riya's baseline; limit that stops the spend | Cost tab; pause + alert at INR 2,500/day. Prices now from Google's pricing page (search was over-counted 2.5×; 3.5 Flash priced conservatively at 3.8 Flash rates) |
-| ✅ | Q5: cheaper model per step | Lite model for reply classification, email draft, edit judge; main model for judgement steps |
-| ✅ | Q5: pricing model and the written **ship call** | `reports/trust_contract.md`: conditional yes, per-question evidence, **~INR 10/application at published prices (~2% of hand screening)**, per-application pricing, kill switches |
+| ✅ | Researches each applicant and scores against the rubric, with a recommendation | `pipeline.py`; batch of 10 + volume test |
+| ✅ | **Riya** reviews the score and justification, then approves or rejects | Review queue; reviewer defaults to Riya; Kushal sees every outcome |
+| ✅ | Drafts a **personalised email**; **Riya edits and sends it from the dashboard** | Booking card; verified: the draft cited the applicant's 38% repeat rate |
+| ✅ | Reads the reply, **follows up after 3 silent working days**, handles a **counter-proposal**, escalates at the cap | `booking.on_reply`, `booking.tick` (scheduled worker); evals BK2–BK9 |
+| ⚠ | Checks **Riya's calendar**, offers slots, books **in both calendars** | Desk calendar + .ics invite (see "What's left") |
+| ✅ | Riya's corrections feed **both scoring and email drafting** | Verified: her edit became lesson #5; the next brand draft applied it |
 
-## F. Found by the evals and fixed
-- Booking: no automatic reply-window timeout; no calendar retry; crashed on a permanent booking error and on a CRM failure; didn't escalate when email retries ran out; **booked without partner approval** (K7). All fixed.
-- Feedback: two conflicting corrections were both applied (K14); a drone lesson leaked into a food brand; a no-op "correction" was stored. All fixed.
-- Scoring: a summary blended 1.9 L and 2.1 L into "~2 L" (S5 flip) → numbers are now quoted exactly. Renamed twins landed up to 16 points apart → two scoring samples are averaged, and gates need both samples to agree.
-- Cost: 100 applications ≈ INR 3,400 at assumed prices, 85% of it web search → the daily limit was raised from 1,500 to 4,000 so announcement day doesn't pause halfway. Cutting `MAX_SEARCHES_PER_APP` from 8 to 5 would save about INR 10 per application.
+## B. Kushal's five questions (Case 04 + L8)
+| # | Question | Status | Evidence |
+|---|---|---|---|
+| 1 | **Does it work?** | ✅ | **116/116** eval cases (run twice, 0 flips, 0 kill criteria); **backtest 10/12** on the fund's real decisions (gate 10); gateway cross-section 16/16 |
+| 2 | **Is it safe?** | ✅ | `PROMPT_AUDIT.md`: founder IDs, memo *sections*, claims + redacted text, outside text tagged as data. Retention purge at 180 days. Metadata-only traces. SELECT-only login for the chat assistant. Admin password for erasure. **Separate test and live databases.** `PRIVACY.md` (DPDP/GDPR). |
+| 3 | **Can it handle real-world use?** | ✅ | Queue + volume test 20/20; retries 1/2/4 s + jitter; GitHub Actions drains the queue every 5 min; intake limits; read cache; **Cloudflare AI Gateway** (retries, 120/min rate limit, **$28/day spend limit**, no logs or cache) |
+| 4 | **Can you operate it?** | ✅ | **Langfuse connected** (every run, step and call with prompt version, tokens, cost); run inspector in the dashboard; `RUNBOOK.md` |
+| 5 | **Does the economics work?** | ✅ | ~**INR 10 per application** at Google's published prices (~2% of hand screening); cost page by application, day, week, month; **INR 2,500/day** pause + alert; lite model for simple steps; per-application pricing recommended in the ship call |
+
+## C. L7 Evals
+- [x] Kill criteria written first: `evals/KILL_CRITERIA.md` (K1–K14)
+- [x] Every decision point with partitions, boundaries and interactions: `evals/cases.json` (**116 cases + canary**, severity tagged)
+- [x] Hard and soft assertions; the judge checks every rubric item
+- [x] Harness over HTTP only; break-on-purpose; the canary must fail; every case runs twice
+- [x] Adversarial rows in forms, decks, web pages, founder replies and chat; injected deck in the volume test
+- [x] Blind 10% audit sample written each run (`evals/audit/`): 👤 grading is yours
+- [ ] 👤 Judge from a different model family (see "What's left")
+
+## D. Class notes S1–S6
+- [x] S1–S2: 9 checks, 5 pre-build decisions, outcome vs output, baseline, capability ceiling, kill criteria, components map (`DESIGN.md`)
+- [x] S4: evidence map, loop caps, short circuits, hybrid extraction (HTML cleaned before the model), no LinkedIn scraping
+- [x] S5: Act → Signal → Capture → Store → Retrieve → Apply; disagreement score; tag filter before semantic search
+- [x] S6: tool cards, state object, edges, retry table (transient vs permanent), framework choice (none: one judgement gate)
+
+## E. Advanced AI S2 and S3
+- [x] S2 six checks: sourced numbers; units tested (scores, ₹ Cr/lakh/USD, tokens → USD → INR); no silent defaults; no hidden state; no secrets in the repo; tested beyond one example
+- [x] S3 four questions for all five booking tool cards (label, typed inputs, named outputs, what happens on each failure, safe to call twice)
+
+## F. L8 production checks
+| | Check | Status |
+|---|---|---|
+| ✅ | Borderline test set, kill criteria, Kushal's past-decisions test | 116 cases; K1–K14; backtest 10/12 |
+| ✅ | Leak 1, what you send out | Founder IDs; memo sections (22.8k → 4.7k chars); claims + redacted text. "Claims only" was tried and **failed the backtest (5/12)**, so the redacted text stays. |
+| ✅ | Leak 2, what's left lying around | Retention purge; metadata-only traces; no prompt text stored; Cloudflare logs and cache off; Langfuse "AI features" off |
+| ✅ | Leak 3, who can do what | Read-only chat login; admin-only erasure; eval tools 404 on live; run-only gateway token |
+| ✅ | No keys in code · test and live separate | `.env` git-ignored, secret scan before every push; `allin_desk_test` vs `allin_desk`, harness refuses live |
+| ✅ | The law | `PRIVACY.md` (👤 counsel sign-off) |
+| ✅ | 20 at once, retries with jitter, queue, scheduled job, burst limits, cache | Volume test (⏳ re-run on final build), `llm.backoff`, `jobqueue.py`, GitHub Actions, intake limits, read cache |
+| ✅ | Gateway with retries and a budget cap | Cloudflare AI Gateway. Portkey closed self-serve sign-up (now a Palo Alto Networks sales process). |
+| ✅ | Langfuse tracing with prompt version | Connected and verified on local and live |
+| ✅ | An owner, not just a builder | `RUNBOOK.md` |
+| ✅ | Cost per run/day/month vs baseline, limit that stops spend, cheaper models, pricing model, **ship call** | Cost tab, INR 2,500 cap + $28 gateway cap, lite model, `reports/trust_contract.md` |
+
+## G. Found by the evals and fixed
+- **Booking:** no reply-window timeout; no calendar retry; crashed on a permanent booking error and on a CRM failure; no escalation after email retries ran out; **booked without partner approval** (K7). All fixed.
+- **Feedback:** both of two conflicting corrections applied (K14); a drone lesson leaked into a food brand; a no-op "correction" stored. All fixed.
+- **Scoring:**
+  - A summary blended 1.9 L and 2.1 L into "~2 L": numbers are now quoted exactly.
+  - Renamed twins scored up to 16 points apart: two samples are now averaged, and gates need both samples to agree.
+  - Trimming the prompt to claims only broke the backtest (5/12): the redacted text was restored (10/12).
+- **Cost:** search had been over-counted 2.5× at assumed prices. Re-priced from Google's published list: ~INR 10 per application; daily limit set to INR 2,500.
